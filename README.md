@@ -162,7 +162,17 @@ visible story gate; shop/upgrade flows are not implemented.
 See the master specification, section 14. The slice covers steps 1-9, 11 and
 part of 12 (save/reload via MySQL is live and covered by integration tests).
 
+## Documentation
+
+| Document | Contents |
+|----------|----------|
+| [`docs/COMMAND_REFERENCE.md`](docs/COMMAND_REFERENCE.md) | every CLI command, menus, a complete first session, troubleshooting |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | module/data-flow diagrams, OOP patterns, DB ER model, package boundaries |
+| [`docs/STORY_BIBLE.md`](docs/STORY_BIBLE.md) | canonical history, characters, bestiary, weapons, seven memories, three endings |
+| [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) | automated suite inventory + the 30-scenario manual acceptance checklist |
+| [`docs/TEAM_ROLES.md`](docs/TEAM_ROLES.md) | four members mapped to classes, tasks, SQL and demo steps |
+
 ## License / credits
 
 Original concept and story bible by the project owner. Built as a four-member
-team project; roles are mapped in the master specification (section 11).
+team project; roles are mapped in [`docs/TEAM_ROLES.md`](docs/TEAM_ROLES.md).
