@@ -1,0 +1,603 @@
+ASHEN WARDEN: THE LAST EMBER
+COMPLETE MASTER SPECIFICATION, STORY BIBLE, TECHNICAL ARCHITECTURE & IMPLEMENTATION PROMPT
+Version 2.0 | Java 17+ | Text-Only CLI | Turn-Based RPG | MySQL + JDBC | Four Developers
+=====================================================================================
+
+READ THIS FIRST — INSTRUCTIONS TO THE CODING ASSISTANT
+------------------------------------------------------
+You are the lead implementation assistant for a serious, complete, playable, offline, text-only gothic dark-fantasy RPG named ASHEN WARDEN: THE LAST EMBER. Build a working Java application, not a mockup, pitch deck, website, GUI, or pseudocode collection. Treat every section as a project specification. When there is an ambiguity, make the smallest maintainable design decision consistent with the design, document it, and continue. Do not silently skip features. Build and test vertical slices before expanding content. Never claim a feature works unless it compiles and has been exercised. Preserve the narrative canon below.
+
+ABSOLUTE REQUIREMENTS
+- A genuine keyboard-driven CLI game. No Swing, JavaFX, browser UI, image rendering, sprite animation, libGDX, or graphical scenes.
+- Use Java 17 or newer, OOP, collections, standard Java APIs, Maven, JDBC, and MySQL 8+. A MySQL Connector/J driver is permitted. JUnit 5 is recommended for testing.
+- NO AI IN THE GAME: no LLM, no generative APIs, no machine learning, no AI agents, no network calls to an AI service. Enemy behavior is deterministic/rule-based with optional seeded pseudorandom variation. The developer may use a coding assistant to build the game; the shipped game itself has no AI integration.
+- Player-controlled, discrete, turn-based combat. Never act for the player without an explicit valid command. No timers, twitch reflexes, or auto-battles.
+- Meaningful inspection: whenever an item/weapon/armor/accessory/skill appears in a selection or choice, the user can view a detailed description BEFORE choosing. Provide inspect/detail/back options in loot, shop, equipment, upgrade, reward, and combat-item menus.
+- Persist game state in MySQL via JDBC; use PreparedStatement, transactions, foreign keys, and migrations. Support named save slots and restoration after application restart.
+- Offline runtime except for the local MySQL service. Do not require an internet connection to play.
+- High-quality terminal UX: clear hierarchy, concise menus, command hints, sensible colors with plain-text fallback, contextual help, no overwhelming walls of repeated text.
+- Four independently credible Java development modules. Member 1 (team leader) has the hardest responsibility.
+- Use no undocumented fabricated lore as canon; where mechanics need numbers, initial values are tuning suggestions and must be configurable.
+
+1. PRODUCT VISION AND DESIGN PILLARS
+------------------------------------
+Genre: Single-player, dark-fantasy, turn-based tactical narrative RPG with Metroidvania-style ability gates translated to a text map.
+Audience: Players who like Blasphemous-style gothic atmosphere, strategic boss battles, readable RPG stats, mystery, exploration, lore, and decisions.
+Player fantasy: Become the last cursed Warden, uncover a betrayal that destroyed Veyrath, and choose what becomes of the dying Flame.
+Game promise: Every turn, item, memory, location, enemy and choice should matter.
+
+Pillars:
+1) Player agency: command -> clear result -> updated state -> next choice. No forced combat actions.
+2) Legible tactics: enemies telegraph intentions, strengths and weaknesses can be discovered, status effects are explained.
+3) Atmospheric writing: brief scene descriptions first; expanded lore via inspect/read/journal.
+4) Honest itemization: always disclose bonuses, costs, requirements and tradeoffs before commitment.
+5) Connected world: revisit regions, unlock shortcuts, find optional paths, track objectives.
+6) Persistent consequence: quest flags, choices, bosses, memories and equipment survive saves.
+7) Stable engineering: decoupled modules, data-driven content, predictable tests, recoverable failures.
+
+NON-GOALS: Real-time combat; moving characters frame by frame; ASCII art animation as a requirement; multiplayer; cloud login; online leaderboard; voice commands; AI-generated text at runtime; complex crafting simulation; procedurally generated main story.
+
+2. THE COMPLETE NARRATIVE CANON
+--------------------------------
+WORLD: VEYRATH
+Veyrath was a kingdom obsessed with conquering mortality. Beneath its holy halls burned an ancient power known as the Ashen Flame, capable of holding life against death, but incapable of restoring it without a price. The Order of Wardens existed to contain this power, answerable to its oath rather than to the crown. The royal court wanted to bind the Flame to the royal bloodline.
+
+HISTORY / CHRONOLOGY
+- Age of Embers: the Ashen Flame was found and worshipped, then feared.
+- Age of Crowns: the independent Order of Wardens was established to guard and contain it.
+- King's Decline: the king, desperate to escape death, plotted a forbidden binding ritual.
+- Night of Seven Bells: the ritual required a living vessel. The Warden captain was chosen as the vessel; the Order opposed the ritual and assaulted the palace to stop it. The king betrayed the Warden captain, trying to seize the Flame for himself. The ritual shattered the kingdom's boundary between life and death. Seven bells sounded, seals fractured, and the curse swept through Veyrath.
+- The long Ash: cities became tombs, clergy twisted into cults, knights into hollow shells, and the people lingered between life and oblivion.
+- Present: as the seven seals weaken, the Warden awakens in a battlefield of ash with fractured memory, a silver sword, and a dying amber flame inside his chest.
+
+IMPORTANT CANON RULE: The Warden and his Order did NOT knowingly support the king's ritual. Claims that the Warden willingly helped the king are propaganda or false recollections, revealed through memory collection. The Warden is not a conventional chosen-one hero: he is a betrayed vessel, survivor and possible source of liberation or renewed tyranny.
+
+CENTRAL MYSTERY
+Why did the Warden survive? Who ordered the ritual? Who was the intended vessel? What did the Order know? Can the Flame be extinguished without dooming the Warden? Is there a third path beyond death or tyranny? Reveal the answers gradually through the seven memories, NPC testimonies, recovered decrees, and final confrontation.
+
+NARRATIVE STRUCTURE
+PROLOGUE — THE TOMB OF COLD ASH
+The Warden awakens, barely remembering his oath. Tutorial: inspect body, retrieve Warden's Silverblade, read a damaged journal, learn basic commands and battle a weakened Hollow Soldier. A distant bell rings. The Lantern Keeper hints that the Warden's heart carries the last ember. Goal: reach the Forgotten Outskirts.
+
+ACT I — FORGOTTEN OUTSKIRTS / CATHEDRAL OF BROKEN BELLS
+The player discovers a collapsed village, old soldiers and the first signs of a kingdom trapped after death. Meet the Lantern Keeper and the Ashen Smith. Recover the Memory of the Oath and Memory of the Warning. Enter the Cathedral of Broken Bells, uncover the bell ritual, defeat the Bell Keeper, and obtain Bellbreaker, which breaks marked cracked walls and reveals routes. Theme: loss, duty and the first evidence that the official account is wrong.
+
+ACT II — BLACKWOOD FOREST / CRIMSON CATHEDRAL
+A blighted forest conceals cults and specters. Introduce Wraith Step as an exploration/combat utility (earned through a quest or relic), discover clues to the ritual, and help or mistrust Sister Elara. In the Crimson Cathedral, confront the Crimson Bishop, whose dialogue repeats the false claim that the Wardens assisted the king. Defeat the Bishop, unlock Ashen Flame, and recover memories of Betrayal and Sacrifice. Theme: faith corrupted, truth hidden under propaganda.
+
+ACT III — ROYAL CRYPTS
+Descend through tombs and royal archives. Encounter the Fallen Executioner and Sir Vaelor, a former Warden whose role depends on choices and discovered memories. Uncover the Memory of the Vessel and the Memory of the Final Assault. Unlock the traversal ability called Gravebound Leap (the text-CLI adaptation of Double Jump), enabling elevated crypt routes; this is a command-based route unlock, not physical platforming. Theme: the protagonist's identity and the Order's last resistance.
+
+ACT IV — PALACE OF THE HOLLOW CROWN
+Reach the royal palace after assembling access sigils and confronting the last royal defenders. Recover the Memory of the Choice. Confront the Hollow King, who shifts through swordsmanship, cursed royal flame, and a final monstrous manifestation. Resolve the ending based on choices, restored seals, memory collection and final selection. Theme: whether survival, duty or power should define the last Warden.
+
+THE SEVEN WARDEN MEMORIES
+1. Oath — the Warden's promise to protect the Flame from misuse.
+2. Warning — the Order learned of the king's dangerous intentions.
+3. Betrayal — the king turned on the captain and the Order.
+4. Sacrifice — comrades died trying to stop the ritual.
+5. Vessel — the captain was selected to carry the Flame.
+6. Final Assault — the Order attacked the palace to prevent the ritual.
+7. Choice — the final insight into freeing the Flame from the bloodline.
+Each memory has: ID, title, location/quest trigger, short cinematic text, expanded journal entry, permanent story flag, and any related dialogue unlocks. Show acquired memory count as 0/7 through 7/7. Do not award the same memory twice.
+
+THREE ENDINGS
+A) THE LAST EMBER — the Warden absorbs/extinguishes the Flame, undead souls rest, and the Warden ceases to exist. This is a valid sacrifice ending.
+B) THE HOLLOW THRONE — the Warden claims the crown and becomes a new immortal ruler, replacing one tyrant with another. The curse persists in altered form.
+C) DAWN BEYOND ASH — secret/true ending; requires all seven memories and the ancient seals restored, plus appropriate final choice. The Flame is freed from the royal bloodline, and the Warden survives without the curse. The player must see why the ending is locked if requirements are missing, without spoiling its narrative content too early.
+Use a centralized EndingResolver; do not determine endings by scattered if-statements in UI code.
+
+3. MAIN CHARACTER, NPCS, AND THEIR SPECIALTIES
+-----------------------------------------------
+PLAYER: THE ASHEN WARDEN
+Identity: last surviving Warden captain, betrayed vessel of the Flame, amnesiac at the start. Customizable player display name is optional; lore identity remains Warden. Starter: Silverblade, worn Warden armor, a few Crimson Vials, limited Ash energy. Character traits: resilient, haunted, oath-bound, capable of flame and spectral techniques. Strengths: adaptable weapon mastery, parry, ability-gated exploration, memory-driven choices. Weaknesses: finite resources, curse exposure, heavy weapons reduce speed/stamina efficiency. Progression: level, HP, stamina, Ash energy, attack, defense, skills, weapons, armor, accessories, story abilities. Never force a morality meter if flags and decisions already model choices.
+
+LANTERN KEEPER — elderly gray-hooded woman, cryptic guide and keeper of fragments of memory; offers hints, memorial dialogue, memory progress, and lore. Her role is not to reveal the whole story immediately.
+ASHEN SMITH — masked blacksmith; upgrades weapons/armor, explains materials and costs, may restore an ancient forging technique through a quest.
+SISTER ELARA — former priestess; healing services and morally ambiguous revelations about the Cathedral, branching trust dialogue and a side quest.
+NAMELESS MERCHANT — hooded vendor; buys/sells goods, offers mysterious relics, prices and lore; inventory changes by chapter.
+LOST CHILD — strange child tied to an optional secret memory trail; never exploit the character as a cheap horror gag.
+SIR VAELOR — former Warden, disillusioned and potentially an ally or optional boss depending on player decisions and proof of the king's betrayal.
+THE ARCHIVIST — undead scholar; provides lore, document decoding and route/puzzle clues in exchange for recovered texts.
+
+NPC INTERACTION MODEL
+Commands: talk <npc>, ask <topic>, choose <number>, inspect <npc>, trade, quest, leave. Dialogue choices have visible labels and optional consequences. Record choice flags. Provide journal summaries so players do not need to memorize every conversation. Prevent duplicate quest rewards and impossible dialogue loops.
+
+4. WORLD AND EXPLORATION
+-----------------------
+REGIONS IN CANON ORDER
+0. Warden's Tomb (tutorial)
+1. Forgotten Outskirts — ruined village, watchtower, ash road, smith's refuge.
+2. Cathedral of Broken Bells — nave, bell chamber, cloister, cracked passage, boss arena.
+3. Blackwood Forest — poisoned trail, old shrine, spectral crossing, hidden grove.
+4. Crimson Cathedral — blood chapel, reliquary, cult hall, Bishop's sanctum.
+5. Royal Crypts — mausoleum, execution hall, sealed archive, upper gallery, Vaelor's vigil.
+6. Palace of the Hollow Crown — gatehouse, throne corridor, royal observatory, crown chamber.
+Add connecting shortcuts, optional rooms, resting points, and lore locations. Each location has an ID, name, region, 1-3 sentence description, exits, interactables, possible encounters, optional NPCs, loot, discovery flag and requirements.
+
+EXPLORATION COMMANDS
+look; inspect <object>; go <direction|location>; map; paths; interact <object>; talk <npc>; search; rest; journal; quests; inventory; equipment; stats; help; save; quit.
+Provide numbered menu alternatives where helpful. Accept both 'go north' and '1' where an exit list is shown. On blocked passage, explain exactly which known requirement is missing (e.g., 'A cracked wall. Bellbreaker could shatter it.'). Hidden routes can have hints, but should not require random guessing. Movement is by discrete location transitions, not per-frame animation.
+
+ABILITY GATES
+- Bellbreaker: break cracked walls via 'interact cracked wall' or 'break wall'.
+- Wraith Step: cross spectral barriers, evade specific attacks and access phantom routes.
+- Ashen Flame: ignite ritual braziers, melt cursed seals, perform flame skills.
+- Gravebound Leap: reach high ledges as a one-step travel option once unlocked; no jumping minigame.
+- Palace Sigil: enter the royal palace.
+Always show which abilities are currently unlocked in 'abilities'.
+
+REST POINTS / DEATH
+Resting at a sanctuary restores health and stamina/energy, may replenish limited vials to a configured capacity, and sets respawn location. On defeat, restore the player at last sanctuary with an explicit and fair loss rule (e.g., drop a portion of Ash Fragments at defeat location, recoverable once). Do not permanently erase all progress. Boss victories, opened routes, memories and completed quests remain persistent. Save policy must be documented: manual save at safe locations, plus autosave after major milestones; optionally allow save anywhere outside combat.
+
+5. TURN-BASED COMBAT — EXACT BEHAVIOR
+-------------------------------------
+Combat begins when the player enters a hostile encounter or deliberately attacks an enemy. The screen shows player HP/stamina/Ash energy, equipped weapon, vial count, enemy name/HP, status effects, and enemy intent. The player must select an action. Invalid commands do NOT consume a turn. 'inspect', 'help', and 'status' do NOT consume a turn. Inventory inspection does not consume a turn; USING an item does. Equipment changes during combat should be forbidden or explicitly consume a turn, chosen consistently.
+
+A COMBAT ROUND
+1. At the beginning of the round, reveal a readable enemy intent (e.g., 'Heavy overhead slash', 'Blood spell charging', 'Defending', 'Summoning').
+2. Display legal actions and their costs.
+3. Wait for explicit user command; never auto-select.
+4. Validate action, target, resource cost, cooldown, and any equipment restriction.
+5. Apply player action, calculate damage/status/stagger/healing, append combat log.
+6. If enemy defeated, resolve rewards, quest events, and victory; skip its action.
+7. Otherwise resolve enemy action, including counterplay against defend/parry/interrupt.
+8. Apply end-of-round effects in a documented order, decrement cooldowns, resolve deaths, and select next intent.
+9. Repeat until victory, defeat or successful escape.
+
+COMMANDS: attack, heavy, defend, parry, skill <name>, item <name>, inspect enemy, inspect item <name>, status, help, flee. Support numeric aliases.
+
+STARTING BALANCE (TUNABLE, NOT CANONICAL)
+Player level 1: HP 100, stamina 50, Ash energy 30, attack 10, defense 5, vials 3. Basic attack costs 0 stamina, deals 100% calculated weapon damage; heavy attack costs 15 stamina and deals ~160% plus stagger; defend reduces eligible incoming damage by 50%; parry counters telegraphed parryable melee, fails against spells/grabs/unblockables; a Crimson Vial restores 40 HP capped at max; flee is unavailable in boss fights and may cost a turn on failure. Stamina recovery occurs at turn end or by defend, defined explicitly. Skill costs vary. The first two enemies should be survivable without perfect decisions.
+
+DAMAGE FORMULA GUIDANCE
+Separate base attack, weapon attack, temporary bonuses, defense mitigation, elemental resistances, critical effects and status application. Never permit negative damage; minimum 1 for a successful non-immune damaging hit. Example: raw = attackStat + weaponPower + skillBonus; mitigated = max(1, raw - floor(defense * 0.5)); apply action multiplier and resistance; clamp and round consistently. Use an injectable seeded Random for crits, loot and flee, never Math.random scattered across classes. Display effective damage and causes, not internal random seed.
+
+DEFEND/PARRY/INTENT
+Defend works against ordinary attacks but not all special attacks. Parry only works against tagged 'PARRYABLE' attacks; on success, block/counter and inflict stagger. Some enemies feint or charge, but never make their telegraph intentionally false without a discoverable mechanic. 'Inspect enemy' reveals known resistances and whether the current attack is parryable. Telegraph clarity is more important than artificial difficulty.
+
+STATUS EFFECTS
+BLEED: damage over turns; BURN: flame damage over turns; POISON: damage and possible healing reduction; STUN: skip one action; WEAKNESS: reduced outgoing damage; GUARD BREAK: temporarily lowered defense; CURSE: special boss/debuff mechanic. Define duration, stack limits, refresh rules, immunity/resistance and update timing. Log each tick. Prevent status effects from persisting forever accidentally.
+
+ENEMY BEHAVIOR: STRICTLY RULE-BASED, NO AI
+Each enemy has a small explicit priority table/state machine. Example: Hollow Soldier below 25% HP may defend if not recently defended; otherwise if player is defending use shield bash; otherwise light slash or charged heavy. Blood Cultist casts if energy available; otherwise gathers energy or retreats. Bosses change movesets at HP thresholds. Seeded randomness may choose between valid actions but no ML/LLM.
+
+BOSS DESIGN
+BELL KEEPER: fused with giant bell and chains; slow chain swings, area shockwaves, bell toll causing stagger. Counterplay: defend shockwave, exploit wind-up, stagger after a missed chain strike. Reward: Bellbreaker and progress flag.
+CRIMSON BISHOP: blood magic, projectile orbs, cultist summons, teleport and blood apparition phase. Counterplay: interrupt channeling, cleanse bleeding, defeat summoned cultists. Reward: Ashen Flame.
+HOLLOW KING: phase 1 royal sword techniques; phase 2 flame pillars, teleport, crown beam; phase 3 supernatural flame entity with escalating curse pressure. Final dialogue and ending choice after combat.
+OPTIONAL BOSSES: Mourning Knight (mirrors Warden sword techniques); Pale Widow (spectral illusions, spectral resistances); Ash Serpent (large burning beast, area attacks). Optional boss rewards must be useful but not required for a standard ending.
+
+STANDARD ENEMIES — 15
+1 Hollow Soldier — rusty sword and shield; balanced beginner; drops Ash Fragments/Armor Shards.
+2 Blood Cultist — red robes, blood orbs, teleport; drops Crimson Vials/Bloodfire Essence.
+3 Grave Crawler — skeletal quadruped, ambush; fast low-HP attacker.
+4 Fallen Executioner — huge axe and shockwaves; slow heavy threat.
+5 Wraith — spectral ghost knight, materializes/teleports; vulnerable when materialized.
+6 Plague Rat — weak pack enemy, poison chance.
+7 Ash Hound — quick lunge, bleed chance.
+8 Bone Archer — ranged pressure, telegraphed aim.
+9 Cathedral Acolyte — support cultist, heals/buffs others.
+10 Bellbound Guardian — armored defender, bell stagger.
+11 Tomb Sentinel — defensive crypt construct.
+12 Blood Leech — drains HP, susceptible to burst/stagger.
+13 Ashen Knight — advanced melee parry opponent.
+14 Royal Sorcerer — flame/curse caster, channeling.
+15 Crownless Noble — elite royal remnant, unpredictable but telegraphed combos.
+For every enemy: write lore description, region(s), HP/attack/defense, attack names, intent text, behavior rules, resistances, weakness, loot, XP and at least one tactical counterplay hint. Data-drive stats wherever feasible.
+
+6. EQUIPMENT, WEAPONS, ITEMS AND INSPECTION-FIRST UX
+----------------------------------------------------
+CRITICAL USER REQUEST: When choosing ANY weapon or item, always offer DESCRIPTION/DETAILS before selecting, equipping, using, buying, selling, discarding or upgrading. The player can return without penalty. Never force a choice without access to information. The detail screen must show name, category, rarity, description, lore, stats, special effect, drawbacks, requirements, value, current vs equipped comparison, and whether it is consumable. Show unknown fields as 'Unknown' or 'Not applicable', never invent values. For undiscovered secret effects, indicate '???' and reveal via lore/identification when earned.
+
+WEAPONS — SEVEN CANONICAL
+1 WARDEN'S SILVERBLADE: balanced silver longsword; standard 3-strike flavor combo, charged slash and parry; reliable starter. Special: Oathbound Riposte (extra stagger on successful parry). Weakness: modest reach/power compared with heavy weapons.
+2 BLOODTHORN BLADE: fast bleeding blade; rapid hits and bleed buildup. Special: Blood Pact burst spends player HP for damage; explicitly confirm self-damage. Weakness: risky against bosses.
+3 BELLBREAKER SWORD: massive bell-forged blade; heavy stagger and shockwaves; breaks cracked walls. Special: Bell Toll cleave. Weakness: high stamina cost/slow recovery.
+4 ASHEN GREATSWORD: amber-cracked greatsword; burning and wide flame arcs. Special: Cinder Wave. Weakness: energy/stamina hungry.
+5 WRAITH DAGGER: spectral-blue dagger; fast, short reach, backstab/teleport synergy. Special: Veil Strike. Weakness: low raw damage against armor.
+6 CRIMSON STAFF: blood projectiles and protective magic shields. Special: Sanguine Ward. Weakness: consumes Ash energy and lower melee effectiveness.
+7 EXECUTIONER'S AXE: devastating slow axe; cleaves and finishing blows. Special: Final Judgment. Weakness: slow and heavy stamina use.
+Each weapon needs: ID, class/type, damage, stamina cost modifier, Ash cost, effect, special action, upgrade scaling, purchase/drop/unlock route, lore, and inspection text. Weapon-specific skills must be visible in the skill menu with cost and cooldown.
+
+ARMOR SETS
+- Warden Armor: balanced starting defense.
+- Ashen Guard Armor: high defense, slower dodge/recovery or stamina penalty.
+- Wraithbound Mantle: spectral mobility and Wraith Step synergy, lower physical defense.
+- Crimson Penitent Set: blood magic amplification with HP/curse tradeoff.
+- Royal Remnant Set: powerful late-game defense, perhaps crown/curse resistance.
+
+ACCESSORIES
+- Bell Charm: resistance to bell shockwaves/stagger.
+- Ember Sigil: boosts flame skills.
+- Wraith Ring: spectral mobility and Wraith Step benefit.
+- Soldier's Knot: stamina recovery.
+- Martyr's Seal: stronger healing at a cost, described clearly.
+Use equipment slots: weapon, armor, accessory 1, accessory 2 (if unlocked). Avoid equipping mutually exclusive gear into the same slot.
+
+ITEMS / MATERIALS / QUEST OBJECTS
+Crimson Vial (HP heal); Azure Tear (Ash energy restore); Ash Fragments (currency); Wraith Relic (spectral upgrades); Armor Shards (defense crafting); Bloodfire Essence (flame/blood enchantment); Crown of Ashes (story artifact); Ancient Warden Scroll (technique/lore); Ancient Coins (trade); Sacred Bandages (bleed removal/healing); Ember Flasks (flame utility); Forged Steel (weapon upgrades); Royal Alloy (late-game upgrades); Crypt Key; Cathedral Seal; Palace Sigil; Lost Letters; Family Emblems; Warden Journals; Royal Decrees; Flame Oil (temporary burn infusion); Iron Tonic (temporary defense). Assign every item an ID, item type, description, use conditions, stackability, price, source, effect and persistence behavior. Quest items cannot be sold or consumed accidentally.
+
+LOOT FLOW
+After victory, show a compact list of rewards. Commands: inspect <n>, take <n>, take all, leave, inventory, back. If inventory capacity applies, explain why item cannot be taken. Show item details before accepting. For key quest rewards, grant reliably and show lore. Never reroll the same defeated encounter on load.
+
+SHOP FLOW
+Show item name, price, owned count, affordability and a short tag. Commands: inspect <n>, buy <n>, sell <n>, compare <n>, back. Buy/sell confirmation shows exact Ash Fragment change and item effect. Use database transaction for currency + inventory changes; prevent negative balances, duplicate purchases from repeated input, and loss on failed database writes.
+
+EQUIPMENT FLOW
+Display currently equipped items and candidate items with delta indicators (e.g., Attack +4, Defense -2, Stamina Cost +5). 'inspect 2' opens full details, 'equip 2' asks for confirmation, 'back' returns. Equip/unequip cannot duplicate items or stack passive bonuses twice. Combat stats derive from base stats plus active equipment and effects, not permanently mutate base stats on each equip.
+
+UPGRADE FLOW
+Show before/after stats, material requirements, currency, max level and failure policy (prefer deterministic guaranteed upgrades for fairness). 'inspect' and 'compare' before 'upgrade'. Deduct materials/currency atomically in JDBC.
+
+7. PLAYER PROGRESSION AND CHARACTER SYSTEM
+------------------------------------------
+Stats: maxHP, currentHP, stamina/maxStamina, AshEnergy/maxAshEnergy, attack, defense, level, XP, Ash Fragments, status effects, weapon proficiency optional. Character starts weak but competent. XP earned from enemies/quests; level-up restores some resources or grants points (choose one clear system). Level-up costs/thresholds are predictable and viewable. Skills unlock through milestones, weapons and relics. 'stats' displays derived values, active buffs, equipped gear and XP-to-next-level.
+
+SKILLS: Basic Slash, Heavy Strike, Guard, Parry, Wraith Step, Ashen Flame, weapon-specific specials. No need to implement a huge branching tree until base systems work. Display skill descriptions and resource costs before using them. Add optional talent choices only if they can be saved, balanced and tested.
+
+8. DATABASE / JDBC PERSISTENCE — NON-NEGOTIABLE
+-----------------------------------------------
+Use local MySQL 8+ and JDBC with MySQL Connector/J. Maven dependency pinned to a documented current compatible version; use environment variables DB_URL, DB_USER, DB_PASSWORD (with safe localhost URL default only). Do not commit credentials. Support first-run setup with clear message if database missing or inaccessible; do not crash with a raw stack trace.
+
+SCHEMA GUIDELINES
+- schema_version / migrations table.
+- players (character identity and non-slot-specific metadata, if any).
+- save_slots (slot ID, player ID or character ID, chapter, current location, sanctuary, time, updated_at, game version).
+- player_state (SAVE-SPECIFIC current stats, currency, experience, ability flags; primary key save_id).
+- item_definitions (immutable catalogue keyed by stable item_code).
+- inventory_entries (save_id, item_code, quantity, upgrade level where applicable; unique or instance-based gear as needed).
+- equipped_items (save_id, slot, inventory_entry_id or stable item reference).
+- region_definitions and location_definitions (optional if static content is loaded from files; do not duplicate mutable source of truth).
+- discovered_locations (save_id, location_code).
+- unlocked_paths (save_id, path_code).
+- quest_definitions (optional static catalogue).
+- quest_progress (save_id, quest_code, status, objective progress, reward_claimed).
+- story_flags (save_id, flag_code, value).
+- acquired_memories (save_id, memory_code).
+- defeated_bosses (save_id, boss_code).
+- optional encounter_state (save_id, enemy type/HP/status/turn/seed) only if mid-combat save is supported.
+- optional combat_history / journal_entries for readable history; cap logs to avoid uncontrolled growth.
+
+KEY DATABASE RULE: Save slots MUST be independent. Never key inventory and mutable player state only by a shared player ID if multiple save slots represent distinct playthroughs. Use save_id consistently for slot-specific state. Foreign keys, UNIQUE constraints and CHECK constraints where supported. Index save_id and commonly joined keys. No credentials or SQL strings embedded in CLI renderer.
+
+DAO/REPOSITORY LAYER
+DatabaseConnection or DataSource factory; TransactionManager; SaveRepository; PlayerRepository; InventoryRepository; EquipmentRepository; QuestRepository; WorldProgressRepository; BossProgressRepository; StoryRepository. Repositories expose Java objects, not ResultSet to the game engine. Use PreparedStatement for all parameters. Use try-with-resources. Keep SQL in repository classes. Prefer batch inserts for save snapshots where sensible.
+
+SAVE TRANSACTION
+1. Validate that saving is permitted.
+2. Begin JDBC transaction with autoCommit(false).
+3. Upsert save metadata and player state.
+4. Persist inventory/equipment, quest progress, location discovery, story flags, memories, boss defeats and any allowed encounter state.
+5. Commit only if all operations succeed; otherwise rollback.
+6. Display success only AFTER commit. On error, retain in-memory game state, show useful retry guidance, do not claim save succeeded.
+
+LOAD TRANSACTION
+Load a coherent snapshot, validate referential integrity and version compatibility, rebuild derived stats from equipment, restore current location and unlocked routes, and report a helpful error for corrupt or unsupported saves. Do not reset quest rewards or respawn defeated bosses. Offer multiple named save slots and last-updated timestamp. A 'new game' creates an independent save record, not an overwrite without confirmation.
+
+TRANSACTIONAL GAME ACTIONS
+Purchases, sales, upgrades and quest rewards involving currency + inventory must be atomic when persisted immediately. For in-memory-first design, save snapshot transaction still must be atomic; decide and document which operations autosave. Do not mix unsynchronized direct SQL writes and in-memory mutations without a strategy. Recommended: game state is authoritative during play; repositories persist at checkpoints/save events; for shop actions optionally transactionally persist immediately and update in-memory state only after success.
+
+SECURITY/ROBUSTNESS
+Parameterized SQL, bounded input lengths, no SQL injection, no password in source or logs, graceful DB connection failure, no silent data loss. Handle duplicate records, negative quantities, invalid slot IDs, disconnected MySQL and interrupted writes. Keep migration scripts under src/main/resources/db/migration. Include example environment setup and MySQL user with minimum required privileges.
+
+9. CLI DESIGN SYSTEM — HIGH QUALITY, NOT A WALL OF TEXT
+-------------------------------------------------------
+Visual inspiration: a polished developer CLI with tasteful Unicode box drawing, clear headings, subdued colors, status chips, indentation and short interactive prompts. The game is NOT Claude Code and should not copy its branding. Must work in Windows Terminal, PowerShell and standard ANSI-capable terminals. Detect/allow NO_COLOR; provide --plain or settings toggle for terminals with poor Unicode/ANSI support. Use a narrow layout around 80 columns, gracefully wrapping text at smaller widths. Avoid full-screen redraw on every action unless optional.
+
+EXAMPLE MAIN MENU
++-----------------------------------------------------------------------+
+| ASHEN WARDEN: THE LAST EMBER                                          |
+| A kingdom that could not die. An oath that could not end.             |
++-----------------------------------------------------------------------+
+|  [1] New Game   [2] Continue   [3] Load Slot   [4] Settings   [5] Exit|
++-----------------------------------------------------------------------+
+> 1
+
+EXAMPLE EXPLORATION
+[FORGOTTEN OUTSKIRTS]  Chapter I  |  Ashfall Road
+A silent watchtower leans over the road. A hooded lantern burns ahead.
+Exits: [1] Village Square  [2] Watchtower [LOCKED: Bellbreaker]
+Nearby: Lantern Keeper, Rusted Chest
+> inspect chest
+A corroded lock guards a small cache. You hear metal rattling inside.
+> interact chest
+You found: Iron Tonic x1
+[1] Take  [2] Inspect item  [3] Leave
+> 2
+IRON TONIC — Consumable
+Effect: +8 defense for 3 rounds. Limit: one active tonic effect.
+Lore: 'Even rusted steel remembers how to endure.'
+Owned: 0 | Sell value: 12 Ash Fragments
+[1] Take  [2] Back
+
+EXAMPLE COMBAT
++----------------------------- ENCOUNTER -------------------------------+
+| ASHEN WARDEN Lv.4    HP [#######---] 72/100  ST 35/50  ASH 25/50     |
+| Weapon: Warden's Silverblade +1    Crimson Vials: 3                 |
+| HOLLOW SOLDIER       HP [######----] 38/60                           |
+| Intent: HEAVY SLASH (Parryable)   Status: Guard Broken (1 turn)      |
++-----------------------------------------------------------------------+
+| [1] Attack  [2] Heavy  [3] Defend  [4] Parry  [5] Skill  [6] Item     |
+| [7] Inspect enemy  [8] Inspect item  [9] Flee  [0] Help              |
++-----------------------------------------------------------------------+
+> 4
+You parry the heavy slash. Sparks bloom in the ash. Enemy staggered!
+
+EXAMPLE INVENTORY
+WEAPONS — choose an item to INSPECT before equipping
+[1] Silverblade +1   ATK 14   Balanced        [EQUIPPED]
+[2] Bloodthorn Blade ATK 12   Bleed / HP cost
+[3] Bellbreaker      ATK 22   Stagger / Heavy
+Commands: inspect <n> | compare <n> | equip <n> | back
+> inspect 2
+BLOODTHORN BLADE
+Category: One-handed sword | Rarity: Rare
+Damage: 12 | Stamina modifier: -2 | Special: Blood Pact
+Effect: 25% chance to apply Bleed for 3 turns.
+Special cost: 10 HP, 12 stamina; 180% weapon damage.
+Drawback: Can reduce your HP to a dangerous level. Confirmation required.
+Lore: 'A thorn forged to drink the hand that holds it.'
+Current comparison: Attack -2; Bleed +; Self-damage risk +
+[1] Equip  [2] Compare  [3] Back
+
+COMMAND SYSTEM
+Main commands: new, continue, load, save, help, quit, settings.
+Exploration: look, go, map, inspect, interact, search, talk, journal, quests, memories, inventory, equipment, stats, abilities, rest.
+Combat: attack, heavy, defend, parry, skill, item, inspect, status, flee.
+Menus: number, inspect number, compare number, confirm, cancel, back.
+Case-insensitive, trimmed, aliases documented. Context-aware parser: 'attack' only in combat, 'go' only in exploration. Unknown input: show one-line correction and examples, not crash or consume a combat turn. Never accept arbitrary string concatenation as SQL.
+
+TEXT CONTENT RULES
+Atmospheric one-to-three-sentence scene introduction, with 'read more' for optional lore. Combat logs show mechanical meaning. Color is supplemental: red for damage, blue for Ash energy, amber for flame, green for healing, gray for disabled; never convey information solely via color. Screen-reader-friendly plain mode. Preserve game log for 'log' command. Use confirmation for irreversible decisions and ending selection. Avoid excessive ASCII banners between every turn.
+
+10. TECHNICAL ARCHITECTURE
+-------------------------
+Architecture style: modular monolith with presentation -> application services -> domain -> persistence separation.
+
+CLI Input -> CommandParser -> CommandDispatcher -> GameEngine / GameSession
+    -> CombatService / ExplorationService / QuestService / InventoryService
+    -> Domain: Player, Enemy, Item, Location, Quest, GameState
+    -> Repository Interfaces -> JDBC Implementations -> MySQL
+CLI Renderer <- typed GameEvent / CommandResult / ViewModel
+
+DOMAIN DESIGN
+- GameState: the single authoritative in-memory session snapshot; current save ID, player, location, quest flags, memories, boss defeats, inventory, equipment, ability unlocks, encounter state, RNG seed if needed.
+- GameEngine: owns game phase and transitions (MAIN_MENU, EXPLORATION, DIALOGUE, SHOP, COMBAT, LOOT, REST, GAME_OVER, ENDING).
+- CommandParser: turns raw input into typed command and arguments; no business logic.
+- CommandDispatcher: checks current phase and routes command to service.
+- CommandResult: status, events, next phase, optional prompt and error.
+- CombatEngine: turn resolution, damage, status and rewards; asks EnemyBehavior for an action, never asks an LLM.
+- EnemyBehavior: deterministic rule tables/state machine, seeded RNG if necessary.
+- WorldGraph: locations and exits; evaluates traversal requirements.
+- QuestManager: consumes domain events (enemy defeated, item obtained, NPC spoken to, location visited, memory acquired).
+- Item/EquipmentService: validates actions, calculates derived stats and sends result events.
+- SaveService: coordinates a complete transaction across repositories.
+- TerminalRenderer: pure presentation; must not modify GameState or call SQL.
+
+OOP CONCEPTS TO DEMONSTRATE
+Encapsulation: private fields and validated state transitions.
+Inheritance: abstract Combatant or shared base where appropriate; do not force deep hierarchies.
+Polymorphism: weapon skill strategies, item effects, enemy behaviors, command handlers.
+Abstraction/interfaces: Combatant, EnemyBehavior, GameCommand, ItemEffect, Repository.
+Composition: Player has Inventory/Equipment; Location has Exits/Interactables; GameEngine has services.
+Exception handling: domain errors, invalid commands, database failures, missing data.
+Collections/DSA: graph adjacency map for world, Map for inventory and quest state, queue/event list for game events, enums for states, ordered list for combat log. Use algorithms that are justified by gameplay rather than unnecessary complexity.
+
+SUGGESTED PACKAGE TREE
+ashen-warden/
+  pom.xml
+  README.md
+  .gitignore
+  docs/GAME_DESIGN.md
+  docs/ARCHITECTURE.md
+  docs/STORY_BIBLE.md
+  docs/COMMAND_REFERENCE.md
+  docs/TEST_PLAN.md
+  docs/TEAM_ROLES.md
+  src/main/java/com/ashenwarden/Main.java
+  src/main/java/com/ashenwarden/engine/
+  src/main/java/com/ashenwarden/command/
+  src/main/java/com/ashenwarden/combat/
+  src/main/java/com/ashenwarden/enemy/
+  src/main/java/com/ashenwarden/world/
+  src/main/java/com/ashenwarden/story/
+  src/main/java/com/ashenwarden/quest/
+  src/main/java/com/ashenwarden/player/
+  src/main/java/com/ashenwarden/item/
+  src/main/java/com/ashenwarden/cli/
+  src/main/java/com/ashenwarden/persistence/
+  src/main/java/com/ashenwarden/common/
+  src/main/resources/db/migration/
+  src/main/resources/content/
+  src/test/java/com/ashenwarden/
+
+DATA-DRIVEN CONTENT
+Prefer data tables or simple UTF-8 resources for long dialogues, lore, enemy configurations, items and locations rather than massive hardcoded switch statements. If using JSON, add a small documented parser dependency or use properties/TSV files with strict parsing; avoid implementing an error-prone custom JSON parser just to avoid dependencies. MySQL stores mutable save state; static game definitions can live in version-controlled resources, with stable IDs in save tables. Do not store raw Java serialized objects in SQL.
+
+11. FOUR-MEMBER TEAM ROLES — DESCENDING DIFFICULTY
+--------------------------------------------------
+MEMBER 1 — YOU / TEAM LEADER — 10/10
+OWNERSHIP: architecture, core engine, turn-based combat, command dispatch, database foundation, save/load transactions, module integration and release quality.
+Implement: Game, GameEngine, GameState, GameSession, CommandParser, CommandDispatcher, CombatEngine, TurnManager, DamageCalculator, CombatResult, DatabaseConnection, DatabaseInitializer/MigrationRunner, TransactionManager, SaveService, GameStateRepository, GameEvent and cross-module integration tests.
+ACTIONS:
+1. Define all shared interfaces, stable IDs, game phases and domain events before feature coding.
+2. Create Maven skeleton and package structure.
+3. Create MySQL schema/migrations, DB connection config and repository conventions.
+4. Implement game loop and safe command dispatch.
+5. Implement precise combat turn resolution and combat logs.
+6. Implement game state snapshot, atomic save/load and slot isolation.
+7. Integrate each teammate's module weekly, review PRs and fix interface mismatches.
+8. Run end-to-end tests, ensure clean setup, package executable JAR, maintain documentation.
+DEFINITION OF DONE: New game -> explore -> encounter -> fight -> loot -> quest update -> save -> exit -> reload -> final ending, with no data corruption.
+
+MEMBER 2 — ENEMIES, BOSSES AND EFFECTS — 8/10
+OWNERSHIP: 15 enemy definitions, three main bosses, optional bosses, rule-based behavior, telegraphs, statuses, encounters and enemy/boss persistence.
+Implement: Enemy, EnemyFactory, EnemyBehavior, EnemyAction, Boss, BossPhase, StatusEffect, StatusEffectManager, EncounterFactory, EnemyRepository/BossProgressRepository.
+ACTIONS:
+1. Implement 15 enemies with stats, moves, intent text, resistances, drops and XP.
+2. Implement explicit priority-based behavior rules, not machine learning.
+3. Implement status stacking/ticking and parryable/unblockable attack tags.
+4. Implement Bell Keeper, Crimson Bishop and Hollow King phase logic.
+5. Implement three optional bosses if schedule allows.
+6. Provide seeded behavior tests and boss transition tests.
+7. Persist defeated boss flags and any supported encounter state through agreed repositories.
+DEFINITION OF DONE: All required enemies behave distinctly; telegraphs match actions; boss phases transition once; loot and defeat state remain consistent after save/load.
+
+MEMBER 3 — WORLD, STORY, NPCS AND QUESTS — 7/10
+OWNERSHIP: explorable world graph, all acts, dialogues, NPCs, memories, quests, ability-gated paths and three endings.
+Implement: World, Region, Location, Exit, WorldMap, ExplorationService, NPC, DialogueManager, Quest, QuestManager, StoryManager, StoryFlag, EndingResolver, QuestRepository, WorldProgressRepository.
+ACTIONS:
+1. Map prologue and six major regions with clear exits and prerequisites.
+2. Write concise scene text plus inspectable extended lore.
+3. Add Lantern Keeper, Ashen Smith, Sister Elara, Merchant, Lost Child, Sir Vaelor, Archivist.
+4. Create quests with unique IDs, objectives, event triggers and rewards.
+5. Place all seven memories with clear acquisition rules.
+6. Implement branching dialogue and three ending conditions.
+7. Persist quest states, unlocked routes, story flags and memory collection.
+8. Test that no main route is permanently softlocked.
+DEFINITION OF DONE: All six regions reachable in order, optional routes work, all seven memories collect once, and endings are correctly gated.
+
+MEMBER 4 — PLAYER, ITEMS, EQUIPMENT AND CLI — 6/10
+OWNERSHIP: player stats and progression, inventory, all item definitions, equipment, merchants/upgrades UI, terminal rendering, and player/inventory repositories.
+Implement: Player, PlayerStats, Inventory, Item, ItemType, Weapon, Armor, Accessory, EquipmentManager, LevelSystem, Skill, LootTable, ShopService, TerminalRenderer, MenuRenderer, HealthBar, PlayerRepository, InventoryRepository, EquipmentRepository.
+ACTIONS:
+1. Implement HP/stamina/Ash/XP/level and derived stats.
+2. Implement seven weapons, five armor sets, five accessories and all named items.
+3. Implement inventory stacks, consumption, equipping, shops and upgrades.
+4. Implement inspection-first detail/compare/back workflow in EVERY item-selection screen.
+5. Render terminal panels, command hints, bars, story text, combat log and error messages.
+6. Implement plain-text/NO_COLOR mode.
+7. Persist player stats, inventory and equipped items via repository interfaces.
+8. Write tests for double equip, invalid quantities, insufficient currency and detail-before-confirmation.
+DEFINITION OF DONE: Every item is inspectable, equipment modifies derived stats exactly once, CLI is usable, and saved inventory reloads correctly.
+
+TEAM WORKFLOW
+Branches: feature/core-engine, feature/enemy-behavior, feature/world-story, feature/player-inventory-cli. All members submit PRs, tests and documentation. Leader reviews merges. Do not independently invent incompatible models or DB schemas. Member 1 defines contracts, Member 2 supplies enemies to combat, Member 3 supplies locations/events/quests, Member 4 supplies player/items/rendering. Every member contributes substantial Java code and JDBC work. Integration starts in week one, not the final week.
+
+12. DEVELOPMENT ROADMAP AND PRIORITIES
+--------------------------------------
+PHASE 0 — REQUIREMENTS & SKELETON
+Create project, README, build, DB config, schema, package layout, interfaces, game states and a minimal CLI. Define stable identifiers and test approach. Acceptance: clean Maven build and successful local MySQL connection with helpful failure mode.
+
+PHASE 1 — VERTICAL SLICE (DO THIS FIRST)
+One small area (Warden's Tomb), one NPC, two enemy types, one weapon and one potion, one quest, one loot pickup, inspect-before-select menu, one save slot. Play from launch to save/reload. Acceptance: a new developer can run it and complete a meaningful 10-minute sequence.
+
+PHASE 2 — COMBAT DEPTH
+Full turn actions, enemy intents, parry/defend, status effects, weapon special, first boss, XP/level. Acceptance: invalid inputs don't spend turns; status effects tick predictably; boss defeat grants reward once.
+
+PHASE 3 — WORLD AND STORY
+Add six regions, major NPCs, quests, ability gates, seven memories and all three endings. Acceptance: main story has no softlocks, side quests can be completed, ending C requires prerequisites.
+
+PHASE 4 — ITEMS & ECONOMY
+Seven weapons, armor, accessories, materials, shop, upgrades, inspection and comparison everywhere. Acceptance: item descriptions available before choice, no currency/item duplication, stat bonuses not stacked accidentally.
+
+PHASE 5 — PERSISTENCE & RELIABILITY
+Atomic save/load, multiple slots, failure handling, migration/versioning, database integration tests, full playthrough tests. Acceptance: restart game and restore exact inventory/quest/boss/ability state; failed save rolls back.
+
+PHASE 6 — POLISH & RELEASE
+Improve dialogue, balance bosses, fix UX, document setup, package runnable JAR, demo script, screenshots of terminal output (optional for report), verify clean installation. Acceptance: zero critical bugs, full main path playable, every member can demonstrate their module.
+
+SUGGESTED FOUR-WEEK ASSIGNMENT
+Week 1: leader builds contracts/JDBC/game loop; M2 enemy models; M3 location graph; M4 player/inventory/renderer. Integrate a minimal vertical slice.
+Week 2: leader combat; M2 behaviors/effects; M3 NPCs/quests; M4 item detail menus/equipment. Integrate daily.
+Week 3: leader save/load; M2 bosses; M3 story/endings; M4 shops/upgrades/CLI. Full end-to-end path.
+Week 4: regression, balance, docs, database failure testing, release packaging and demo.
+
+SCOPE CONTROL
+Do not sacrifice reliability to implement all 15 enemies immediately. Prioritize a polished vertical slice, then main bosses/regions, then optional bosses and extras. Track features as MUST / SHOULD / COULD. MUST: game loop, turn-based combat, one complete storyline path, inventory inspection, JDBC save/load, core quests, three endings if content complete. SHOULD: all seven weapons, 15 enemies, all six regions, seven memories. COULD: optional bosses, expanded crafting, achievement system, enhanced ASCII motifs.
+
+13. ACCEPTANCE TESTS — SPECIFIC SCENARIOS
+-----------------------------------------
+TEST 01: Fresh launch with working MySQL: new game creates independent save slot; tutorial begins.
+TEST 02: Launch with MySQL unavailable: friendly error and recovery steps; no Java stack trace shown by default.
+TEST 03: Enter 'attack' in exploration: command rejected, game remains in exploration.
+TEST 04: Enter invalid command during combat: no stamina/HP/enemy action changes.
+TEST 05: Inspect enemy during combat: intent and known traits shown; no turn consumed.
+TEST 06: Defend reduces eligible incoming damage according to formula.
+TEST 07: Parry works against a telegraphed parryable attack, fails meaningfully against an unblockable spell.
+TEST 08: Attack defeats enemy before enemy turn: dead enemy does not attack.
+TEST 09: Poison/Bleed/Burn expire at documented duration and do not tick twice.
+TEST 10: Open loot screen; inspect every reward before take/leave.
+TEST 11: Inspect Bloodthorn Blade; see HP cost before equip/use, including a warning and confirmation.
+TEST 12: Compare two weapons; display precise deltas, requirements, and drawbacks.
+TEST 13: Equip/unequip same armor repeatedly; derived defense never duplicates bonuses.
+TEST 14: Buy item with insufficient currency: no inventory or currency change.
+TEST 15: Disconnect DB during save: transaction fails, rollback, user told save did not complete.
+TEST 16: Save, quit, restart, load: same location, HP, currency, inventory, equipment, memories and quest flags.
+TEST 17: Two slots: changing one slot does not change the other.
+TEST 18: Defeat Bell Keeper, save/reload: boss stays defeated and Bellbreaker ability remains.
+TEST 19: Without Bellbreaker, cracked wall blocked; after unlocking, route opens.
+TEST 20: Quest reward is granted only once, even after save/reload or repeated NPC dialogue.
+TEST 21: All seven memories acquired; ending C becomes available if seals restored.
+TEST 22: Missing a memory; ending C cannot be selected, requirement is explained without full spoiler.
+TEST 23: Hollow King phase 1->2->3 transitions once at correct thresholds.
+TEST 24: NO_COLOR/plain mode is readable without ANSI escape artifacts.
+TEST 25: Terminal narrow width wraps descriptions without destroying command prompts.
+TEST 26: Entire game can be completed offline with only local MySQL.
+TEST 27: No imports, packages, endpoints, configuration or runtime features related to LLM/AI APIs.
+TEST 28: Invalid item IDs, negative quantities and invalid save slot IDs cannot corrupt DB.
+TEST 29: User may back out of shop/equip/upgrade confirmation without losing resources.
+TEST 30: Game ending and credits show chosen outcome and preserve a completion record.
+
+14. DEMO WALKTHROUGH FOR UNIVERSITY EVALUATION
+----------------------------------------------
+1. Start app and show professional text-only CLI main menu.
+2. Create a new save slot, name the Warden, show MySQL persistence.
+3. Explore the tomb using look/inspect/go, speak to Lantern Keeper.
+4. Inspect Silverblade details BEFORE equipping it; show stats and lore.
+5. Fight Hollow Soldier using attack, defend and parry, explaining turn order and enemy telegraph.
+6. Receive loot; inspect an item, then take it.
+7. Open inventory, compare two weapons and equip one.
+8. Show quest progress, seven memories tracker and connected location map.
+9. Save game; exit; restart and load from MySQL, showing identical progress.
+10. Demonstrate boss phase logic or a scripted test encounter.
+11. Show a locked route and the ability that unlocks it.
+12. Show ending resolver requirements and how choices affect endings (use a dedicated test save, not a fake result).
+13. Each member briefly presents their own Java classes, OOP principles, SQL tables/repositories and tests.
+
+15. QUALITY, SAFETY AND IMPLEMENTATION RULES
+---------------------------------------------
+- Always compile after adding a meaningful feature; run automated tests before merging.
+- Prefer small cohesive classes and clear names over a 2000-line Game.java.
+- Keep all random behavior seedable and combat formulas in one place.
+- Never use hardcoded absolute Windows paths; use cross-platform resources and relative paths.
+- Use a UTF-8 terminal with a plain ASCII fallback; test on Windows 10/11 PowerShell.
+- Validate all input; no infinite loops on EOF, null input, invalid numbers or empty strings.
+- Make game rules visible and fair; never hide a weapon's self-damage cost.
+- Use logs for technical errors and concise friendly messages for players.
+- Avoid duplicated content IDs and broken story flags; validate content at startup.
+- Do not generate endless placeholder content instead of a working core.
+- If a requested feature is incomplete, explicitly mark it TODO in a tracked roadmap; never present it as finished.
+- Test DB schema on a clean MySQL installation, not only an already-populated developer DB.
+- Maintain SQL migration compatibility and version checks.
+- No external AI integration, telemetry, advertisements or account requirement.
+
+16. FINAL DELIVERABLES
+----------------------
+1. A fully runnable Java 17+ Maven CLI game (source + executable packaging instructions).
+2. MySQL schema/migrations and sample seed data, with JDBC repository implementations.
+3. README: prerequisites, Java/Maven/MySQL setup, environment variables, run commands, troubleshooting.
+4. Complete CLI command reference and gameplay instructions.
+5. Architecture document: diagrams, OOP patterns, database ER relationships and module boundaries.
+6. Story bible: canonical history, NPCs, enemies, weapons, seven memories and three endings.
+7. Automated unit/integration tests and manual acceptance checklist.
+8. Four-member role document mapping each member to classes, tasks, SQL and demos.
+9. A playable, polished vertical slice first; complete game content after tests pass.
+
+17. INSTRUCTIONS FOR HOW THE CODING ASSISTANT SHOULD WORK
+--------------------------------------------------------
+First inspect the repository and existing code. Do not overwrite working implementations without reading them. Summarize what already exists and what is missing. Then propose a short phased implementation plan and the shared class interfaces. Implement the smallest working end-to-end path. After each phase: (a) list files changed, (b) compile/test, (c) state actual results, (d) identify remaining issues, (e) suggest the next phase. If you cannot run MySQL, still write proper JDBC repositories and tests and explicitly mark DB verification pending; do not falsely report a successful connection. Ask a question only when a choice materially affects architecture or canon; otherwise use the defaults specified here. Do not create a GUI. Do not integrate AI into gameplay. Never remove the inspect-before-select requirement. Do not replace turn-based combat with automatic battles. Treat story flags and ending conditions as first-class game state.
+
+FIRST TASK TO EXECUTE
+1. Check Java, Maven and MySQL availability.
+2. Scaffold Maven project, packages, config, migrations and core domain interfaces.
+3. Implement main menu, GameState, command parser and terminal renderer.
+4. Implement player, Silverblade, Crimson Vial, Hollow Soldier, one room, one dialogue and one turn-based encounter.
+5. Implement inspect-before-equip and inspect-before-use.
+6. Implement JDBC save slot creation, atomic save and load of this vertical slice.
+7. Compile, run tests, and provide exact commands for a human to launch it.
+Only then expand the complete game content in the order above.
+
+END OF MASTER SPECIFICATION
+=====================================================================================

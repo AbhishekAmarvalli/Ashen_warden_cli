@@ -1,0 +1,24 @@
+PROLOGUE — THE TOMB OF COLD ASH
+
+One distant bell, and then the ash is still.
+You open your eyes beneath a cracked visor. Gray dust covers the insignia on
+your chestplate; an amber glow pulses once behind your ribs, weak as a dying
+coal. Your fingers close around the weathered hilt of a silver sword.
+
+Around you: broken standards, ruined wagons, and the outlines of the dead in
+the ash. This was a battlefield — and you were meant to be part of it.
+
+A whisper slips through the dust, neither near nor far:
+"When the final bell tolls, return to the throne."
+
+You remember almost nothing: an oath, a burning hall, and the weight of chains.
+The ember in your chest will not let you rest.
+
+Goals:
+  - Read the damaged journal beside you (interact journal)
+  - Inspect and equip your blade (inventory -> inspect 1 -> equip 1)
+  - Learn this place (look, go, search, help)
+  - Speak with whoever still draws breath (talk keeper)
+  - Cut down whatever blocks the way out (go north)
+
+Type 'help' at any time. Nothing you type by mistake can cost you a turn.

@@ -1,0 +1,15 @@
+[
+{"code":"quest_first_steps","name":"The First Toll",
+ "summary":"Take up your blade, read the journal you woke beside, learn this place, speak with the Lantern Keeper, and clear the way out of the tomb.",
+ "prerequisiteFlag":null,
+ "objectives":[
+  {"id":"read_journal","text":"Read the damaged journal in the tomb","type":"FLAG","target":"read:damaged_journal","count":1},
+  {"id":"equip_blade","text":"Inspect and equip your Warden's Silverblade","type":"FLAG","target":"equipped_weapon","count":1},
+  {"id":"talk_keeper","text":"Speak with the Lantern Keeper","type":"TALK","target":"lantern_keeper","count":1},
+  {"id":"kill_soldier","text":"Defeat the Hollow Soldier blocking the passage","type":"KILL","target":"hollow_soldier","count":1},
+  {"id":"leave_tomb","text":"Reach the Forgotten Outskirts","type":"LOCATION","target":"forgotten_outskirts","count":1}
+ ],
+ "rewards":[
+  {"itemCode":"crimson_vial","quantity":1,"xp":25,"fragments":40,"abilityCode":null,"memoryCode":null}
+ ]}
+]

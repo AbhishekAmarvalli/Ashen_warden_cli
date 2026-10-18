@@ -1,0 +1,58 @@
+[
+{"code":"hollow_soldier","name":"Hollow Soldier","region":"Warden's Tomb / Forgotten Outskirts",
+ "hp":60,"attack":10,"defense":5,"xp":30,
+ "lore":"A decayed royal infantryman: rusted plate, chipped shield, a broken straight sword. The faint spectral light in his helm is all that remains of the man.",
+ "counterplayHint":"Its slash and heavy are both PARRYABLE — parry the telegraphed blow. Raise your guard and it will answer with an unblockable shield bash, so defend only when you must; a heavy strike staggers it for free.",
+ "resistances":{},
+ "weaknesses":["spectral"],
+ "boss":false,
+ "behaviorCode":"hollow_soldier",
+ "moves":[
+  {"name":"Light Slash","intent":"Light slash (Parryable)","kind":"LIGHT","multiplier":1.0,
+   "tags":["PARRYABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":null},
+  {"name":"Rusted Jab","intent":"Rusted jab — quick, not parryable","kind":"LIGHT","multiplier":0.85,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"A scrappy jab beneath your guard."},
+  {"name":"Charged Heavy","intent":"Heavy overhead slash — winding up (Parryable)","kind":"HEAVY","multiplier":1.5,
+   "tags":["PARRYABLE"],"status":"GUARD_BREAK","statusChance":50,"statusPower":0,"statusTurns":2,
+   "healAmount":0,"effectText":null},
+  {"name":"Shield Bash","intent":"Shield bash (UNBLOCKABLE — ignores your guard)","kind":"HEAVY","multiplier":1.1,
+   "tags":["UNBLOCKABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"The rim of the shield cracks across your stance."},
+  {"name":"Battered Guard","intent":"Raising a battered shield (damage reduced)","kind":"DEFEND","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":null}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":70,"quantity":10},
+  {"itemCode":"crimson_vial","chance":15,"quantity":1}
+ ]},
+
+{"code":"grave_crawler","name":"Grave Crawler","region":"Warden's Tomb",
+ "hp":34,"attack":8,"defense":3,"xp":20,
+ "lore":"A skeletal quadruped with stretched limbs and pale eyes, grave soil caught between its ribs. It hunts from under the ash.",
+ "counterplayHint":"Its bite and lunge are PARRYABLE and can bleed you — sacred bandages or a rest clear it. When it burrows, it is setting up an UNBLOCKABLE ambush: spend that round healing or repositioning, then weather the eruption. Spectral edges bite poorly here; plain steel works best.",
+ "resistances":{"spectral":0.5},
+ "weaknesses":["physical"],
+ "boss":false,
+ "behaviorCode":"grave_crawler",
+ "moves":[
+  {"name":"Bite","intent":"Bite (Parryable)","kind":"LIGHT","multiplier":1.0,
+   "tags":["PARRYABLE"],"status":"BLEED","statusChance":25,"statusPower":4,"statusTurns":3,
+   "healAmount":0,"effectText":null},
+  {"name":"Lunge","intent":"Low lunge — fast (Parryable)","kind":"LIGHT","multiplier":1.3,
+   "tags":["PARRYABLE"],"status":"BLEED","statusChance":40,"statusPower":4,"statusTurns":3,
+   "healAmount":0,"effectText":null},
+  {"name":"Burrow","intent":"Sinks into the ash — an ambush is coming!","kind":"GATHER","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"The crawler vanishes under the ash. Something is about to erupt."},
+  {"name":"Ambush Bite","intent":"AMBUSH erupts from below (UNBLOCKABLE!)","kind":"HEAVY","multiplier":1.5,
+   "tags":["UNBLOCKABLE"],"status":"BLEED","statusChance":30,"statusPower":4,"statusTurns":3,
+   "healAmount":0,"effectText":"Bone-scraping force from beneath the floor."}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":60,"quantity":6},
+  {"itemCode":"ancient_coin","chance":20,"quantity":1}
+ ]}
+]

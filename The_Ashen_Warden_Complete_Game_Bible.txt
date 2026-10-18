@@ -1,0 +1,858 @@
+THE ASHEN WARDEN
+
+Complete Game Design, Story, Worldbuilding and Animation Production Bible
+
+Version 1.0 | Original concept | Java/libGDX | 2D Gothic Pixel-Art
+Metroidvania
+
+PURPOSE This is the master reference for the game: narrative,
+characters, visual identity, mechanics, levels, animations, effects,
+objects, and production priorities. All descriptions are proposed design
+specifications, not a claim that these assets are already implemented.
+Animation frame counts are targets to adjust during playtesting. The
+game should be built incrementally.
+
+======================================================================
+PART I — CREATIVE VISION AND STORY
+======================================================================
+
+1. High concept
+
+The Ashen Warden is a dark-fantasy, side-scrolling action-adventure set
+in Veyrath, a kingdom that attempted to conquer death and instead
+trapped its people between life and oblivion. The last Warden wakes in a
+battlefield of ash with a fractured memory, a silver sword and a dying
+amber flame in his chest. He travels through interlinked regions,
+mastering combat and supernatural traversal powers, learning that his
+own resurrection is connected to the catastrophe. At the throne, he must
+decide whether to destroy, claim, or redeem the Eternal Flame.
+
+Core player fantasy: a solitary armored knight pushes through
+overwhelming ruins, survives through skill, and uncovers the truth about
+his own order. Combat must feel weighty and readable. Exploration should
+reward curiosity. Narrative should emerge through environments, item
+descriptions, NPC dialogue and short memory scenes rather than endless
+exposition.
+
+2. Genre, audience and creative principles
+
+Genre: Gothic 2D pixel-art Metroidvania with deliberate soulslike combat
+and light RPG equipment systems. Perspective: orthographic side view.
+Mood: lonely, tragic, mysterious, solemn, occasionally hopeful. Avoid
+comedic visual effects in combat scenes. Inspiration may be drawn from
+gothic action games, but all designs, art, characters, names, story and
+music must be original.
+
+Design pillars: 1. Combat clarity: enemies telegraph attacks; successful
+dodges, parries and counterattacks feel earned. 2. Exploration and
+ability gating: new abilities open old routes, shortcuts and secrets. 3.
+Consistent visual language: blackened iron, tarnished silver, crimson
+cloth, ash, amber fire, spectral blue. 4. Environmental storytelling:
+statues, mass graves, royal propaganda, broken seals and discarded armor
+explain Veyrath. 5. Meaningful progression: weapons differ in timing and
+utility; upgrades enhance choices, not just numbers. 6. Tragic
+antagonists: major bosses were people who made consequential choices. 7.
+Technical restraint: use readable pixel art, modest texture sizes and
+modular systems suitable for an 8 GB Windows development machine.
+
+3. Historical timeline of Veyrath
+
+Age of Embers: settlers discover an unnatural subterranean flame beneath
+the future capital. Priests call it the Eternal Flame and build a
+protective order around it. Age of Crowns: the monarchy establishes
+Veyrath; the Ashen Wardens are sworn to guard the Flame and prevent its
+exploitation. The Order is independent of the crown in matters of
+forbidden magic. The King’s Decline: the aging king fears death and
+authorizes experiments to bind the Flame to royal blood. The court hides
+disappearances and failed experiments. The Night of Seven Bells: priests
+begin a ritual requiring a living vessel. The Warden Order attacks the
+palace to stop it. The king betrays the Warden captain and steals the
+ritual. Seven seals fail; the Ashen Blight spreads. The Long Ash:
+settlements empty, soldiers rise as hollows, cathedrals become cult
+sanctuaries, and the Hollow King remains trapped in the capital.
+Surviving citizens pass down distorted stories blaming the Wardens. The
+Final Toll: the seals weaken centuries later; the protagonist reawakens
+with an amber flame lodged in his chest.
+
+4. The curse and its rules
+
+The Ashen Blight is not an ordinary infection. It is a failed
+metaphysical binding between life, memory and the Eternal Flame. Victims
+lose identity before bodily form; some remain intelligent, some become
+instinct-driven hollows, and some manifest as spectral remnants. Ash is
+the physical residue of the curse. Crimson magic uses blood as a
+stabilizing conduit; blue spectral energy is displaced memory; amber
+light is the original Flame. The player is neither fully living nor
+conventionally undead. The Flame can heal and empower, but excessive
+reliance threatens identity. This lore should guide enemies, magic, UI
+and endings.
+
+5. Prologue — The knight who should have died
+
+Opening cinematic: black screen, one distant bell, close-up of a cracked
+visor beneath gray ash. A weak amber glow lights the inside of the
+helmet. The Warden’s hand twitches; fingers close around a weathered
+sword. Camera pulls back to a battlefield strewn with the insignia of
+the Order. A whisper: ‘When the final bell tolls, return to the throne.’
+Playable opening: rise from the ground, move past broken standards, jump
+over a fallen wagon, strike a Hollow Soldier, reach a shrine. The player
+finds a royal proclamation accusing the Wardens of treason, setting up
+doubt.
+
+6. Act I — The Land of Forgotten Dead
+
+Region: Forgotten Outskirts, then Cathedral of Broken Bells. The Lantern
+Keeper identifies the Warden crest. Survivors fear the dead and distrust
+the Order. Evidence contradicts the official royal account. The Warden
+follows an impossible bell toll to a ruined cathedral. The Bell Keeper,
+a guardian fused with chains and a great bell, defends the first seal.
+Upon defeat, the Warden recovers a memory of the Order’s final march.
+Unlock Bellbreaker, enabling destruction of cracked stone walls and
+opening shortcuts to earlier areas.
+
+7. Act II — The Crimson Faith
+
+Region: Blackwood Forest and Crimson Cathedral. A cult teaches that the
+curse is sacred transformation. The Warden meets Sister Elara, who
+reveals that ritual sacrifices were hidden as ‘holy offerings.’ The
+Crimson Bishop commands blood magic and claims the Warden was a willing
+participant. Archives reveal that the Order was sacrificed to stabilize
+the ritual. The Bishop’s death grants Ashen Flame, which powers ancient
+runes and seals. The Warden remembers confronting the king at the ritual
+chamber.
+
+8. Act III — Beneath the Hollow Crown
+
+Region: Royal Crypts and buried archives. The Warden finds tombs of
+former comrades, including Sir Vaelor’s history. A Fallen Executioner
+guards the execution chamber where captured Wardens were killed. The
+royal records reveal the protagonist was selected as the Flame’s vessel;
+the king betrayed him to seize the power. The Warden was buried with a
+fragment of the Flame and awakens when the seals weaken. Unlock Double
+Jump to reach the upper palace and hidden memories.
+
+9. Act IV — The Throne of Ashes
+
+Region: Palace of the Hollow Crown. Elite corrupted knights guard a
+court frozen in death. The Hollow King waits beneath a crown fused to
+his skull. Phase 1 emphasizes royal sword technique, phase 2 combines
+flame and sword, phase 3 reveals the Eternal Flame as a barely
+controlled entity. Defeat opens a final choice with outcomes conditioned
+by collected memories and restored seals.
+
+10. Endings
+
+Ending A — The Last Ember: absorb the Flame and extinguish it at the
+cost of the Warden’s existence. Undead rest, survivors see sunrise, the
+empty armor remains near the throne. Bitter but hopeful. Ending B — The
+Hollow Throne: seize the crown and control the Flame. The kingdom
+appears restored but a new immortal ruler sits where the old one fell.
+Ambiguous, ominous. Ending C — Dawn Beyond Ash: obtain all seven Warden
+memories and restore ancient seals. Separate Flame from bloodline
+without annihilating its bearer. The Warden lives, no longer bound to a
+king. Hardest ending, requiring optional exploration and a final ritual.
+
+11. Seven Warden memory fragments
+
+1.  The Oath: the protagonist joins the Order and learns its vow.
+2.  The Warning: the Order discovers the king’s forbidden experiments.
+3.  The Betrayal: royal guards attack the Wardens under false orders.
+4.  The Sacrifice: prisoners are offered to the Flame.
+5.  The Vessel: the protagonist learns he was selected to contain the
+    power.
+6.  The Final Assault: the Order fights to reach the ritual chamber.
+7.  The Choice: the Warden recalls refusing immortality and trying to
+    save the kingdom. Each memory: collectible relic, 1-3 brief still or
+    animated vignettes, distinct ambient audio, optional lore text, and
+    a persistent journal entry.
+
+======================================================================
+PART II — CHARACTERS AND ANIMATION SPECIFICATIONS
+======================================================================
+
+12. The Ashen Warden — playable protagonist
+
+Silhouette: medium-tall knight, angular blackened plate armor, tarnished
+silver edge highlights, enclosed iron helmet with narrow horizontal
+amber visor, dark crimson torn cloak, heavy boots and long silver sword
+with black crossguard. Side view faces RIGHT in source art. The helmet
+and chestplate must not change design between frames. The sword’s length
+and hilt geometry must remain consistent. No visible human face except
+in a deliberate late-game cinematic if chosen. Personality: silent,
+disciplined, suspicious of easy answers, capable of compassion.
+Animation language: powerful and measured, with believable armor
+inertia. Cloak is a secondary-motion element that trails movement and
+settles after stops. Avoid exaggerated cartoon squash unless used subtly
+for impact.
+
+12A. Player locomotion animation list
+
+Format: NAME | suggested frames | exact motion / notes. IDLE | 8 |
+Planted boots, mild breathing through shoulders and torso, slight
+gauntlet shift, minimal sword sway, cloak hems move one or two pixels.
+Loop without a pop. IDLE_VARIATION | 8-12 | Shift weight, scan horizon,
+adjust sword grip; play occasionally, not every idle cycle. WALK | 8 |
+Four distinct contact/passing phases across both feet, controlled upper
+body and small cloak drag. RUN | 8 | Right foot contact, right
+compression, right push, airborne transition; mirrored left foot
+contact, compression, push, airborne transition. Opposing arms; forward
+lean; stable torso anchor. SPRINT | 8-10 | Wider strides and deeper
+lean; greater cloak lag; distinct from run if stamina system is
+implemented. RUN_START | 3-4 | Knees bend, center of mass shifts
+forward, rear foot drives off. RUN_STOP | 4-6 | Front foot brakes, torso
+catches momentum, cape overshoots then settles. TURN | 4-6 | Feet
+reposition, hips and shoulders rotate, sword and cloak lag. If mirrored
+sprites are used, avoid showing impossible asymmetric gear. CROUCH_ENTER
+| 3-4 | Bend knees, lower sword, head dips without changing helmet size.
+CROUCH_IDLE | 4 | Defensive low stance, slight breathing. CROUCH_EXIT |
+3-4 | Straighten knees, restore weapon pose. CROUCH_WALK | 6-8 | Short
+careful steps while keeping head below obstacle clearance. LOOK_UP | 3-4
+| Tilt helmet and shoulders toward overhead path. LOOK_DOWN | 3-4 |
+Inspect ground, trap or drop.
+
+12B. Player airborne and traversal animations
+
+JUMP_ANTICIPATION | 2-3 | Quick knee bend and sword stabilizing pose
+before takeoff. JUMP_TAKEOFF | 3-4 | Rear leg extends, boots leave
+baseline, cape begins rising. JUMP_ASCEND | 4-6 | Bent leading knee,
+body stretched upward, sword held close. JUMP_APEX | 3-4 | Brief
+near-weightless pose, cape hangs with delay. FALL | 4-6 | Boots lower,
+knees prepare to absorb landing, cloak rises above back. LAND_SOFT | 3-4
+| Boots contact fixed ground line, knees flex, torso recovers. LAND_HARD
+| 6-8 | Deep crouch and dust burst; heavier recovery after large fall.
+DOUBLE_JUMP | 6-8 | Midair contraction, amber flare from boots/chest,
+new upward push, cape snaps. WALL_SLIDE | 4-6 | One arm and boot brace
+wall; scraping sparks and controlled descent. WALL_JUMP | 5-7 | Push
+from wall, rotate body, extend toward opposite side. LEDGE_GRAB | 3-4 |
+Hands catch ledge, body swings and stops. LEDGE_HANG | 4 | Subtle strain
+and leg movement while suspended. LEDGE_CLIMB | 6-8 | Pull up, knee on
+ledge, stand and recover weapon. AIR_DASH | 5-7 | Compress, surge
+horizontally, trail amber afterimages, decelerate. GROUND_ROLL | 6-8 |
+Tuck, rotate with cape wrapping around armor, recover in stance.
+
+12C. Player sword combat animations
+
+LIGHT_ATTACK_1 | 6 | Quick horizontal slash; frames 1-2 windup, 3-4 hit,
+5-6 follow-through/recovery. LIGHT_ATTACK_2 | 6 | Reverse-direction
+slash continuing momentum from attack 1. LIGHT_ATTACK_3 | 8 | Heavier
+finisher, broad arc and noticeable recovery. HEAVY_ATTACK | 10-12 | Long
+readable windup, planted front foot, forceful cut, delayed recovery.
+CHARGED_HEAVY | 12-16 | Blade gathers amber sparks; hold phase can loop
+separately; release is explosive. UPWARD_SLASH | 7-9 | Hips rotate
+upward, blade traces rising arc, useful versus airborne targets.
+DOWNWARD_SLASH | 7-9 | High guard into vertical strike; strong impact at
+bottom. RUN_ATTACK | 7-9 | Forward momentum carries the knight through a
+slash; footwork must match movement. CROUCH_ATTACK | 5-7 | Low sweep
+that remains beneath a standing enemy’s guard. JUMP_ATTACK | 7-9 |
+Midair diagonal cut; no ground-contact frames. AIR_DOWN_STRIKE | 8-10 |
+Point blade downward and dive; separate landing impact animation.
+LANDING_STRIKE | 8-10 | Weapon and boots hit ground, crack and dust
+shockwave radiate. THRUST | 6-8 | Shoulder drives forward, blade extends
+straight, quick withdrawal. SPIN_ATTACK | 10-12 | Controlled full-body
+rotation, cloak arcs around body, large recovery. COMBO_FINISHER | 10-14
+| Strong unique end pose and impact effect, used after a successful
+chain. ATTACK_RECOVERY | 3-5 | Rebalance after missed or completed heavy
+attack.
+
+12D. Defense, hit reactions, death and revival
+
+GUARD_ENTER | 3 | Raise sword to intercept incoming attacks. GUARD_HOLD
+| 4 | Firm defensive pose, subtle bracing. GUARD_RELEASE | 3 | Return to
+neutral stance. BLOCK_SUCCESS | 4-6 | Sword and arms recoil, sparks at
+actual contact point. PERFECT_PARRY | 6-8 | Precise deflection, brief
+flash, enemy vulnerability cue. GUARD_BREAK | 7-9 | Weapon knocked
+aside, open stagger pose. HURT_LIGHT | 4-5 | Small torso jerk and quick
+recovery. HURT_HEAVY | 7-9 | Strong recoil and boot slide. KNOCKBACK |
+6-8 | Body travels backward, cape and sword follow. KNOCKDOWN | 8-10 |
+Lose balance and hit ground without clipping weapon. GET_UP | 6-8 | Push
+off floor, rise into guard. DEATH | 12-16 | Legs fail, sword drops,
+visor glow dims. DEATH_DISSOLVE | 8-12 | Armor and body turn to drifting
+ash, with separate particles. RESPAWN | 10-14 | Amber embers converge,
+knight reforms, regains stance.
+
+12E. Magic, equipment and story interactions
+
+ASHEN_FLAME_ACTIVATE | 8-12 | Amber flame ignites along gauntlet and
+sword. FLAME_SLASH | 8-10 | Blade sends forward fire arc; projectile
+effect separate. ASH_BURST | 10-12 | Knight braces then releases radial
+ember explosion. BLOODTHORN_ACTIVATE | 8-10 | Crimson thorns and glow
+creep along blade. WRAITH_STEP | 6-8 | Knight becomes translucent, blurs
+through short distance, reforms. SOUL_ABSORB | 8-12 | Spectral motes
+spiral into amber chest flame. HEAL | 10-14 | Raise vial, drink, red
+light spreads through armor, lower arm. WEAPON_ENCHANT | 10-12 | Runes
+encircle blade and fade. ULTIMATE | 16-24 | Long high-impact two-handed
+finisher with strong anticipation. MEMORY_VISION | 10-16 | Kneel, touch
+relic, stagger as vision begins. PICKUP | 5-7 | Bend or reach for
+object, bring it to hand, recover. OPEN_CHEST | 7-10 | Kneel and open
+heavy lid. PULL_LEVER | 6-8 | Grasp and force mechanism downward.
+PUSH_BLOCK | 6-8 | Brace both hands and shift weight with each step.
+OPEN_HEAVY_DOOR | 10-14 | Plant feet and force stone door open.
+REST_AT_SHRINE | 10-14 | Kneel and plant sword as ember steadies.
+RISE_FROM_SHRINE | 7-9 | Retrieve sword and stand. READ_INSCRIPTION |
+5-7 | Lean toward rune or plaque. NPC_LISTEN | 4-6 | Subtle attention
+pose; no lip sync needed for silent hero. EQUIP_WEAPON | 6-8 | Draw and
+test new weapon. VICTORY | 8-12 | Lower sword, steady breathing, no
+exaggerated celebration. ENDING_SACRIFICE | 18-24 | Kneel as chest flame
+extinguishes; armor becomes still.
+
+13. Hollow Soldier
+
+Appearance: decayed royal infantryman, rusted plate and chain, chipped
+shield, broken straight sword, weak spectral light in helmet. Slow,
+recognizable threat teaching combat fundamentals. AI: patrol -> detect
+-> approach -> attack -> recovery -> retreat/guard. Drops Ash Fragments
+and rare Armor Shards. IDLE 6: slumped posture, uneven breathing; PATROL
+8: dragging armored step; ALERT 4: raise head and sword; CHASE 8: faster
+clumsy gait; SLASH 7: telegraphed horizontal cut; SHIELD_BLOCK 5: shield
+up and impact recoil; STAGGER 5: knocked off balance; HURT 4: brief
+recoil; DEATH 10: knees buckle, armor falls; ASH_DISSOLVE 8: remaining
+body disintegrates.
+
+14. Blood Cultist
+
+Appearance: hooded figure in dark-red ritual robes with bone charms,
+dagger, blood-sigil hands. AI keeps distance, casts projectiles, closes
+with dagger only if threatened. Drops Crimson Vial or Bloodfire Essence.
+CHANT_IDLE 8: slow rhythmic sway; WALK 8: robe hem movement; ALERT 4:
+raises hand; DAGGER_SLASH 6: quick close-range strike; BLOOD_CHARGE 10:
+orb gathers; BLOOD_CAST 6: projectile releases; SHIELD_CAST 8: sigil
+forms barrier; TELEPORT 8: dissolves into crimson particles; HURT 5:
+stagger; DEATH 12: collapses as magic dissipates.
+
+15. Grave Crawler
+
+Appearance: low skeletal quadruped, stretched limbs, exposed bone, pale
+eyes, grave soil caught between ribs. AI hides then ambushes and lunges.
+Silhouette must be low and instantly recognizable. BURIED_IDLE 5: small
+soil movement; EMERGE 10: claws break ground; CRAWL 8: alternating
+limbs; SPRINT 8: faster low run; LEAP_WINDUP 4: rear legs coil; LEAP 6:
+full-body extension; BITE 6: jaws snap; RECOIL 5: head snaps backward;
+RETREAT 6: scuttles away; DEATH 10: limbs fold, bones scatter.
+
+16. Fallen Executioner
+
+Appearance: towering hooded executioner with massive chipped iron axe,
+chains, black armor and broad silhouette. AI slow but punishing, with
+clearly telegraphed high-damage swings. IDLE 8: heavy breaths; WALK 8:
+weighty steps; AXE_RAISE 8: long windup; OVERHEAD_SMASH 10: crushing
+vertical strike; AXE_SWEEP 10: wide lateral arc; GROUND_SLAM 12: floor
+shockwave; RECOVERY 7: slow weapon retrieval; STAGGER 6: one-knee drop;
+ENRAGED_ROAR 10: raises axe and bellows; DEATH 16: collapses and drops
+axe.
+
+17. Wraith
+
+Appearance: translucent spectral knight, blue-white glow, shredded
+shroud, ghost blade, no visible feet. AI floats, teleports and attacks
+from unusual angles; vulnerable when materialized. FLOAT_IDLE 8:
+rhythmic hover; GLIDE 8: horizontal drift; MATERIALIZE 8: spectral body
+becomes solid; VANISH 8: fragments into mist; SPECTRAL_SLASH 8: ghost
+blade arc; DIVE 8: plunges diagonally; MAGIC_PULSE 10: expanding blue
+ring; HIT_FLICKER 5: momentary disruption; BANISHMENT 12: light breaks
+into motes.
+
+18. Additional enemy roster
+
+PLAGUE_RAT: oversized diseased rodent, group harassment; IDLE, SCURRY,
+BITE, HURT, DEATH. ASH_HOUND: charred wolf with glowing seams; IDLE,
+RUN, LEAP, BITE, HOWL, DEATH. BONE_ARCHER: skeleton archer in decayed
+uniform; IDLE, AIM, DRAW, RELEASE, RELOAD, HURT, DEATH.
+CATHEDRAL_ACOLYTE: hooded servant wielding burning censer; IDLE, WALK,
+SWING, CAST, HURT, DEATH. BELLBOUND_GUARDIAN: iron-and-bronze construct
+with embedded bell; DORMANT, WAKE, WALK, SMASH, RING, STUN, DEATH.
+TOMB_SENTINEL: animated stone armor; DORMANT, AWAKEN, PATROL, STRIKE,
+CRUMBLE. BLOOD_LEECH: parasitic sewer creature; CRAWL, ATTACH, FEED,
+DETACH, DEATH. ASHEN_KNIGHT: corrupted elite former Warden; IDLE, WALK,
+RUN, SWORD_COMBO, PARRY, DODGE, HURT, DEATH. ROYAL_SORCERER: undead
+archive mage; FLOAT, SPELL_CHARGE, CAST, TELEPORT, BARRIER, DEATH.
+CROWNLESS_NOBLE: mutated aristocrat with ceremonial blades; WALK, LUNGE,
+SPIN, SCREAM, DEATH.
+
+======================================================================
+PART III — BOSSES AND THEIR ANIMATIONS
+======================================================================
+
+19. Boss: Bell Keeper
+
+Location: Cathedral of Broken Bells. Role: guardian of first seal, fused
+with bell and chains. Appearance: roughly three times player height,
+dark armor, bronze bell mounted behind shoulders, long chains and giant
+hammer. Tragedy: sacrificed his body to keep the seal intact; no longer
+knows friend from foe. Phase 1: deliberate hammer strikes and chain
+grabs. Phase 2: bell resonance and debris. Phase 3: bell fractures and
+overlapping shockwaves. Arena: cathedral nave, pillars for visual
+framing, suspended bell, falling dust. Reward: Bellbreaker traversal
+power. DORMANT 8: statue-like stillness; AWAKEN 18: chains tense and
+helmet rises; IDLE 8: bell rocks slightly; WALK 10: slow massive
+footfalls; HAMMER_OVERHEAD 12: long telegraph then slam; HAMMER_SWEEP
+10: wide sweep; CHAIN_GRAB 12: chain extends and retracts; BELL_RING 16:
+resonance rings outward; SHOCKWAVE_SLAM 14: ground pulse;
+PHASE_TRANSITION 20: bronze fractures and chains snap; ENRAGED_COMBO 12:
+quicker double smash; STAGGER 10: collapses to one knee; DEFEAT 24: bell
+detaches, guardian crumples; DEATH_VFX 12-20: metal fragments and ash.
+
+20. Boss: Crimson Bishop
+
+Location: Crimson Cathedral. Role: cult leader who calls undeath holy.
+Appearance: towering priest in ornate crimson-black vestments, golden
+mask, skeletal hands, floating red sigils, blood halo. Personality:
+serene, persuasive, fanatical. Tragedy: believes he saved humanity by
+accepting the curse. Phase 1: blood orbs, staff strikes, shields. Phase
+2: cultist summons, ritual circles and teleport. Phase 3: robes rupture,
+monstrous blood apparition emerges. Reward: Ashen Flame rune activation.
+THRONE_IDLE 8; RISE 12; FLOAT_WALK 8; STAFF_ATTACK 8; BLOOD_ORB_CHARGE
+12; BLOOD_ORB_RELEASE 6; BLOOD_RAIN 16; RITUAL_CIRCLE 14; MAGIC_BARRIER
+10; SUMMON_CULTISTS 14; TELEPORT 8; TRANSFORM 24; BLOOD_BEAM 16;
+FINAL_COLLAPSE 20; DEATH 24. Ensure every spell has a visible warning
+before damage begins.
+
+21. Boss: Hollow King
+
+Location: Throne of Ashes. Role: final antagonist and source of the
+kingdom’s ruin. Appearance: skeletal monarch, crown fused into skull,
+blackened ceremonial armor, ragged royal mantle, amber cracks across
+torso, immense sword. Motivation: terror of mortality; self-justifying
+tyranny. Phase 1 ‘Fallen Monarch’: refined sword techniques, parries and
+counterattacks. Phase 2 ‘Burning Crown’: sword attacks plus flame
+pillars, teleport and crown beam. Phase 3 ‘Empty Throne’: armor
+ruptures, Flame emerges as a giant supernatural shape; large area
+attacks. Arena transforms from intact throne hall to collapsing inferno.
+Ending choice follows victory. THRONE_IDLE 8; AWAKEN 20; ROYAL_WALK 10;
+SWORD_COMBO_1 10; SWORD_COMBO_2 12; COUNTER 8; PARRY 6; FLAME_BURST 14;
+CROWN_BEAM 18; FLAME_PILLARS 16; TELEPORT 10; PHASE_2_TRANSITION 24;
+ENRAGED_COMBO 14; PHASE_3_TRANSFORM 30; FINAL_FORM_IDLE 10;
+FINAL_FORM_CLAW 10; FINAL_FORM_ERUPTION 18; STAGGER 12; DEFEAT 30;
+ENDING_CINEMATIC 30+.
+
+22. Optional bosses
+
+MOURNING_KNIGHT: former comrade who believes the player betrayed the
+Order. Duel built around mirrored sword skills; intro, idle, walk, two
+combos, parry, riposte, desperation phase, defeat and memory scene.
+PALE_WIDOW: spectral queen below the palace. Elegant floating attacks,
+ghostly summons, illusion duplicates and sorrowful death. ASH_SERPENT:
+colossal beast born from discarded Flame. Coiling body, head strikes,
+ash breath, underground emergence and arena-wide fire. Each optional
+boss needs 6-10 distinct combat clips, hit/stagger, phase transition,
+defeat and a reward.
+
+======================================================================
+PART IV — WEAPONS, EQUIPMENT AND LOOT
+======================================================================
+
+23. Weapon catalogue
+
+WARDEN’S SILVERBLADE: standard silver longsword with black crossguard,
+chipped edges and faded amber rune. Balanced reach, damage and speed.
+Clips: EQUIP, IDLE, LIGHT_1/2/3, THRUST, CHARGED_SLASH, AIR_SLASH,
+PARRY, ENCHANT. BLOODTHORN BLADE: dark blade with thornlike metal veins
+and crimson energy. Fast bleeding slashes; special attack consumes
+health for burst damage. Clips: EQUIP, IDLE, FAST_COMBO, BLOOD_THRUST,
+BLOOD_WAVE, DRAIN_VFX. BELLBREAKER SWORD: massive weapon forged from the
+Keeper’s bell. Slow, high stagger, shockwave attacks. Clips:
+TWO_HAND_IDLE, WINDUP, OVERHEAD_SMASH, SWEEP, GROUND_WAVE, RECOVERY.
+ASHEN GREATSWORD: ancient heavy blade with amber cracks. Burning damage,
+wide flame arcs. Clips: TWO_HAND_IDLE, HEAVY_COMBO, FLAME_SLASH,
+CHARGED_ERUPTION, FINISHER. WRAITH DAGGER: translucent short blade with
+ghostly blue edge. Very fast, low reach, teleport/backstab specialty.
+Clips: DAGGER_IDLE, FLURRY, BACKSTAB, TELEPORT_SLASH, AIR_FLURRY.
+CRIMSON STAFF: ritual staff with red crystal, blood projectiles and
+shields. Clips: STAFF_IDLE, STAFF_STRIKE, ORB_CAST, BLOOD_BEAM, BARRIER,
+CHANNEL. EXECUTIONER’S AXE: heavy black iron axe with worn bloodstains.
+High single-hit damage, slow recovery. Clips: HEAVY_IDLE, CLEAVE,
+OVERHEAD, SPIN, EXECUTION_FINISHER.
+
+Weapon animation production rule: reuse a common knight proportion guide
+and fixed anchors. Different weapon silhouettes must never cause the
+knight’s head, armor or leg length to drift. Keep hitboxes and attack
+timing in code; visual trails and impacts as separate transparent
+effects.
+
+24. Armor and accessories
+
+STARTER WARDEN ARMOR: battered plate; balanced defense; default look.
+ASHEN GUARD ARMOR: reinforced dark plate with amber accents; increased
+defense and slower dodge recovery. WRAITHBOUND MANTLE: pale-blue
+spectral cloth; enhanced dodge/teleport effects. CRIMSON PENITENT SET:
+dark red ceremonial plates; improves blood magic but increases risk.
+ROYAL REMNANT SET: tarnished gold trim and broken royal crest; late-game
+armor tied to palace secrets. Accessories: Bell Charm (resistance to
+shockwaves), Ember Sigil (flame enhancement), Wraith Ring (spectral
+mobility), Soldier’s Knot (stamina recovery), Martyr’s Seal (healing
+tradeoff). Equipment icons need normal, selected, locked and upgraded
+states; armor variations require either separate sprites or modular
+sprite layers.
+
+25. Consumables and collectible items
+
+CRIMSON VIAL: narrow black-capped glass bottle of luminous red liquid;
+restores health. Clips: GLIMMER 4, PICKUP 6, DRINK_EFFECT 8, SHATTER 5.
+AZURE TEAR: blue teardrop inside crystal vessel; restores ability
+energy. FLOAT 6, PULSE 6, PICKUP 6, RESTORE 8. ASH FRAGMENTS: glowing
+gray-amber shards; common currency. HOVER 6, ROTATE 8, MAGNET_PULL 6,
+ABSORB 8. WRAITH RELIC: spectral pendant containing displaced memory;
+rare spectral upgrades. FLOAT 8, FLICKER 6, PICKUP_BURST 8. ARMOR
+SHARDS: tarnished fragments of old armor; defense crafting. GLINT 4,
+PICKUP 6, FORGE 10. BLOODFIRE ESSENCE: rare red-orange flame captured in
+vessel; enchantment ingredient. PULSE 8, SWIRL 8, PICKUP 10. CROWN OF
+ASHES: broken black royal crown with amber cracks; legendary story
+artifact. FLOAT 8, AMBER_PULSE 8, ACQUIRE_CINEMATIC 16. ANCIENT WARDEN
+SCROLL: parchment with Order seal; grants technique or lore. GLIMMER 4,
+UNFURL 8, MEMORY 12. Additional items: Ancient Coins, Sacred Bandages,
+Ember Flasks, Forged Steel, Royal Alloy, Crypt Key, Cathedral Seal,
+Palace Sigil, Lost Letters, Family Emblems, Warden Journals, Royal
+Decrees, Flame Oil and Iron Tonic. Rarity language: common minimal
+shine, uncommon subtle aura, rare strong signature color, legendary
+unique animation and sound. Do not make all loot equally luminous.
+
+======================================================================
+PART V — WORLD, OBJECTS, NPCS AND ENVIRONMENT
+======================================================================
+
+26. NPC roster
+
+LANTERN KEEPER: elderly woman with gray hood, weathered face and warm
+lantern; guide, memory keeper, emotional anchor. IDLE 8, WALK 8, TALK 6,
+POINT 5, SIT 8, MOURN 10. First seen in Outskirts refuge; trusts Warden
+after proof of good deeds. ASHEN SMITH: broad blacksmith with iron mask
+and burn scars; forges weapons. IDLE 6, HAMMER 8, INSPECT 6, FORGE 12,
+TALK 6. Workshop includes looping furnace and sparks. SISTER ELARA:
+former priestess in torn white vestments; healing and moral quests. PRAY
+8, IDLE 6, TALK 6, HEAL 12, REACT 6. Her story reveals the Church’s
+complicity. NAMELESS MERCHANT: hooded wanderer with oversized pack and
+concealed face; sells strange items, offers cryptic warnings. IDLE 8,
+OPEN_PACK 8, OFFER_ITEM 6, LAUGH 5, DEPART 8. LOST CHILD: pale child who
+appears at impossible locations; hidden quest and memory catalyst. IDLE
+6, WALK 8, RUN 8, TURN 4, DISAPPEAR 10. Nature remains uncertain until
+optional quest completion. SIR VAELOR: injured former Warden who
+survived betrayal; can become ally or optional boss. KNEEL 8, TALK 6,
+STAND 8, DRAW_SWORD 8, plus full duel combat set. ARCHIVIST: undead
+scholar in dusty robes; provides lore and puzzle clues. READ 8,
+PAGE_TURN 5, TALK 6, POINT 5, VANISH 8. NPC interaction design: approach
+radius, visible interaction glyph, concise dialogue, optional journal
+entry, choice consequences only where meaningful. Portraits can use 2-4
+facial expressions rather than full lip sync.
+
+27. Regions and level progression
+
+FORGOTTEN OUTSKIRTS: tutorial; broken cottages, carts, fences,
+graveyards, foggy road, dead trees, watchtowers. Palette ash gray, cold
+brown, weak amber torches. Enemies: Hollow Soldier, Plague Rat, Grave
+Crawler. Effects: fog, ash, wind, crows, sign sway. Teach movement,
+jump, attack, heal, shrine. Hidden cracked wall foreshadows later
+Bellbreaker return. CATHEDRAL OF BROKEN BELLS: first dungeon; enormous
+windows, cracked masonry, hanging bells and chains, collapsed prayer
+halls. Palette bronze, charcoal, cold moonlight. Enemies: Hollow
+Soldier, Bellbound Guardian. Hazards: swinging weights, falling debris,
+resonant shockwaves. Boss Bell Keeper. Unlock Bellbreaker. BLACKWOOD
+FOREST: traversal region; twisted trees, poisoned pools, roots, broken
+hunter camps. Palette desaturated green, black, pale blue, crimson mist.
+Enemies: Ash Hound, Grave Crawler, Wraith. Hazards: toxic swamp,
+crumbling branches, hidden pits. Unlock Wraith Step. CRIMSON CATHEDRAL:
+magic dungeon; red stained glass, banners, ritual chambers, blood
+channels, candles. Palette deep crimson, black, gold. Enemies: Blood
+Cultist, Cathedral Acolyte. Hazards: magic circles, flame vents, blood
+pools. Boss Crimson Bishop. Unlock Ashen Flame. ROYAL CRYPTS: memory
+dungeon; sarcophagi, skeleton halls, flooded tunnels, blue flames and
+ancient seals. Palette cold stone, spectral cyan, black. Enemies: Bone
+Archer, Tomb Sentinel, Wraith. Hazards: spike traps, pressure plates,
+falling blocks. Unlock Double Jump; recover critical memories. PALACE OF
+THE HOLLOW CROWN: final region; shattered royal chambers, libraries,
+ornate black marble, collapsing towers, throne. Palette black, tarnished
+gold, amber inferno. Enemies: Ashen Knight, Crownless Noble, Royal
+Sorcerer. Hazards: collapsing floors, flame pillars, rotating
+mechanisms. Final boss Hollow King and ending choice.
+
+Metroidvania route: Outskirts -> Bell Cathedral -> Blackwood -> Crimson
+Cathedral -> Crypts -> Palace, with backtracking loops. Bellbreaker
+opens cracked walls, Wraith Step crosses spectral gaps, Ashen Flame
+powers runic doors, Double Jump reaches high ledges. Each new ability
+must unlock at least one mandatory path and multiple optional secrets.
+
+28. Interactive object catalogue
+
+WOODEN_CHEST: iron-banded crate; CLOSED, OPENING 6-8, OPEN, LOOT_BURST.
+ROYAL_CHEST: gilded locked chest; LOCKED_GLOW 6, UNLOCK 8, OPEN 10,
+OPEN_STATE. BARREL: splintering wood container; IDLE, HIT 2, BREAK 6,
+DEBRIS. CLAY_URN: fragile pottery; IDLE, SHATTER 5, SHARDS.
+WOODEN_CRATE: pushable or breakable; IDLE, PUSH, CRACK, BREAK 5. LEVER:
+rusted mechanism; REST, PULL 6, ACTIVE. PRESSURE_PLATE: stone trigger;
+RELEASED, DEPRESS 3, HELD, RESET 3. IRON_GATE: barred gate; CLOSED,
+SHAKE, RISE 12, OPEN. WOODEN_DOOR: CLOSED, OPEN 6, OPEN_STATE.
+SEALED_STONE_DOOR: rune-locked door; DORMANT, RUNES 10, OPEN 16.
+ELEVATOR: platform with chains; IDLE, START, MOVING, STOP.
+MOVING_PLATFORM: LOOP, PAUSE, REVERSE. BREAKABLE_WALL: INTACT, CRACKED,
+COLLAPSE 10, RUBBLE. ROPE_BRIDGE: SWAY, WEIGHT_REACTION, COLLAPSE.
+SPIKE_TRAP: HIDDEN, RISE 4, EXTENDED, RETRACT 4. SWINGING_BLADE:
+PENDULUM_LOOP with hitbox synced to swing. FIRE_VENT: WARNING 6, ERUPT
+8, ACTIVE, FADE. CHANDELIER: HANG, FALL, IMPACT 10, DEBRIS. SAVE_SHRINE:
+DORMANT, ACTIVATE 12, LIT_IDLE 8, REST_EFFECT. FAST_TRAVEL_OBELISK:
+INACTIVE, AWAKEN 12, PORTAL_LOOP 8, CLOSE. BOSS_GATE: OPEN, CLOSE,
+SEALED, UNLOCK_AFTER_VICTORY. MEMORY_ALTAR: IDLE_GLOW, INTERACT,
+VISION_BURST. WEAPON_FORGE: FURNACE_LOOP, HAMMER_SPARKS, UPGRADE_BURST.
+HEALING_FOUNTAIN: WATER_FLOW, ACTIVATE, REFILL.
+
+Save shrine sequence: player approaches -> interaction prompt ->
+kneels/plants sword -> shrine amber flame ignites -> health replenishes
+-> checkpoint updates -> optional upgrade/fast travel menu. Save data
+should record region, shrine ID, abilities, inventory, defeated bosses
+and collected memories.
+
+29. Environmental animation catalogue
+
+FALLING_ASH 6-8: small gray motes descend at differing speeds.
+LIGHT_RAIN 4-6: thin diagonal streaks with occasional floor splashes.
+HEAVY_RAIN 6-8: dense overlapping streak layers. GROUND_FOG 8-12: slow
+horizontal wisps and transparency variation. TORCH_FIRE 6-8:
+asymmetrical orange flame, occasional sparks. CANDLE_FIRE 4-6: tiny
+uneven flicker. SMOKE 8-12: rising wisps grow and fade. FLOATING_EMBERS
+6-10: orange motes drift upward. LIGHTNING 3-5: brief high-intensity sky
+flash. WATER_RIPPLES 6-8: concentric expanding circles. FALLING_LEAVES
+8-12: rotating leaves with parallax. DRIPPING_WATER 5-7: droplet
+descends, hits surface and splashes. SWAMP_BUBBLES 6-8: bubbles rise and
+pop. SPECTRAL_MIST 8-12: cyan vapor with gentle pulsing. DUST_BURST 5-7:
+landing dust expands and dissipates. CHAIN_SWAY 8-12: slow pendulum with
+metal creak. BELL_SWING 12-16: pendulum acceleration and ringing impact.
+STAINED_GLASS_LIGHT 8-12: subtle moving dust within shafts. RUNE_GLOW
+6-8: pulse brightness, no design changes. CROW_FLYBY 8-10: silhouette
+crosses distant background.
+
+30. Combat VFX catalogue
+
+SWORD_TRAIL 3-5: arc attached to weapon tip, no full-screen blur.
+METAL_HIT 4-6: sharp white/amber sparks at contact point. BLOOD_HIT 5-7:
+stylized red fragments, restrained by art direction. ASH_HIT 5-7:
+gray-black particles. PARRY_FLASH 4-6: high-contrast impact ring.
+GROUND_SHOCKWAVE 8-10: expanding cracks and dust. FLAME_EXPLOSION 10-14:
+ignition, peak, breakup, fade. MAGIC_PROJECTILE_LOOP 6-8: animated orb
+traveling under code control. PROJECTILE_IMPACT 6-10: burst at collision
+point. TELEPORT_OUT 6-8: sprite breaks into spectral motes. TELEPORT_IN
+6-8: motes gather into silhouette. HEALING_AURA 8-12: red/amber energy
+rises around knight. ENEMY_DISSOLVE 8-12: ash disintegration after
+death. BOSS_DEATH_EXPLOSION 16-24: layered fragments, dust, light and
+sound. VFX should be separate transparent sprites or particle systems.
+Frame animation timing and collision timing are distinct.
+
+======================================================================
+PART VI — GAMEPLAY, UI, AUDIO AND TECHNICAL PRODUCTION
+======================================================================
+
+31. Player controls and core loop
+
+Initial controls: A/D move; Space jump; J light attack; K heavy attack;
+Shift dodge; L guard/parry; E interact; Q use healing item; Tab
+inventory/map; Esc pause. These are proposals, not current bindings.
+Core loop: explore -> discover threat -> fight -> collect Ash
+Fragments/items -> reach shrine -> unlock shortcut or upgrade -> enter
+next region -> defeat boss -> acquire traversal power -> revisit earlier
+routes. Movement design: responsive horizontal acceleration, consistent
+gravity, coyote time and jump buffering can be added after basic
+movement works. Collision capsule/rectangle follows torso and legs, not
+cape or sword. Combat design: attack state machine,
+startup/active/recovery phases, interrupt rules, invulnerability frames
+during dodge, separate enemy hitboxes and hurtboxes, damage feedback,
+stamina or cooldown balance. Do not enable damage for an entire sword
+animation; only active frames count. Enemy AI: idle/patrol -> detect ->
+pursue/position -> telegraph -> attack -> recovery -> stagger/death.
+Different enemies modify this baseline. Progression: Ash Fragments spent
+at smith/shrine, weapon upgrades from rare materials, ability unlocks
+tied to bosses, health upgrades from hidden relics. Loss-on-death
+currency mechanic is optional and should be playtested for frustration.
+
+32. UI and menu requirements
+
+HEALTH_BAR: iron frame, crimson fill, damage flash, delayed damage
+indicator, heal refill. ENERGY_BAR: blue/amber fill, drain and refill,
+charge cue. STAMINA_BAR: muted gold, drain and recovery. BOSS_BAR: large
+ornate bottom-screen meter, reveal and phase shift. ITEM_PICKUP:
+icon/name panel slides in and fades. INVENTORY: framed slots,
+selected/locked/empty states, readable descriptions. WEAPON_SELECTOR:
+icon highlight, equipped marker, comparison stats. QUEST_JOURNAL:
+parchment-style text, page transitions, quest status. WORLD_MAP:
+discovered rooms, locked gates, shrine markers, new-area reveal.
+DIALOGUE: readable dark panel, speaker name, optional portrait, text
+reveal. MAIN_MENU: ruined throne background, animated embers/fog, clear
+focus state. PAUSE_MENU: translucent overlay, settings, resume and quit.
+DEATH_SCREEN: ash drift, title fade, respawn action. VICTORY_SCREEN:
+boss title fades, reward displayed. ENDING_CHOICE: three symbolic
+options with explicit consequences conveyed through narrative.
+Accessibility: remappable controls, readable text, volume sliders,
+reduced screen shake, optional reduced flashes, subtitles,
+distinguishable color plus shape cues.
+
+33. Audio design
+
+Player: layered armor footsteps by surface, sword swishes, metal
+impacts, parry clang, dodge, jump, landing, vial use, low breath, death.
+Enemies: hollow groans, cultist chant, crawler shriek, executioner heavy
+steps, wraith whisper, distinctive attack windups. World: wind, rain,
+creaking wood, chains, distant bells, torches, water, falling masonry,
+spectral murmurs. Music: Outskirts sparse strings; Bell Cathedral
+resonant bells/low choir; Blackwood dark drones/percussion; Crimson
+Cathedral ritual voices; Crypts quiet ambience; Palace tragic orchestra;
+bosses have phase-specific musical layers. Avoid continuous loud music
+during exploration. Sound design rule: every dangerous attack has a
+recognizable audio tell that reinforces, not replaces, its visual
+telegraph.
+
+34. Technical asset specification for libGDX
+
+Platform: Windows desktop first, Java/libGDX core plus lwjgl3. Default
+source direction RIGHT. Character frame canvas 256x256 or a uniform
+alternative chosen per character; keep same dimensions within an
+animation. Use transparent RGBA PNG. If an image generator cannot output
+alpha, use flat magenta RGB(228,19,220) and remove it in a preprocessing
+step. Inspect halos, missing red cape pixels and detached weapon parts
+manually. Do not ship raw magenta sprites. File naming: frame_0001.png
+through frame_NNNN.png; separate folders per action. Set
+TextureFilter.Nearest to keep sharp pixels. Anchor feet to consistent
+baseline and torso to consistent horizontal center; source image sizes
+should be standardized. Never rely on the PNG boundary as collision
+geometry. Animation playback: idle about 8-10 FPS, run about 10-12 FPS,
+attacks variable per action. A complete 8-frame loop at 12 FPS lasts
+0.667 seconds. libGDX Animation frameDuration = 1 / FPS. Nonlooping
+attack and death clips should use NORMAL mode; locomotion uses LOOP.
+Memory: large PNG images may decompress to several MB per texture, even
+if compressed file size looks small. Resize prepared images
+appropriately, preserve aspect ratio and alpha, and consider texture
+atlases once animation sets grow. Dispose textures on shutdown. Given
+limited RAM, validate the first 16 frames before importing hundreds of
+assets.
+
+35. Suggested asset directory tree
+
+assets/ player_ready/ idle/ walk/ run/ sprint/ jump_start/ airborne/
+fall/ landing/ double_jump/ dodge/ attack_1/ attack_2/ attack_3/
+heavy_attack/ parry/ guard/ hurt/ heal/ death/ respawn/ enemies/
+hollow_soldier/ blood_cultist/ grave_crawler/ fallen_executioner/
+wraith/ plague_rat/ ash_hound/ bone_archer/ cathedral_acolyte/
+bellbound_guardian/ tomb_sentinel/ blood_leech/ ashen_knight/
+royal_sorcerer/ crownless_noble/ bosses/ bell_keeper/ crimson_bishop/
+hollow_king/ mourning_knight/ pale_widow/ ash_serpent/ weapons/ armor/
+items/ objects/ environments/ outskirts/ bell_cathedral/ blackwood/
+crimson_cathedral/ royal_crypts/ hollow_palace/ effects/ ui/ audio/
+music/ fonts/
+
+36. Animation generation protocol for individual frames
+
+1.  Approve one definitive character reference with exact silhouette,
+    colors, weapon and canvas.
+2.  Write a pose-by-pose frame breakdown before generation. Specify
+    which foot is planted, which limb leads, sword angle, cloak
+    direction, torso tilt, and contact frame.
+3.  Generate ONE independent image for each frame, not a sprite sheet.
+    Use the same approved character reference every time.
+4.  Require orthographic side view, same scale and baseline, sharp
+    square pixels, no anti-aliasing, no extra characters or props.
+5.  Use real alpha transparency or exactly uniform magenta fallback;
+    avoid checkerboard backgrounds and decorative sparkles.
+6.  Save sequential frame names, remove backgrounds, inspect edges and
+    consistency.
+7.  Preview as a loop at target FPS. Repair popping limbs, changing
+    sword length, inconsistent cape or camera drift.
+8.  Load into libGDX, check anchor, collider, attack hit timing and
+    performance.
+
+Universal per-frame prompt template: ‘Create exactly ONE standalone
+transparent PNG frame for THE ASHEN WARDEN, a handcrafted gothic 2D
+pixel-art Metroidvania. Subject: [NAME AND FIXED CHARACTER DESCRIPTION].
+Animation: [ACTION], frame [NUMBER] of [TOTAL]. Pose: [PRECISE BODY,
+LIMBS, WEAPON, CAPE, CONTACT AND MOTION]. Use attached approved
+reference; preserve armor, face/visor, colors, scale, pixel density and
+fixed foot baseline. Strict orthographic side view facing RIGHT. Square
+[CANVAS] pixel canvas, full body and weapon within margins. Crisp pixel
+clusters, limited dark palette, no gradients, blur, anti-aliasing, 3D or
+scenery. Genuine RGBA transparency; if unavailable, perfectly uniform
+RGB(228,19,220) background. No sprite sheet, collage, multiple poses or
+labels. Save as frame_[0000].png.’
+
+Example 8-frame run pose plan: 1. Right leg extends forward, left leg
+back, opposite arm swing, cape trailing. 2. Right foot contacts
+baseline, torso compresses, left leg begins passing. 3. Right leg
+supports and pushes back, left knee lifts, torso recovers. 4. Right foot
+pushes off, brief airborne phase, left leg advances. 5. Left leg extends
+forward, right leg back, mirrored arm swing. 6. Left foot contacts
+baseline, torso compresses, right leg passes. 7. Left leg supports and
+pushes back, right knee lifts. 8. Left foot pushes off, brief airborne
+phase, smoothly loops to 1.
+
+Example 8-frame sword slash: 1. Neutral combat stance. 2. Shoulder and
+hips rotate into windup. 3. Sword reaches maximum anticipation pose. 4.
+Hips rotate forward and sword accelerates. 5. Main contact pose: attack
+hitbox active. 6. Follow-through passes target. 7. Blade slows, torso
+counter-rotates. 8. Return toward ready stance.
+
+37. Implementation architecture
+
+GameScreen: world update, render order, camera and input routing.
+Player: position, velocity, grounded state, facing, stats and animation
+controller. AnimationController: maps PlayerState to clips and manages
+transition and one-shot completion. CombatSystem: hitboxes, hurtboxes,
+damage, stagger, invulnerability and status effects. Enemy and EnemyAI:
+data-driven enemy definitions and finite state machines. BossController:
+phase transitions, attacks, arena triggers and defeat rewards.
+WorldMap/Level: tile collision, objects, portals, checkpoints and
+ability gates. Inventory/Equipment: items, stacks, upgrades and selected
+weapon. SaveSystem: persistent progress with safe checkpoint data.
+AudioManager: layered music, SFX volume and positional cues. VFXManager:
+pooled particles and temporary sprites. UIManager: HUD, pause, map,
+inventory, dialogue and boss bar. Avoid building all of these at once.
+Start with Player, one Enemy, one room and one attack.
+
+38. Development roadmap
+
+PHASE 1 — PLAYABLE KNIGHT: load 8 idle + 8 run frames; movement and
+ground; jump takeoff/airborne/fall/land; camera; reliable collision.
+Definition of done: no missing assets, no animation popping, stable
+performance. PHASE 2 — COMBAT: light combo, hitboxes, enemy damage,
+player hurt/death, dodge/parry, health HUD. Definition of done: one
+satisfying repeatable fight. PHASE 3 — FIRST LEVEL: Hollow Soldier AI,
+Outskirts room tiles, chests, loot, healing, save shrine, environmental
+torch/fog effects. Definition of done: playable loop from shrine to
+encounter and back. PHASE 4 — FIRST BOSS: Bell Keeper animations,
+telegraphs, arena gate, boss bar, defeat reward, cracked-wall ability.
+Definition of done: complete short vertical slice. PHASE 5 — CONTENT:
+Blackwood, Crimson Cathedral, Crypts, Palace, other enemies, NPC quests,
+additional weapons and upgrades. Definition of done: coherent
+interconnected game with meaningful backtracking. PHASE 6 — STORY AND
+POLISH: dialogue, all memories, endings, music, sound, menus,
+accessibility, save reliability, balancing, optimization and testing.
+
+39. Priority production checklist
+
+MUST HAVE FIRST: idle 8, run 8, jump start, airborne/fall, landing,
+attack 1, player hurt/death, Hollow Soldier idle/walk/attack/hurt/death,
+one platform tile set, one background, one shrine, one vial, one HUD
+health bar. NEXT: attack 2/3, dodge, parry, loot pickup, chest, enemy
+patrol/chase, first boss core moves, boss gate, boss bar, checkpoint
+save. LATER: full weapon variants, optional bosses, multiple armor sets,
+complex NPC portraits, complete cinematic endings and large UI systems.
+
+40. Quality assurance criteria
+
+-   Every frame in a clip has consistent body scale, canvas, anchor and
+    color palette.
+-   Looping animations do not jump between last and first frames.
+-   Weapon never changes length or swaps hands accidentally.
+-   Sword and cape remain inside canvas margins.
+-   Magenta fallback has been removed with no colored halo or missing
+    crimson cloth.
+-   Player collision does not include decorative cape or sword.
+-   Enemy telegraph precedes active damage window.
+-   Every boss phase change is communicated visually and audibly.
+-   Checkpoints and save files survive restarts.
+-   Performance remains stable on the target 8 GB Windows machine.
+-   Game is playable without perfect knowledge of lore, but rewards
+    players who explore it.
+
+41. Closing creative statement
+
+The Ashen Warden is ultimately a story about the difference between
+preserving life and refusing to accept death. Every ruined building,
+cursed soldier, broken bell, weapon and ending should echo that
+conflict. The player’s victory is not merely killing the Hollow King; it
+is deciding whether Veyrath should cling to its past or risk a new
+beginning. Build that theme through readable action, meaningful
+discovery and carefully crafted pixel-art animation.
+
+END OF MASTER GAME BIBLE

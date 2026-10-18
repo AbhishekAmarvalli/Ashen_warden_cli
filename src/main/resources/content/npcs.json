@@ -1,0 +1,39 @@
+[
+{"code":"lantern_keeper","name":"The Lantern Keeper","role":"cryptic guide, keeper of fragments",
+ "description":"An elderly woman in a weathered gray hood, carrying a lantern that burns without oil. She watches you the way one watches a candle that should have gone out.",
+ "startNode":"greet",
+ "nodes":[
+  {"id":"greet",
+   "text":"'So the ash gives back its captain.' She lifts the lantern; amber light finds the Warden crest on your chest. 'You wake with a sword you did not earn and a fire in your chest that will not go out. I have waited a long while to see which of those you trust.'",
+   "options":[
+     {"label":"Who are you?","nextId":"who","flagToSet":null},
+     {"label":"What happened to Veyrath?","nextId":"what","flagToSet":"keeper_testimony"},
+     {"label":"What is this fire inside me?","nextId":"ember","flagToSet":null},
+     {"label":"I should go.","nextId":null,"flagToSet":null}
+   ]},
+  {"id":"who",
+   "text":"'A keeper of lanterns and of names. I was here when the bells rang seven times; I am still here, which is either devotion or a failure to be thorough. The hood is for the wind, not for mystery.'",
+   "options":[
+     {"label":"Back","nextId":"greet","flagToSet":null},
+     {"label":"I should go.","nextId":null,"flagToSet":null}
+   ]},
+  {"id":"what",
+   "text":"'Veyrath tried to buy forever and paid with everything else. The court says the Wardens broke the kingdom — read their proclamations, they are very proud of that sentence. The court lies, Warden. Lie loudly enough and long enough and the dead will repeat it for you.'",
+   "options":[
+     {"label":"How do I know you are telling the truth?","nextId":"proof","flagToSet":null},
+     {"label":"Back","nextId":"greet","flagToSet":null}
+   ]},
+  {"id":"proof",
+   "text":"'You do not. Truth is not a lantern — it does not light itself. Walk. Look at what the bells left behind, and at who profited. Seven memories of yours went into the ash; gather them, and then call me a liar to my face.'",
+   "options":[
+     {"label":"Back","nextId":"greet","flagToSet":null},
+     {"label":"I should go.","nextId":null,"flagToSet":null}
+   ]},
+  {"id":"ember",
+   "text":"'The last ember of the Ashen Flame, folded into a Warden's chest. It kept you from the grave, and it will keep you from rest until it is spent. Guard it — or let it use you as the king meant to use you. A vessel that forgets it is a vessel ends up on a throne it cannot leave.'",
+   "options":[
+     {"label":"Back","nextId":"greet","flagToSet":null},
+     {"label":"I should go.","nextId":null,"flagToSet":null}
+   ]}
+]}
+]

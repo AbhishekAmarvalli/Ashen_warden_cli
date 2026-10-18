@@ -1,0 +1,23 @@
+[
+{"code":"memory_oath","order":1,"title":"The Oath",
+ "cinematicText":"You kneel in a hall of living flame while a voice older than the crown speaks the vow: to guard the Ashen Flame from every hand that would use it — crown, clergy, or your own.",
+ "journalText":"The Order of Wardens was established in the Age of Crowns to guard and contain the Ashen Flame, answerable to its oath rather than to the crown. The Warden spoke that vow freely. [Trigger: Act I — Cathedral of Broken Bells.]"},
+{"code":"memory_warning","order":2,"title":"The Warning",
+ "cinematicText":"Scribes lay sealed reports before the council: subjects vanishing from the lower city, a king's physicians granted carts at night. The council votes to watch and to say nothing aloud.",
+ "journalText":"The Order learned of the king's forbidden experiments to bind the Flame to royal blood. The warning was filed, ignored, and sealed. [Trigger: Act I — Cathedral of Broken Bells.]"},
+{"code":"memory_betrayal","order":3,"title":"The Betrayal",
+ "cinematicText":"The king's hand closes on your arm mid-ritual. 'The vessel will serve a crown, not a brotherhood.' The guard line closes behind you, and the rope you cut begins to burn.",
+ "journalText":"The king turned on the Warden captain and the Order, seizing the ritual for himself. The court's account — that the Wardens broke Veyrath — is the inversion of this moment. [Trigger: Act II — Crimson Cathedral.]"},
+{"code":"memory_sacrifice","order":4,"title":"The Sacrifice",
+ "cinematicText":"Captured Wardens are led in chains to the ritual fire, one by one, to steady a binding that was never meant to hold. They do not scream. They sing the oath instead.",
+ "journalText":"Comrades died trying to stop the ritual; the Order was sacrificed to stabilize the king's binding. [Trigger: Act II — Crimson Cathedral.]"},
+{"code":"memory_vessel","order":5,"title":"The Vessel",
+ "cinematicText":"Physicians measure the ember against your heartbeat. 'The captain is compatible.' You were not consulted; the king's court had already signed the order that made you a container.",
+ "journalText":"The captain was selected to carry the Flame — a betrayed vessel, buried with a fragment of the Flame, who wakes only when the seals weaken. [Trigger: Act III — Royal Crypts.]"},
+{"code":"memory_final_assault","order":6,"title":"The Final Assault",
+ "cinematicText":"Seven bells overhead and the Order crossing the palace yard under arrow-storm, chipping the seal-gates with Bellbreaker steel to reach the ritual chamber in time.",
+ "journalText":"The Order attacked the palace to prevent the ritual — the last resistance of Veyrath, recast by the court as treason. [Trigger: Act III — Royal Crypts.]"},
+{"code":"memory_choice","order":7,"title":"The Choice",
+ "cinematicText":"At the shattered ritual line, immortality is offered: take the crown, take the Flame, end the dying. A hand that is still your own pushes the offer into the fire.",
+ "journalText":"The final insight into freeing the Flame from the bloodline: the Warden refused immortality and tried to save the kingdom. This memory is required for the true ending. [Trigger: Act IV — Palace of the Hollow Crown.]"}
+]

@@ -1,0 +1,178 @@
+[
+{"code":"tomb_chamber","name":"Tomb of Cold Ash","region":"Warden's Tomb","chapter":"Prologue — The Tomb of Cold Ash",
+ "description":"A burial vault choked with ash. Broken standards lean against the walls and old insignia lie face-down in the dust. A cold draft moves through a northern passage.",
+ "extendedLore":"The Order of Wardens buried their dead facing the Flame so that even in ash they would keep watch. Someone has scraped the names from the stones.",
+ "sanctuary":false,"discoveredByDefault":true,
+ "exits":[
+  {"label":"the passage north","targetCode":"tomb_passage","aliases":["north","passage","out"],
+   "requiresAbility":null,"blockedMessage":null}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"damaged_journal","name":"damaged journal","aliases":["journal","book","diary"],
+   "kind":"NOTE",
+   "description":"A water-stained journal lies open beside a curled hand, the ink bloomed into gray flowers.",
+   "extendedText":"'...the captain would not hold the king's rope. We cut the ritual line ourselves. The bells began before we reached the hall, and the seventh... the seventh rang from inside my chest. If any of us wake: the Order did not betray Veyrath. The court betrayed the Order. Do not let them write it otherwise.'",
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false}
+ ],
+ "encounters":[
+  {"code":"enc_soldier_tomb","trigger":"ON_EXIT","enemyCode":"hollow_soldier",
+   "introText":"A Hollow Soldier peels itself from the collapsed wall and blocks the passage, rusty blade rising. Its helm-light fixes on your chest — on the ember.",
+   "exitLabel":"the passage north","once":true}
+ ]},
+
+{"code":"tomb_passage","name":"Collapsed Passage","region":"Warden's Tomb","chapter":"Prologue — The Tomb of Cold Ash",
+ "description":"A long passage split by old roots. A shrine of black iron stands against one wall, its ember cupped in a stone hand. A cracked wall sweats dust to the east.",
+ "extendedLore":"Warden shrines were built where the Flame's heat still reached, so a knight could rest without leaving the watch.",
+ "sanctuary":true,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the tomb chamber south","targetCode":"tomb_chamber","aliases":["south","back","chamber","tomb"],
+   "requiresAbility":null,"blockedMessage":null},
+  {"label":"the antechamber north","targetCode":"tomb_antechamber","aliases":["north","antechamber"],
+   "requiresAbility":null,"blockedMessage":null},
+  {"label":"the cracked wall east","targetCode":"tomb_cache","aliases":["east","cracked wall","crack","cache"],
+   "requiresAbility":"bellbreaker",
+   "blockedMessage":"A cracked wall, veined with old bell-metal. Bellbreaker could shatter it — some other way must be found."}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"iron_shrine","name":"iron shrine","aliases":["shrine","ember","rest"],
+   "kind":"SHRINE",
+   "description":"An iron shrine: a cupped stone hand holding a slow amber ember. The heat is real, and old.",
+   "extendedText":"Kneeling here, the ember in your chest answers the ember in the stone. 'rest' to recover and set your respawn.",
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":false,"consumed":false}
+ ],
+ "encounters":[
+  {"code":"enc_crawler_passage","trigger":"ON_ENTER","enemyCode":"grave_crawler",
+   "introText":"Something scrabbles out of a wall-crack: a Grave Crawler, ribs like a rotten fence, pale eyes catching the shrine-light.",
+   "exitLabel":null,"once":true}
+ ]},
+
+{"code":"tomb_antechamber","name":"Royal Antechamber","region":"Warden's Tomb","chapter":"Prologue — The Tomb of Cold Ash",
+ "description":"A vaulted antechamber where gilded doors hang half-melted in their frames. The air tastes of distance; a grave road slopes east toward open sky.",
+ "extendedLore":"This door once led to the palace catacombs. The Flame's failure warped the metal like wax.",
+ "sanctuary":false,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the passage south","targetCode":"tomb_passage","aliases":["south","back","passage"],
+   "requiresAbility":null,"blockedMessage":null},
+  {"label":"the grave road east","targetCode":"forgotten_outskirts","aliases":["east","out","grave road","road","outskirts"],
+   "requiresAbility":null,"blockedMessage":null}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"old_chest","name":"old chest","aliases":["chest","cache","coffer"],
+   "kind":"CHEST",
+   "description":"An iron-strapped chest beneath a weeping lintel; the lock rotted away centuries ago.",
+   "extendedText":"Inside, wrapped in a Warden's sash: a spectral dagger and a pre-Curse coin. Someone left them here expecting to come back.",
+   "requiresAbility":null,"blockedMessage":null,
+   "loot":[
+     {"itemCode":"wraith_dagger","quantity":1},
+     {"itemCode":"ancient_coin","quantity":2}
+   ],
+   "once":true,"consumed":false}
+ ],
+ "encounters":[]},
+
+{"code":"tomb_cache","name":"Hidden Alcove","region":"Warden's Tomb","chapter":"Prologue — The Tomb of Cold Ash",
+ "description":"A cramped alcove behind the shattered wall. Shelves of collapsed ledger-boxes, and a soldier's stash barely covered by a cloak.",
+ "extendedLore":"Scribes once recorded every watch here. The ledgers say the Order refused the king's requests twice.",
+ "sanctuary":false,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the passage west","targetCode":"tomb_passage","aliases":["west","back","passage"],
+   "requiresAbility":null,"blockedMessage":null}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"soldier_stash","name":"soldier's stash","aliases":["stash","loot","cloak"],
+   "kind":"CHEST",
+   "description":"A cloak-wrapped bundle: a stoppered tonic and a clean bar of forged steel.",
+   "extendedText":"A soldier packed this and never came back for it.",
+   "requiresAbility":null,"blockedMessage":null,
+   "loot":[
+     {"itemCode":"iron_tonic","quantity":1},
+     {"itemCode":"forged_steel","quantity":1}
+   ],
+   "once":true,"consumed":false}
+ ],
+ "encounters":[]},
+
+{"code":"forgotten_outskirts","name":"Forgotten Outskirts","region":"Forgotten Outskirts","chapter":"Act I — The Land of Forgotten Dead",
+ "description":"A collapsed village under perpetual ashfall. Broken cottages, a leaning watchtower, and the dim glow of a hooded lantern where the ash road forks.",
+ "extendedLore":"The people of Veyrath did not die here; they simply stopped finishing. Some still walk the rounds they were assigned centuries ago.",
+ "sanctuary":true,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the grave road west","targetCode":"tomb_antechamber","aliases":["west","back","tomb","grave road"],
+   "requiresAbility":null,"blockedMessage":null},
+  {"label":"the ash road north","targetCode":"cathedral_road","aliases":["north","road","ash road","cathedral"],
+   "requiresAbility":null,"blockedMessage":null}
+ ],
+ "npcCodes":["lantern_keeper"],
+ "interactables":[
+  {"code":"camp_shrine","name":"camp brazier","aliases":["brazier","shrine","camp","rest"],
+   "kind":"SHRINE",
+   "description":"A camp brazier of blackened iron; the Keeper feeds it with pinches of ash.",
+   "extendedText":"'Rest when you must,' the Keeper says. 'The dead do not hurry, and neither should you.'",
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":false,"consumed":false},
+  {"code":"rusted_chest","name":"rusted chest","aliases":["chest","cart","box"],
+   "kind":"CHEST",
+   "description":"A corroded lock guards a small cache beneath a broken cart. You hear metal rattling inside.",
+   "extendedText":"The cart bears the crest of a supply train that never arrived.",
+   "requiresAbility":null,"blockedMessage":null,
+   "loot":[
+     {"itemCode":"iron_tonic","quantity":1},
+     {"itemCode":"crimson_vial","quantity":1}
+   ],
+   "once":true,"consumed":false},
+  {"code":"watchtower_wall","name":"scrawled watch-list","aliases":["wall","list","scrawl","watch"],
+   "kind":"NOTE",
+   "description":"A watch-list scratched into the tower's plaster, the last entry unfinished.",
+   "extendedText":"'Bell count: 1. Bell count: 3. Bell count: s—' The stylus scored a trench through the plaster and stopped.",
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false}
+ ],
+ "encounters":[]},
+
+{"code":"cathedral_road","name":"Ashfall Road","region":"Forgotten Outskirts","chapter":"Act I — The Land of Forgotten Dead",
+ "description":"A road of fused ash climbing toward the silhouette of the Cathedral of Broken Bells. A leaning signpost points east to the Blackwood, which does not appear to exist anymore.",
+ "extendedLore":"Royal proclamation boards still stand along the road, their decrees preserved by the same curse that preserved their authors.",
+ "sanctuary":false,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the outskirts south","targetCode":"forgotten_outskirts","aliases":["south","back","outskirts"],
+   "requiresAbility":null,"blockedMessage":null},
+  {"label":"the cathedral gate north","targetCode":"cathedral_gate","aliases":["north","gate","cathedral"],
+   "requiresAbility":null,
+   "blockedMessage":"The bell-gate of the Cathedral of Broken Bells stands sealed behind a bell-marked seal. [Story gate: the Cathedral chapter opens once the Bell Keeper content is reached — this is the current end of the implemented slice.]"}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"royal_proclamation","name":"royal proclamation","aliases":["proclamation","decree","poster","board"],
+   "kind":"NOTE",
+   "description":"A royal proclamation, impossibly unweathered, nailed to a black board.",
+   "extendedText":"'BE IT KNOWN: the Order of Wardens did wilfully break the Night of Seven Bells and loosed the Ash upon loyal Veyrath. Their sigil is treason. Their captain is the vessel of the curse. Bring me his sword.' — By order of the Hollow Crown.",
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false}
+ ],
+ "encounters":[
+  {"code":"enc_soldier_road","trigger":"ON_ENTER","enemyCode":"hollow_soldier",
+   "introText":"A Hollow Soldier stands over a broken cart, methodically striking the ash. It stops. Its helm-light turns to you.",
+   "exitLabel":null,"once":true}
+ ]},
+
+{"code":"cathedral_gate","name":"Cathedral Gate","region":"Cathedral of Broken Bells","chapter":"Act I — The Cathedral of Broken Bells",
+ "description":"Great bronze doors sealed by a bell-marked seal; seven grooves radiate from the keyhole, six of them dark.",
+ "extendedLore":"The first seal. Somewhere beyond the doors, the Bell Keeper still answers to his chains.",
+ "sanctuary":false,"discoveredByDefault":false,
+ "exits":[
+  {"label":"the ash road south","targetCode":"cathedral_road","aliases":["south","back","road"],
+   "requiresAbility":null,"blockedMessage":null}
+ ],
+ "npcCodes":[],
+ "interactables":[
+  {"code":"bell_seal","name":"bell-marked seal","aliases":["seal","doors","door","gate"],
+   "kind":"PROP",
+   "description":"A seal of fused bell-metal covering the doors; it vibrates to your touch, as if listening.",
+   "extendedText":"Six of seven grooves are dark. The seventh pulses in time with the ember in your chest. The door will not answer while the seal holds.",
+   "requiresAbility":null,
+   "blockedMessage":"The seal holds. (Story gate — the Cathedral of Broken Bells is the next chapter of content.)",
+   "loot":[],"once":false,"consumed":false}
+ ],
+ "encounters":[]}
+]

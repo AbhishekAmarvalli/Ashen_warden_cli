@@ -1,0 +1,12 @@
+target/
+*.class
+*.jar
+!mvnw.jar
+.idea/
+*.iml
+.vscode/
+logs/
+*.log
+.env
+.env.local
+dependency-reduced-pom.xml
