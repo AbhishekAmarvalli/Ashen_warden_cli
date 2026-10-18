@@ -42,7 +42,7 @@ final class MenuHandler {
                 e.setMenu(null);
                 return CommandResult.ok().line("Closed.");
             }
-            case SELECT, INSPECT_ITEM -> {
+            case SELECT, INSPECT_ITEM, INSPECT -> {
                 int index = resolveIndex(e, cmd, menu);
                 if (index < 0) {
                     return CommandResult.rejected("No item by that name/number here. Use 'inspect <n>' or 'back'.");
@@ -194,7 +194,7 @@ final class MenuHandler {
                 out.line(left == 0 ? "The way is clear." : "You leave the remaining loot where it lies.");
                 return out;
             }
-            case SELECT, INSPECT_ITEM -> {
+            case SELECT, INSPECT_ITEM, INSPECT -> {
                 int index = resolveIndex(e, cmd, menu);
                 if (index < 0) {
                     return CommandResult.rejected("No such loot here. Use 'inspect <n>' or 'take all'.");
