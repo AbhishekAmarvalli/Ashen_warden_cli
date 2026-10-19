@@ -99,16 +99,26 @@ public final class TerminalRenderer {
 
     // --- chat-style turn framing --------------------------------------------
 
-    /** Echoes what the player typed, like a chat transcript: 'You ❯ look'. */
+    /** The wall-clock stamp shown at the left of each turn line, chat-log style. */
+    private static final java.time.format.DateTimeFormatter CLOCK =
+            java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+
+    private static String now() {
+        return java.time.LocalTime.now().format(CLOCK);
+    }
+
+    /** Echoes what the player typed, like a timestamped chat transcript:
+     *  '[21:47:03]  You ❯ look'. */
     public void userEcho(String input) {
-        System.out.println("  " + ansi.cyan("You") + " "
+        System.out.println("  " + ansi.gray("[" + now() + "]") + "  " + ansi.cyan("You") + " "
                 + ansi.ember(unicode ? "❯" : ">") + " " + (input == null ? "" : input));
     }
 
-    /** Opens the assistant side of the turn: tag line, then replies get a gutter bar. */
+    /** Opens the assistant side of the turn: timestamped tag line, then replies get a gutter bar. */
     public void beginReply() {
         System.out.println();
-        System.out.println("  " + ansi.ember(unicode ? "◆" : "*") + " "
+        System.out.println("  " + ansi.gray("[" + now() + "]") + "  "
+                + ansi.ember(unicode ? "◆" : "*") + " "
                 + ansi.bold(ansi.ember("ASHEN WARDEN")));
         gutter = true;
     }
