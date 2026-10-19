@@ -133,10 +133,10 @@ final class PlayHandler {
     static List<String> optionLines(com.ashenwarden.world.DialogueManager.DialogueView view) {
         List<String> out = new ArrayList<>();
         for (int i = 0; i < view.options().size(); i++) {
-            out.add("    ◇ [" + (i + 1) + "] " + view.options().get(i).label());
+            out.add("    [" + (i + 1) + "] " + view.options().get(i).label());
         }
         if (view.options().isEmpty()) {
-            out.add("    ◇ leave  —  end the conversation");
+            out.add("    leave  —  end the conversation");
         }
         return out;
     }
@@ -177,9 +177,9 @@ final class PlayHandler {
     private static CommandResult openQuit(GameEngine e) {
         e.setMenu(new GameEngine.MenuContext(GameEngine.MenuContext.Kind.QUIT));
         CommandResult out = CommandResult.ok().line("Leave Veyrath?");
-        out.line("    ◇ [1] Save, then quit");
-        out.line("    ◇ [2] Quit without saving");
-        out.line("    ◇ [3] Stay");
+        out.line("    [1] Save, then quit");
+        out.line("    [2] Quit without saving");
+        out.line("    [3] Stay");
         return out;
     }
 

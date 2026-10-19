@@ -65,7 +65,7 @@ final class MainMenuHandler {
         CommandResult out = CommandResult.ok().line(title);
         for (int i = 0; i < slots.size(); i++) {
             SaveSlotInfo slot = slots.get(i);
-            out.line("    ◇ [" + (i + 1) + "] " + slot.slotName() + "  —  " + slot.playerName()
+            out.line("    [" + (i + 1) + "] " + slot.slotName() + "  —  " + slot.playerName()
                     + ", " + slot.chapter() + ", " + slot.locationCode()
                     + "  (updated " + slot.updatedAt() + ", v" + slot.gameVersion() + ")");
         }
@@ -81,11 +81,11 @@ final class MainMenuHandler {
     static List<String> settingsLines(GameEngine engine) {
         List<String> out = new ArrayList<>();
         out.add("SETTINGS");
-        out.add("    ◇ [1] Toggle color (currently: " + (engine.renderer().ansi().isEnabled() ? "ON" : "OFF") + ")");
-        out.add("    ◇ [2] Toggle Unicode box drawing (currently: "
+        out.add("    [1] Toggle color (currently: " + (engine.renderer().ansi().isEnabled() ? "ON" : "OFF") + ")");
+        out.add("    [2] Toggle Unicode box drawing (currently: "
                 + (engine.renderer().isUnicode() ? "ON" : "ASCII" ) + ")");
-        out.add("    ◇ [3] Terminal width: " + engine.renderer().width() + "  (type 'width <40-120>')");
-        out.add("    ◇ [4] Back");
+        out.add("    [3] Terminal width: " + engine.renderer().width() + "  (type 'width <40-120>')");
+        out.add("    [4] Back");
         out.add("  NO_COLOR / --plain are honored at launch; colors are never the only signal.");
         return out;
     }

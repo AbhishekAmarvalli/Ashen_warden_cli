@@ -135,8 +135,8 @@ final class MenuHandler {
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
                 out.line("");
                 out.line("Equip " + def.name() + " now?");
-                out.line("    ◇ [1] Yes, equip it");
-                out.line("    ◇ [2] Back (nothing changes)");
+                out.line("    [1] Yes, equip it");
+                out.line("    [2] Back (nothing changes)");
                 return out;
             }
             case UNEQUIP -> {

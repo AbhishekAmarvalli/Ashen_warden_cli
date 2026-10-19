@@ -456,7 +456,7 @@ public final class TerminalRenderer {
 
     // --- menus -------------------------------------------------------------
 
-    /** Option cards — numbered, diamond-marked choices (agent-CLI style). */
+    /** Option cards — numbered choices, plain glyphs that render cleanly everywhere. */
     public void menu(List<String> options) {
         int pad = 0;
         for (String option : options) {
@@ -465,8 +465,7 @@ public final class TerminalRenderer {
         for (int i = 0; i < options.size(); i++) {
             String label = options.get(i);
             String gap = " ".repeat(Math.max(0, pad - visible(label)));
-            System.out.println("    " + ansi.dim(unicode ? "◇" : "o") + " "
-                    + ansi.cyan("[" + (i + 1) + "]") + " "
+            System.out.println("    " + ansi.cyan("[" + (i + 1) + "]") + " "
                     + ansi.bold(label) + gap);
         }
     }

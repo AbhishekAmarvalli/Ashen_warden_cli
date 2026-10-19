@@ -63,7 +63,8 @@ public final class Main {
         }
 
         Ansi ansi = new Ansi(color);
-        TerminalRenderer renderer = new TerminalRenderer(ansi, !plain, width);
+        boolean unicodeArt = !plain && rendersUnicodeNatively();
+        TerminalRenderer renderer = new TerminalRenderer(ansi, unicodeArt, width);
 
         try {
             BehaviorRegistry behaviors = new BehaviorRegistry();
@@ -88,6 +89,22 @@ public final class Main {
             renderer.error("Startup failed: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
             System.exit(3);
         }
+    }
+
+    /**
+     * Whether this console renders Unicode ornament glyphs (❯ ◆ ▌ ◇ ─) as
+     * single-width, presentable text. Windows Terminal does; the legacy CMD
+     * console (conhost) draws many of them double-width or as boxes, so the
+     * game falls back to guaranteed-clean ASCII ornaments there. Only the
+     * decorations change — every message keeps its meaning in words.
+     */
+    private static boolean rendersUnicodeNatively() {
+        if (!System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("win")) {
+            return true;
+        }
+        return System.getenv("WT_SESSION") != null
+                || System.getenv("TERM_PROGRAM") != null
+                || System.getenv("WT_PROFILE_ID") != null;
     }
 
     private static int detectWidth() {
