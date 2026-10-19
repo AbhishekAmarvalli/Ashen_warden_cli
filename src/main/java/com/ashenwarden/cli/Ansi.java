@@ -17,6 +17,12 @@ public final class Ansi {
     public static final String MAGENTA = ESC + "[35m";
     public static final String CYAN = ESC + "[36m";
     public static final String GRAY = ESC + "[90m";
+    /** 256-color ember tones (Windows 10+ terminals render these natively). */
+    public static final String EMBER_1 = ESC + "[38;5;214m"; // bright ember
+    public static final String EMBER_2 = ESC + "[38;5;208m"; // flame orange
+    public static final String EMBER_3 = ESC + "[38;5;166m"; // deep orange
+    public static final String EMBER_4 = ESC + "[38;5;130m"; // cooled amber
+    public static final String WHITE = ESC + "[38;5;252m";   // ash white
 
     private boolean enabled;
 
@@ -46,6 +52,10 @@ public final class Ansi {
     public String magenta(String t) { return color(t, MAGENTA); }
     public String cyan(String t) { return color(t, CYAN); }
     public String gray(String t) { return color(t, GRAY); }
+    public String white(String t) { return color(t, WHITE); }
+
+    /** Ember accent used for titles, banners and the prompt. */
+    public String ember(String t) { return color(t, EMBER_2); }
     public String dim(String t) { return color(t, DIM); }
     public String bold(String t) { return color(t, BOLD); }
 }

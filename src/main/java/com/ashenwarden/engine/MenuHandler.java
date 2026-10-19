@@ -23,6 +23,21 @@ final class MenuHandler {
         if (menu == null) {
             return PlayHandler.handle(e, cmd);
         }
+        // Global verbs work on every screen: 'help' always answers, and 'quit'
+        // always leaves the game (except inside the quit menu itself, which
+        // owns that decision). No screen may ever trap the player.
+        if (cmd.type() == ParsedCommand.Type.HELP) {
+            CommandResult out = CommandResult.ok();
+            out.lines(menuHelp(menu.kind));
+            out.line("Any time: 'back' closes this screen, 'quit' saves and exits.");
+            return out;
+        }
+        if (cmd.type() == ParsedCommand.Type.QUIT
+                && menu.kind != GameEngine.MenuContext.Kind.QUIT) {
+            e.setMenu(null);
+            return CommandResult.ok()
+                    .line("Quitting without saving. The ash remembers regardless.").quit();
+        }
         return switch (menu.kind) {
             case INVENTORY -> inventory(e, cmd, menu);
             case EQUIP_CONFIRM -> equipConfirm(e, cmd, menu);
@@ -35,6 +50,45 @@ final class MenuHandler {
     }
 
     // =================== inventory ==========================================
+    /** Context-sensitive help lines mirroring the menu hints, so 'help' never lies. */
+    private static List<String> menuHelp(GameEngine.MenuContext.Kind kind) {
+        return switch (kind) {
+            case INVENTORY -> List.of(
+                    "Inventory screen:",
+                    "  inspect <n>   full details of item n",
+                    "  compare <n>   precise deltas vs. what is equipped",
+                    "  equip <n>     equip item n (asks for confirmation)",
+                    "  unequip <slot> weapon | armor | accessory1 | accessory2",
+                    "  back          close the inventory");
+            case LOOT -> List.of(
+                    "Loot screen:",
+                    "  inspect <n>   full details before deciding",
+                    "  take <n>      take item n     ·  take all  take everything",
+                    "  leave         walk away (loot stays where it fell)");
+            case DIALOGUE -> List.of(
+                    "Dialogue:",
+                    "  choose <n>    pick option n",
+                    "  ask <topic>   ask about a topic (look at the listed topics)",
+                    "  leave         end the conversation");
+            case EQUIP_CONFIRM -> List.of(
+                    "Confirmation screen:",
+                    "  1             confirm and equip",
+                    "  back          cancel — nothing changes, nothing is lost");
+            case LOAD_LIST -> List.of(
+                    "Load a slot:",
+                    "  <n>           load save slot number n",
+                    "  back          return without loading");
+            case QUIT -> List.of(
+                    "Quit menu:",
+                    "  1             save, then exit",
+                    "  2             exit without saving",
+                    "  3 / back      stay in the game");
+            case SETTINGS -> List.of(
+                    "Settings:",
+                    "  choose a number to change it, or 'back' to return");
+        };
+    }
+
     private static CommandResult inventory(GameEngine e, ParsedCommand cmd, GameEngine.MenuContext menu) {
         GameState s = e.state();
         switch (cmd.type()) {
@@ -81,8 +135,8 @@ final class MenuHandler {
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
                 out.line("");
                 out.line("Equip " + def.name() + " now?");
-                out.line("  [1] Yes, equip it");
-                out.line("  [2] Back (nothing changes)");
+                out.line("    ◇ [1] Yes, equip it");
+                out.line("    ◇ [2] Back (nothing changes)");
                 return out;
             }
             case UNEQUIP -> {

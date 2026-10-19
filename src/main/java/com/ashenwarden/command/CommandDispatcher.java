@@ -49,11 +49,13 @@ public final class CommandDispatcher {
         if (cmd.isUnknown()) {
             return CommandResult.rejected(unknownMessage(state, cmd));
         }
-        if (state == null) {
-            return engine.handleMainMenu(cmd);
-        }
+        // An open screen (settings, load list, ...) owns its numbers even on
+        // the main menu — before any state-based routing.
         if (engine.isMenuActive()) {
             return engine.handleMenuCommand(cmd);
+        }
+        if (state == null) {
+            return engine.handleMainMenu(cmd);
         }
         GamePhase phase = state.getPhase();
         Set<Type> allowed = ALLOWED.get(phase);

@@ -14,8 +14,11 @@ import com.ashenwarden.world.DialogueManager;
 import com.ashenwarden.world.ExplorationService;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ASHEN WARDEN: THE LAST EMBER — text-only CLI entry point.
@@ -92,12 +95,59 @@ public final class Main {
             // COLUMNS may be exported by the terminal; fall back to 80
             String cols = System.getenv("COLUMNS");
             if (cols != null && cols.matches("\\d{2,4}")) {
-                return Integer.parseInt(cols);
+                return Math.max(40, Math.min(120, Integer.parseInt(cols)));
             }
         } catch (NumberFormatException ignored) {
             // fall through
         }
+        // Windows CMD/PowerShell: ask the console itself, so panels fill the
+        // window instead of assuming 80 columns.
+        if (System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("win")) {
+            int consoleCols = windowsConsoleColumns();
+            if (consoleCols > 0) {
+                return consoleCols;
+            }
+        }
         return 80;
+    }
+
+    /**
+     * Reads the column count from {@code mode con}. The numeric row order is
+     * stable across locales (lines-per-row, columns, keyboard rate, delay),
+     * so the second number is the width. Returns -1 when there is no console
+     * (piped input, IDE runner) or the command failed.
+     */
+    private static int windowsConsoleColumns() {
+        try {
+            Process process = new ProcessBuilder("cmd.exe", "/c", "mode", "con")
+                    .redirectErrorStream(true)
+                    .start();
+            // mode con exits immediately; wait first so reading never blocks
+            if (!process.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                return -1;
+            }
+            List<Integer> values = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{2,4})\\s*$").matcher("");
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (m.reset(line).find()) {
+                        values.add(Integer.parseInt(m.group(1)));
+                    }
+                }
+            }
+            if (values.size() >= 2) {
+                int columns = values.get(1);
+                if (columns >= 40) {
+                    return Math.min(120, columns);
+                }
+            }
+        } catch (IOException | InterruptedException ignored) {
+            // no console (piped/IDE) — caller falls back to 80
+        }
+        return -1;
     }
 
     private static void printUsage() {

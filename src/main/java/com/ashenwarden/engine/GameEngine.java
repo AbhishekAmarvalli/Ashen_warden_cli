@@ -101,6 +101,7 @@ public final class GameEngine {
         refreshDatabaseStatus();
         renderMainMenu();
         while (running) {
+            renderStatusLine();
             r.prompt();
             String line = readLine();
             if (line == null) {
@@ -116,19 +117,117 @@ public final class GameEngine {
                 }
                 break;
             }
+            r.userEcho(line);
             if (rawPrompt != null) {
+                r.loader(rawLoaderMessage(rawPrompt));
                 handleRawInput(line);
                 continue;
             }
             GamePhase phase = state == null ? GamePhase.MAIN_MENU : state.getPhase();
             ParsedCommand cmd = parser.parse(line, phase);
+            r.loader(loaderMessage(phase, menu));
             CommandResult result = dispatcher.dispatch(state, cmd);
             renderResult(result);
             if (result.isQuitRequested()) {
                 running = false;
+            } else {
+                r.suggestFooter(suggestions());
             }
         }
         r.dim("Farewell, Warden.");
+    }
+
+    // --- turn framing (agent-CLI style) -------------------------------------
+
+    /** Compact status above the prompt while a save is loaded. Nothing during the main menu. */
+    private void renderStatusLine() {
+        if (state == null) {
+            return;
+        }
+        List<String> chips = new ArrayList<>();
+        if (state.getSlotName() != null && !state.getSlotName().isBlank()) {
+            chips.add(state.getSlotName());
+        }
+        Location loc = content.world().find(state.getCurrentLocationId());
+        if (loc != null) {
+            chips.add(loc.name());
+        }
+        var player = state.getPlayer();
+        var stats = com.ashenwarden.player.EffectiveStats.compute(
+                player, state.getEquipment(), content.items());
+        chips.add("HP " + player.getHp() + "/" + stats.maxHp());
+        chips.add(state.getPhase().name());
+        r.statusBar(chips);
+    }
+
+    /** Loader copy keyed to what the game is about to do. */
+    private String loaderMessage(GamePhase phase, MenuContext menu) {
+        if (menu != null) {
+            return switch (menu.kind) {
+                case LOAD_LIST -> "Reading the ledger of saved lives…";
+                case SETTINGS -> "Turning the old dials…";
+                case QUIT -> "Holding the flame steady…";
+                default -> "Arranging the page…";
+            };
+        }
+        return switch (phase) {
+            case MAIN_MENU -> "Stoking the embers…";
+            case EXPLORATION -> "Consulting the ash…";
+            case COMBAT -> "Tallying the round…";
+            case LOOT -> "Counting the spoils…";
+            case DIALOGUE -> "Listening closely…";
+            case GAME_OVER -> "Weighing the defeat…";
+            case ENDING -> "Kindling the final lines…";
+        };
+    }
+
+    /** Loader copy while naming a slot or the character (no phase/parse involved). */
+    private String rawLoaderMessage(RawPrompt prompt) {
+        return switch (prompt) {
+            case SLOT_NAME, PLAYER_NAME -> "Writing your name into the ledger…";
+        };
+    }
+
+    /**
+     * Recommended follow-up commands for the context the player is in — the
+     * agent-CLI 'Suggested next:' footer. Always valid commands, safe to type verbatim.
+     */
+    private List<String> suggestions() {
+        if (state == null) {
+            return List.of("new", "continue", "settings", "help");
+        }
+        if (menu != null) {
+            return switch (menu.kind) {
+                case INVENTORY -> List.of("inspect 1", "compare 1", "unequip weapon", "back");
+                case EQUIP_CONFIRM -> List.of("1", "back");
+                case LOOT -> menu.codes.isEmpty()
+                        ? List.of("leave")
+                        : List.of("take all", "inspect 1", "leave");
+                case DIALOGUE -> List.of("ask <topic>", "leave");
+                case LOAD_LIST -> List.of("1", "back");
+                case QUIT -> List.of("1", "3");
+                case SETTINGS -> List.of("width 100", "back");
+            };
+        }
+        return switch (state.getPhase()) {
+            case MAIN_MENU -> List.of("new", "continue", "load", "settings");
+            case EXPLORATION -> explorationSuggestions();
+            case COMBAT -> List.of("attack", "heavy", "status", "flee");
+            case GAME_OVER -> List.of("load", "quit");
+            default -> List.of("help", "quit");
+        };
+    }
+
+    private List<String> explorationSuggestions() {
+        List<String> out = new ArrayList<>();
+        out.add("look");
+        Location loc = content.world().find(state.getCurrentLocationId());
+        if (loc != null && loc.exits() != null && !loc.exits().isEmpty()) {
+            out.add("go " + loc.exits().get(0).label());
+        }
+        out.add("inventory");
+        out.add("rest");
+        return out;
     }
 
     private String readLine() {
@@ -175,9 +274,11 @@ public final class GameEngine {
 
     // --- rendering ----------------------------------------------------------
     private void renderResult(CommandResult result) {
+        r.beginReply();
         for (String line : result.lines()) {
-            r.info(line);
+            r.narrative(line);
         }
+        r.endReply();
         if (state != null && state.getPhase() == GamePhase.COMBAT && state.getCombat() != null
                 && state.getCombat().isOngoing()) {
             renderCombatHeader();
@@ -196,13 +297,16 @@ public final class GameEngine {
 
     private void renderMenuOptions() {
         switch (menu.kind) {
-            case INVENTORY -> r.hint("Commands: inspect <n> | compare <n> | equip <n> | back");
-            case LOOT -> r.hint("Commands: inspect <n> | take <n> | take all | inventory | leave");
+            case INVENTORY -> r.hint("Commands: inspect <n> | compare <n> | equip <n> | unequip <slot> | back");
+            case LOOT -> r.hint("Commands: inspect <n> | take <n> | take all | leave");
             case DIALOGUE -> r.hint("Choose with a number, 'ask <topic>', or 'leave'");
-            case EQUIP_CONFIRM -> r.hint("Type the number to confirm, or 'back' to cancel.");
+            case EQUIP_CONFIRM -> r.hint("Type 1 to confirm, or 'back' to cancel — nothing is lost either way.");
             case LOAD_LIST -> r.hint("Choose a slot number, or 'back'.");
-            case QUIT -> r.hint("Choose an option.");
+            case QUIT -> r.hint("Choose an option — nothing happens until you pick one.");
             case SETTINGS -> { /* settings renders its own lines */ }
+        }
+        if (menu.kind != MenuContext.Kind.SETTINGS) {
+            r.hint("Tip: 'help' explains this screen, 'back' closes it, 'quit' saves and exits.");
         }
     }
 
@@ -236,12 +340,14 @@ public final class GameEngine {
     }
 
     public void renderMainMenu() {
-        List<String> body = new ArrayList<>();
-        body.add("ASHEN WARDEN: THE LAST EMBER");
-        body.add("A kingdom that could not die. An oath that could not end.");
         r.blank();
-        r.panel("THE LAST EMBER", body);
+        r.banner("ASHEN WARDEN");
+        r.section("The Last Ember");
+        r.subLine("A kingdom that could not die. An oath that could not end.");
+        r.blank();
+        r.divider();
         r.menu(List.of("New Game", "Continue", "Load Slot", "Settings", "Exit"));
+        r.divider();
         if (!dbAvailable) {
             r.warn("! Database unavailable: " + dbProblem);
             r.dim(saves.guidance());
@@ -397,8 +503,14 @@ public final class GameEngine {
         state.setPhase(GamePhase.EXPLORATION);
         menu = null;
         r.blank();
+        boolean firstLine = true;
         for (String line : content.prologueIntro().split("\n")) {
-            r.info(line);
+            if (firstLine && !line.isBlank()) {
+                r.section(line); // story title: "PROLOGUE — THE TOMB OF COLD ASH"
+                firstLine = false;
+            } else {
+                r.narrative(line);
+            }
         }
         afterExplorationChange();
         checkEnterEncounter();
@@ -434,14 +546,14 @@ public final class GameEngine {
         // drain events raised by movement/dialogue and let quests react
         List<String> questLines = processEvents();
         for (String line : questLines) {
-            r.info(line);
+            r.narrative(line);
         }
         for (String line : newGameQuestLines) {
-            r.info(line);
+            r.narrative(line);
         }
         newGameQuestLines = List.of();
         for (String line : exploration.look(state)) {
-            r.info(line);
+            r.narrative(line);
         }
     }
 
