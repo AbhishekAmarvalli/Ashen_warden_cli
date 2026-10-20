@@ -117,31 +117,33 @@ public final class GameEngine {
                 }
                 break;
             }
-            r.userEcho(line);
             if (rawPrompt != null) {
-                r.loader(rawLoaderMessage(rawPrompt));
+                r.beginBlock(); // naming a slot/character is a turn too
                 handleRawInput(line);
+                r.blank();
                 continue;
             }
             GamePhase phase = state == null ? GamePhase.MAIN_MENU : state.getPhase();
             ParsedCommand cmd = parser.parse(line, phase);
-            r.loader(loaderMessage(phase, menu));
             CommandResult result = dispatcher.dispatch(state, cmd);
             renderResult(result);
             if (result.isQuitRequested()) {
                 running = false;
             } else {
+                r.blank();
                 r.suggestFooter(suggestions());
             }
         }
+        r.blank();
         r.dim("Farewell, Warden.");
     }
 
-    // --- turn framing (agent-CLI style) -------------------------------------
+    // --- turn framing -------------------------------------------------------
 
-    /** Compact status above the prompt while a save is loaded. Nothing during the main menu. */
+    /** Compact status above the prompt: save chips in play, MAIN MENU at the boot screen. */
     private void renderStatusLine() {
         if (state == null) {
+            r.statusBar(List.of("MAIN MENU"));
             return;
         }
         List<String> chips = new ArrayList<>();
@@ -160,41 +162,14 @@ public final class GameEngine {
         r.statusBar(chips);
     }
 
-    /** Loader copy keyed to what the game is about to do. */
-    private String loaderMessage(GamePhase phase, MenuContext menu) {
-        if (menu != null) {
-            return switch (menu.kind) {
-                case LOAD_LIST -> "Reading the ledger of saved lives…";
-                case SETTINGS -> "Turning the old dials…";
-                case QUIT -> "Holding the flame steady…";
-                default -> "Arranging the page…";
-            };
-        }
-        return switch (phase) {
-            case MAIN_MENU -> "Stoking the embers…";
-            case EXPLORATION -> "Consulting the ash…";
-            case COMBAT -> "Tallying the round…";
-            case LOOT -> "Counting the spoils…";
-            case DIALOGUE -> "Listening closely…";
-            case GAME_OVER -> "Weighing the defeat…";
-            case ENDING -> "Kindling the final lines…";
-        };
-    }
-
-    /** Loader copy while naming a slot or the character (no phase/parse involved). */
-    private String rawLoaderMessage(RawPrompt prompt) {
-        return switch (prompt) {
-            case SLOT_NAME, PLAYER_NAME -> "Writing your name into the ledger…";
-        };
-    }
-
     /**
-     * Recommended follow-up commands for the context the player is in — the
-     * agent-CLI 'Suggested next:' footer. Always valid commands, safe to type verbatim.
+     * Recommended follow-up commands for the context the player is in, shown
+     * as the 'Suggested:' footer under every reply. Always valid commands,
+     * safe to type verbatim.
      */
     private List<String> suggestions() {
         if (state == null) {
-            return List.of("new", "continue", "settings", "help");
+            return MENU_SUGGESTIONS;
         }
         if (menu != null) {
             return switch (menu.kind) {
@@ -273,19 +248,31 @@ public final class GameEngine {
     }
 
     // --- rendering ----------------------------------------------------------
+    /** Draws one reply as a tagged block: header rule, plain lines as prose,
+     *  card blocks as bordered screens. */
     private void renderResult(CommandResult result) {
-        r.beginReply();
-        for (String line : result.lines()) {
-            r.narrative(line);
+        if (!result.blocks().isEmpty()) {
+            r.beginBlock();
         }
-        r.endReply();
+        for (CommandResult.Block block : result.blocks()) {
+            if (block.isCard()) {
+                r.card(block.cardTitle(), block.lines());
+                continue;
+            }
+            for (String line : block.lines()) {
+                r.narrative(line);
+            }
+        }
         if (state != null && state.getPhase() == GamePhase.COMBAT && state.getCombat() != null
                 && state.getCombat().isOngoing()) {
+            r.blank(); // air between the round log and the encounter frame
             renderCombatHeader();
-            r.hint("  [1] Attack  [2] Heavy  [3] Defend  [4] Parry  [5] Skill  [6] Item"
-                    + "  [7] Inspect enemy  [8] Inspect item  [9] Flee  [0] Help");
+            r.keyHints(List.of("[1] Attack", "[2] Heavy", "[3] Defend", "[4] Parry",
+                    "[5] Skill", "[6] Item", "[7] Inspect enemy", "[8] Inspect item",
+                    "[9] Flee", "[0] Help"));
         }
         if (menu != null && menu.kind != MenuContext.Kind.SETTINGS) {
+            r.blank(); // air between the screen and its command hints
             renderMenuOptions();
         }
         if (pendingAfterRender != null) {
@@ -339,22 +326,39 @@ public final class GameEngine {
         r.panel("ENCOUNTER", body);
     }
 
+    /** Commands offered on the main menu, in the boot footer and after every menu turn. */
+    private static final List<String> MENU_SUGGESTIONS =
+            List.of("new", "continue", "settings", "help");
+
+    /**
+     * Boot screen: title art, then the menu as a card so the main menu is part
+     * of the same tagged-block interface as the rest of the game. Database
+     * state stays outside the card so its warning keeps its color.
+     */
     public void renderMainMenu() {
         r.blank();
+        r.header(); // logo bar, like the header of a web interface
+        r.blank();
         r.banner("ASHEN WARDEN");
-        r.section("The Last Ember");
         r.subLine("A kingdom that could not die. An oath that could not end.");
         r.blank();
-        r.divider();
-        r.menu(List.of("New Game", "Continue", "Load Slot", "Settings", "Exit"));
-        r.divider();
+        List<String> body = new ArrayList<>();
+        body.add("  [1] New Game");
+        body.add("  [2] Continue");
+        body.add("  [3] Load Slot");
+        body.add("  [4] Settings");
+        body.add("  [5] Exit");
+        body.add("");
+        body.add("  Type a number, or a command: new | continue | load | settings | help | quit");
+        r.card("MAIN MENU", body);
         if (!dbAvailable) {
             r.warn("! Database unavailable: " + dbProblem);
             r.dim(saves.guidance());
         } else {
             r.dim("MySQL connected. Save slots are ready.");
         }
-        r.hint("Type a number, or a command: new | continue | load | settings | help | quit");
+        r.blank();
+        r.suggestFooter(MENU_SUGGESTIONS);
     }
 
     public boolean isMenuActive() {
@@ -637,7 +641,7 @@ public final class GameEngine {
                     closeCombat();
                     out.phase(GamePhase.EXPLORATION);
                 } else {
-                    out.lines(openLootMenu());
+                    out.cardLines(openLootMenu());
                     out.phase(GamePhase.LOOT);
                 }
             }
@@ -813,7 +817,7 @@ public final class GameEngine {
         MenuContext ctx = new MenuContext(MenuContext.Kind.INVENTORY);
         ctx.showEquipment = showEquipmentHeader;
         menu = ctx;
-        return CommandResult.ok().lines(buildInventoryLines());
+        return CommandResult.ok().cardLines(buildInventoryLines());
     }
 
     /** Rebuilt from live inventory each time, so lists are never stale after equip/take. */

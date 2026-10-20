@@ -1,0 +1,7 @@
+1
+cmdtest-slot
+CmdTester
+save
+load
+help
+quit

@@ -5,6 +5,7 @@ rem  Usage:  play.bat            (double-click or type in CMD)
 rem  Flags pass through, e.g.:   play.bat --plain --width 100
 rem =====================================================================
 setlocal
+title ASHEN WARDEN: THE LAST EMBER
 
 rem UTF-8 console so the game's borders, dashes and symbols display right
 chcp 65001 >nul

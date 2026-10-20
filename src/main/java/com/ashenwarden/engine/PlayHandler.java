@@ -32,23 +32,23 @@ final class PlayHandler {
         return switch (cmd.type()) {
             case LOOK -> CommandResult.ok().lines(exploration.look(s));
             case GO -> go(e, cmd);
-            case MAP -> CommandResult.ok().lines(exploration.mapText(s));
-            case PATHS -> CommandResult.ok().lines(exploration.pathsText(s));
-            case INSPECT -> CommandResult.ok().lines(exploration.inspect(s, cmd.arg()));
+            case MAP -> CommandResult.ok().cardLines(exploration.mapText(s));
+            case PATHS -> CommandResult.ok().cardLines(exploration.pathsText(s));
+            case INSPECT -> CommandResult.ok().cardLines(exploration.inspect(s, cmd.arg()));
             case INTERACT -> interact(e, cmd);
             case SEARCH -> withQuestEvents(e, exploration.search(s));
             case TALK -> talk(e, cmd);
             case REST -> rest(e, exploration);
-            case JOURNAL -> CommandResult.ok().lines(e.quests().journalText(s));
-            case QUESTS -> CommandResult.ok().lines(e.quests().questsText(s));
-            case MEMORIES -> CommandResult.ok().lines(memories(e));
-            case ABILITIES -> CommandResult.ok().lines(abilities(e));
-            case STATS, STATUS -> CommandResult.ok().lines(stats(e));
+            case JOURNAL -> CommandResult.ok().cardLines(e.quests().journalText(s));
+            case QUESTS -> CommandResult.ok().cardLines(e.quests().questsText(s));
+            case MEMORIES -> CommandResult.ok().cardLines(memories(e));
+            case ABILITIES -> CommandResult.ok().cardLines(abilities(e));
+            case STATS, STATUS -> CommandResult.ok().cardLines(stats(e));
             case INVENTORY -> e.openInventoryMenu(false);
             case EQUIPMENT -> e.openInventoryMenu(true);
             case SAVE -> e.doSave();
             case LOAD -> MainMenuHandler.openSlots(e, "Load a slot (progress since your last save is lost):");
-            case HELP -> CommandResult.ok().lines(explorationHelp());
+            case HELP -> CommandResult.ok().cardLines(explorationHelp());
             case QUIT -> openQuit(e);
             case LOG -> CommandResult.ok().line("The combat log only exists during battle; your story is in 'journal'.");
             case INSPECT_ITEM -> inspectCarriedItem(e, cmd);
@@ -88,7 +88,7 @@ final class PlayHandler {
             out.lines(e.processEvents());
         }
         if (outcome.target() != null && outcome.target().loot() != null && !outcome.target().loot().isEmpty()) {
-            out.lines(e.openLootFromInteractable(outcome.target().loot()));
+            out.cardLines(e.openLootFromInteractable(outcome.target().loot()));
             out.phase(GamePhase.LOOT);
         }
         return out;
@@ -125,9 +125,9 @@ final class PlayHandler {
         e.setMenu(new GameEngine.MenuContext(GameEngine.MenuContext.Kind.DIALOGUE));
         e.menu().dialogue = view;
         s.setPhase(GamePhase.DIALOGUE);
-        CommandResult out = CommandResult.ok().lines(view.lines());
-        out.lines(optionLines(view));
-        return out;
+        List<String> body = new ArrayList<>(view.lines());
+        body.addAll(optionLines(view));
+        return CommandResult.ok().card("DIALOGUE", body);
     }
 
     static List<String> optionLines(com.ashenwarden.world.DialogueManager.DialogueView view) {
@@ -167,7 +167,7 @@ final class PlayHandler {
                 continue;
             }
             if (def.code().equalsIgnoreCase(want) || def.name().toLowerCase(java.util.Locale.ROOT).contains(want)) {
-                return CommandResult.ok().lines(com.ashenwarden.cli.ItemText.describe(
+                return CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.describe(
                         def, e.state().getInventory(), e.state().getEquipment(), e.content().items()));
             }
         }

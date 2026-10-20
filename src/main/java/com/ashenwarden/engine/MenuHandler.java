@@ -28,7 +28,7 @@ final class MenuHandler {
         // owns that decision). No screen may ever trap the player.
         if (cmd.type() == ParsedCommand.Type.HELP) {
             CommandResult out = CommandResult.ok();
-            out.lines(menuHelp(menu.kind));
+            out.cardLines(menuHelp(menu.kind));
             out.line("Any time: 'back' closes this screen, 'quit' saves and exits.");
             return out;
         }
@@ -102,7 +102,7 @@ final class MenuHandler {
                     return CommandResult.rejected("No item by that name/number here. Use 'inspect <n>' or 'back'.");
                 }
                 ItemDef def = e.content().item(menu.codes.get(index));
-                return CommandResult.ok().lines(com.ashenwarden.cli.ItemText.describe(
+                return CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.describe(
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
             }
             case COMPARE -> {
@@ -116,7 +116,7 @@ final class MenuHandler {
                     return CommandResult.ok().line(candidate.name()
                             + " has nothing equipped to compare against (that slot is empty).");
                 }
-                return CommandResult.ok().lines(com.ashenwarden.cli.ItemText.compare(
+                return CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.compare(
                         candidate, e.content().item(equippedCode)));
             }
             case EQUIP -> {
@@ -131,7 +131,7 @@ final class MenuHandler {
                 menu.kind = GameEngine.MenuContext.Kind.EQUIP_CONFIRM;
                 menu.pendingEquipCode = def.code();
                 CommandResult out = CommandResult.ok();
-                out.lines(com.ashenwarden.cli.ItemText.describe(
+                out.cardLines(com.ashenwarden.cli.ItemText.describe(
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
                 out.line("");
                 out.line("Equip " + def.name() + " now?");
@@ -154,7 +154,7 @@ final class MenuHandler {
                 s.markDirty();
                 e.clampVitals(s);
                 CommandResult out = CommandResult.ok().line("Unequipped and returned to your bag.");
-                out.lines(e.buildInventoryLines());
+                out.cardLines(e.buildInventoryLines());
                 return out;
             }
             default -> {
@@ -191,7 +191,7 @@ final class MenuHandler {
             menu.kind = GameEngine.MenuContext.Kind.INVENTORY;
             menu.pendingEquipCode = null;
             CommandResult out = CommandResult.ok().line("Nothing was changed.");
-            out.lines(e.buildInventoryLines());
+            out.cardLines(e.buildInventoryLines());
             return out;
         }
         if (!yes) {
@@ -226,7 +226,7 @@ final class MenuHandler {
         CommandResult out = CommandResult.ok().line("Equipped: " + def.name()
                 + " in the " + slot.name().toLowerCase(java.util.Locale.ROOT) + " slot.");
         out.lines(e.processEvents());
-        out.lines(e.buildInventoryLines());
+        out.cardLines(e.buildInventoryLines());
         return out;
     }
 
@@ -254,7 +254,7 @@ final class MenuHandler {
                     return CommandResult.rejected("No such loot here. Use 'inspect <n>' or 'take all'.");
                 }
                 ItemDef def = e.content().item(menu.codes.get(index));
-                return CommandResult.ok().lines(com.ashenwarden.cli.ItemText.describe(
+                return CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.describe(
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
             }
             case TAKE -> {
@@ -268,7 +268,7 @@ final class MenuHandler {
                 CommandResult out = CommandResult.ok();
                 while (!menu.codes.isEmpty()) {
                     CommandResult one = takeOne(e, menu, 0);
-                    out.lines(one.lines());
+                    out.blocks(one.blocks());
                     if (one.nextPhase() != null) {
                         out.phase(one.nextPhase());
                     }
@@ -280,7 +280,7 @@ final class MenuHandler {
                 return out;
             }
             case INVENTORY -> {
-                return CommandResult.ok().lines(inventoryPeek(e));
+                return CommandResult.ok().cardLines(inventoryPeek(e));
             }
             default -> {
                 return CommandResult.rejected("While looting use: inspect <n> | take <n> | take all | leave.");
@@ -397,12 +397,12 @@ final class MenuHandler {
         }
         menu.dialogue = next;
         s.setPhase(GamePhase.DIALOGUE);
-        CommandResult out = CommandResult.ok().lines(next.lines());
-        out.lines(PlayHandler.optionLines(next));
+        List<String> body = new ArrayList<>(next.lines());
+        body.addAll(PlayHandler.optionLines(next));
         if (next.options().isEmpty()) {
-            out.line("  (type 'leave' to end the conversation)");
+            body.add("  (type 'leave' to end the conversation)");
         }
-        return out;
+        return CommandResult.ok().card("DIALOGUE", body);
     }
 
     // =================== load list ==========================================
@@ -458,7 +458,8 @@ final class MenuHandler {
                 return saveResult;
             }
             e.setMenu(null);
-            return saveResult.line("Quitting. Farewell, Warden.").quit();
+            // run() prints the final "Farewell, Warden." after the loop ends
+            return saveResult.line("Quitting. The ash remembers.").quit();
         }
         return CommandResult.rejected("Choose [1] save & quit, [2] quit without saving, or [3] stay.");
     }

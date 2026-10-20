@@ -10,3 +10,5 @@ logs/
 .env
 .env.local
 dependency-reduced-pom.xml
+# 31MB build dump from an earlier jar-inspection session (fatstage of the jar)
+tools/tmp/

@@ -8,10 +8,27 @@ import java.util.regex.Pattern;
 /**
  * Pure presentation layer: wraps text to the terminal width, draws title
  * banners, box panels, section rules, status bars and menus. Never mutates
- * game state and never touches SQL. Supports NO_COLOR / --plain (ASCII-only,
- * no escapes) — meaning always travels in words, color only decorates.
+ * game state and never touches SQL.
+ *
+ * <p>Layout contract — the "clean console" look:</p>
+ * <ul>
+ *   <li>every reply line is indented two columns below the prompt, so a turn
+ *       reads as one block;</li>
+ *   <li>no printed line is ever wider than the configured terminal width —
+ *       wrap limits always account for indent, hanging prefixes and panel
+ *       borders;</li>
+ *   <li>blank lines are truly blank (never trailing spaces);</li>
+ *   <li>when Unicode ornaments are off (legacy CMD, {@code --plain}) every
+ *       typographic character the game emits is folded to plain ASCII, so
+ *       nothing can render as a box.</li>
+ * </ul>
+ * Supports NO_COLOR / --plain (ASCII-only, no escapes) — meaning always
+ * travels in words, color only decorates.
  */
 public final class TerminalRenderer {
+
+    /** Reply lines start two columns in, below the {@code > } prompt. */
+    private static final int INDENT = 2;
 
     /** 5x5 block-letter font for the title banner (space + A..Z). */
     private static final String[][] FONT = {
@@ -40,7 +57,7 @@ public final class TerminalRenderer {
             {"█   █", "█   █", "█   █", " █ █ ", "  █  "}, // V
             {"█   █", "█   █", "█ █ █", "██ ██", "█   █"}, // W
             {"█   █", " █ █ ", "  █  ", " █ █ ", "█   █"}, // X
-            {"█   █", " █ █ ", "  █  ", "  █  ", "  █  "}, // Y
+            {"█   █", " █ █ ", "  █  ", " █ █ ", "  █  "}, // Y
             {"█████", "   █ ", "  █  ", " █   ", "█████"}, // Z
     };
 
@@ -53,26 +70,16 @@ public final class TerminalRenderer {
     private static final Pattern HEADER_LINE =
             Pattern.compile("^\\[([A-Z][A-Z0-9 .,'!?\\-]*)\\](.*)$", Pattern.DOTALL);
 
-    /** Frames visible while the loader spinner runs (skipped when piped). */
-    private static final String[] SPINNER_UNICODE = {
-            "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"
-    };
-    private static final String[] SPINNER_ASCII = {"|", "/", "-", "\\"};
+    private static final char ESC = 27;
 
     private final Ansi ansi;
-    private final boolean interactive;
     private boolean unicode;
     private int width;
-    /** True while the current turn's reply is drawn with a chat-style gutter. */
-    private boolean gutter;
 
     public TerminalRenderer(Ansi ansi, boolean unicode, int width) {
         this.ansi = ansi;
         this.unicode = unicode;
         this.width = Math.max(40, Math.min(120, width));
-        // A real console (typing human) gets the animated loader; piped input
-        // (tests, scripts) gets none — output must stay deterministic.
-        this.interactive = System.console() != null;
     }
 
     public Ansi ansi() { return ansi; }
@@ -87,6 +94,7 @@ public final class TerminalRenderer {
 
     // --- primitives --------------------------------------------------------
 
+    /** Raw pass-through: prints exactly what it is given (frames only). */
     public void line(String text) {
         System.out.println(text == null ? "" : text);
     }
@@ -95,77 +103,57 @@ public final class TerminalRenderer {
         System.out.println();
     }
 
-    public void info(String text) { printWrapped(text, null); }
+    public void info(String text) { body(text, null); }
 
-    // --- chat-style turn framing --------------------------------------------
+    public void success(String text) { body(text, Ansi.GREEN); }
 
-    /** The wall-clock stamp shown at the left of each turn line, chat-log style. */
-    private static final java.time.format.DateTimeFormatter CLOCK =
-            java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss");
+    public void warn(String text) { body(text, Ansi.YELLOW); }
 
-    private static String now() {
-        return java.time.LocalTime.now().format(CLOCK);
-    }
+    public void error(String text) { body(text, Ansi.RED); }
 
-    /** Echoes what the player typed, like a timestamped chat transcript:
-     *  '[21:47:03]  You ❯ look'. */
-    public void userEcho(String input) {
-        System.out.println("  " + ansi.gray("[" + now() + "]") + "  " + ansi.cyan("You") + " "
-                + ansi.ember(unicode ? "❯" : ">") + " " + (input == null ? "" : input));
-    }
+    public void dim(String text) { body(text, Ansi.GRAY); }
 
-    /** Opens the assistant side of the turn: timestamped tag line, then replies get a gutter bar. */
-    public void beginReply() {
-        System.out.println();
-        System.out.println("  " + ansi.gray("[" + now() + "]") + "  "
-                + ansi.ember(unicode ? "◆" : "*") + " "
-                + ansi.bold(ansi.ember("ASHEN WARDEN")));
-        gutter = true;
-    }
+    /** Small print under a screen (commands, tips) — same block as the reply. */
+    public void hint(String text) { body(text, Ansi.GRAY); }
 
-    /** Closes the assistant side of the turn: gutter off, one blank line of air. */
-    public void endReply() {
-        gutter = false;
-        System.out.println();
-    }
+    // --- body printing -----------------------------------------------------
 
-    /** Adds the reply gutter bar under turn framing; plain otherwise. */
-    private void emit(String text) {
-        if (!gutter) {
-            System.out.println(text);
-            return;
-        }
-        System.out.println(ansi.dim(unicode ? "▌" : "|") + " " + text);
+    /** One reply line: wrapped to the terminal, indented by {@link #INDENT}. */
+    private void body(String text, String color) {
+        paint(text, color, INDENT, 0);
     }
 
     /**
-     * Brief animated status before a reply (agent-CLI style loader). Skipped
-     * entirely when input is not a typing console — piped output must be
-     * deterministic and tests must never sleep.
+     * Core printer. Wraps so that no line exceeds the configured width,
+     * prefixes every line with {@code indent} spaces and continuation lines
+     * with {@code hang} extra columns. Blank input prints a blank line.
      */
-    public void loader(String message) {
-        if (!interactive || message == null || message.isEmpty()) {
+    private void paint(String text, String color, int indent, int hang) {
+        if (text == null || text.isEmpty()) {
+            System.out.println();
             return;
         }
-        String[] frames = unicode ? SPINNER_UNICODE : SPINNER_ASCII;
-        try {
-            long deadline = System.currentTimeMillis() + 380;
-            int i = 0;
-            while (System.currentTimeMillis() < deadline) {
-                System.out.print("\r  " + frames[i % frames.length] + " " + message + "   ");
-                System.out.flush();
-                i++;
-                Thread.sleep(40);
+        int limit = Math.max(20, width - indent - hang);
+        List<String> lines = wrap(prep(text), limit);
+        String pad = " ".repeat(indent);
+        String hangPad = " ".repeat(indent + hang);
+        boolean first = true;
+        for (String l : lines) {
+            if (l.isEmpty()) {
+                System.out.println();
+            } else {
+                System.out.println((first ? pad : hangPad)
+                        + (color == null ? l : ansi.color(l, color)));
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            first = false;
         }
-        System.out.print("\r                                      \r");
-        System.out.flush();
     }
 
-    /** Narrative output: [LOCATION] headers get the ember treatment, meta
-     *  notes like [autosaved] fade back, everything else stays calm white. */
+    /**
+     * Narrative output: [LOCATION] headers get the ember treatment plus a
+     * hanging indent, meta notes like [autosaved] fade back, everything else
+     * stays calm and unwrapped-by-color.
+     */
     public void narrative(String text) {
         if (text == null || text.isEmpty()) {
             System.out.println();
@@ -181,31 +169,119 @@ public final class TerminalRenderer {
             return;
         }
         String head = ansi.bold(ansi.ember("[" + m.group(1) + "]"));
-        List<String> lines = wrap(m.group(2), width);
-        emit(head + lines.get(0));
-        for (int i = 1; i < lines.size(); i++) {
-            emit("  " + lines.get(i));
+        int headWidth = visible(head);
+        if (width - INDENT - headWidth < 24) {
+            // terminal too narrow for a hanging header: own line, then normal text
+            System.out.println(" ".repeat(INDENT) + head);
+            info(m.group(2));
+            return;
+        }
+        // wrap the rest narrow enough that header + text still fits the window
+        List<String> lines = wrap(prep(m.group(2)), Math.max(20, width - INDENT - headWidth));
+        String pad = " ".repeat(INDENT);
+        String hangPad = " ".repeat(INDENT + headWidth);
+        for (int i = 0; i < lines.size(); i++) {
+            String l = lines.get(i);
+            if (l.isEmpty()) {
+                System.out.println();
+            } else if (i == 0) {
+                System.out.println(pad + head + l);
+            } else {
+                System.out.println(hangPad + l);
+            }
         }
     }
 
-    public void success(String text) { printWrapped(ansi.green(text), null); }
-
-    public void warn(String text) { printWrapped(ansi.yellow(text), null); }
-
-    public void error(String text) { printWrapped(ansi.red(text), null); }
-
-    public void dim(String text) { printWrapped(ansi.gray(text), null); }
-
-    public void heading(String text) {
-        String label = text == null ? "" : text;
-        int rule = Math.max(2, width - visible(label) - 1);
-        System.out.println(ansi.bold(ansi.ember(label)) + " "
-                + ansi.dim(rule(unicode ? "─" : "-", rule)));
+    /**
+     * Packed key legend (e.g. the combat actions). Each "[n] Action" pair is
+     * kept whole and pairs are packed to the terminal width, so the legend
+     * never soft-wraps into a ragged second line.
+     */
+    public void keyHints(List<String> pairs) {
+        if (pairs == null || pairs.isEmpty()) {
+            return;
+        }
+        int avail = Math.max(20, width - INDENT);
+        StringBuilder current = new StringBuilder();
+        int currentWidth = 0;
+        for (String pair : pairs) {
+            String prepared = prep(pair);
+            int pairWidth = visible(prepared);
+            boolean firstOnLine = currentWidth == 0;
+            if (!firstOnLine && currentWidth + 2 + pairWidth > avail) {
+                System.out.println(" ".repeat(INDENT) + current);
+                current = new StringBuilder();
+                currentWidth = 0;
+                firstOnLine = true;
+            }
+            if (!firstOnLine) {
+                current.append("  ");
+                currentWidth += 2;
+            }
+            current.append(colorPair(prepared));
+            currentWidth += pairWidth;
+        }
+        if (current.length() > 0) {
+            System.out.println(" ".repeat(INDENT) + current);
+        }
     }
 
-    /** Section rule: "── LABEL ────────────" in ember. */
+    /** "[1] Attack" -> cyan key, white label (color stays supplemental). */
+    private String colorPair(String pair) {
+        int close = pair.indexOf(']');
+        if (pair.startsWith("[") && close > 0 && close + 1 < pair.length()) {
+            return ansi.cyan(pair.substring(0, close + 1))
+                    + " " + ansi.white(pair.substring(close + 1).stripLeading());
+        }
+        return ansi.white(pair);
+    }
+
+    // --- brand header -------------------------------------------------------
+
+    /**
+     * Logo bar pinned at the very top of the window, the way a site header
+     * sits above the page: {@code ◆ ASHEN WARDEN · THE LAST EMBER ───────}.
+     * Also sets the window/tab title so the logo shows above the text area.
+     */
+    public void header() {
+        consoleTitle();
+        String logo = (unicode ? "◆ " : "* ") + "ASHEN WARDEN";
+        String tag = (unicode ? " · " : " - ") + "THE LAST EMBER";
+        int used = visible(logo) + visible(tag);
+        int rest = width - used - 1;
+        String tail = rest > 1 ? " " + ansi.dim(rule(unicode ? "─" : "-", rest)) : "";
+        System.out.println(ansi.bold(ansi.ember(logo)) + ansi.gray(tag) + tail);
+    }
+
+    /** Sets the terminal window title (real consoles only, never in captures). */
+    private void consoleTitle() {
+        if (!ansi.isEnabled() || System.console() == null) {
+            return;
+        }
+        System.out.print((char) 27 + "]0;ASHEN WARDEN: THE LAST EMBER" + (char) 7);
+    }
+
+    // --- turn framing -------------------------------------------------------
+
+    /**
+     * Opens an assistant block, chat-interface style:
+     * {@code ◆ ASHEN WARDEN ────────────────────}. The rule fills the window,
+     * so every reply reads as one tagged block alternating with the player's
+     * own prompt line above it.
+     */
+    public void beginBlock() {
+        String label = (unicode ? "◆ " : "* ") + "ASHEN WARDEN";
+        int used = visible(label);
+        int rest = width - used - 1;
+        String tail = rest > 1 ? " " + ansi.dim(rule(unicode ? "─" : "-", rest)) : "";
+        System.out.println(ansi.bold(ansi.ember(label)) + tail);
+    }
+
+    // --- section rules -----------------------------------------------------
+
+    /** "── LABEL ────────────" in ember, exactly one terminal wide. */
     public void section(String label) {
-        String text = label.toUpperCase(java.util.Locale.ROOT);
+        String text = prep(label == null ? "" : label).toUpperCase(java.util.Locale.ROOT);
         String spaced = spaced(text);
         if (visible(spaced) + 6 > width) {
             // too long for flanking rules — print the label alone, never wrap mid-word
@@ -218,19 +294,17 @@ public final class TerminalRenderer {
                 + ansi.dim(rule(unicode ? "─" : "-", rule)));
     }
 
+    /** "LABEL ────────" in ember. */
+    public void heading(String text) {
+        String label = prep(text == null ? "" : text);
+        int rule = Math.max(2, width - visible(label) - 1);
+        System.out.println(ansi.bold(ansi.ember(label)) + " "
+                + ansi.dim(rule(unicode ? "─" : "-", rule)));
+    }
+
     /** Full-width light divider. */
     public void divider() {
         System.out.println(ansi.dim(rule(unicode ? "─" : "-", width)));
-    }
-
-    private void printWrapped(String text, String ignored) {
-        if (text == null) {
-            System.out.println();
-            return;
-        }
-        for (String l : wrap(text, width)) {
-            emit(l);
-        }
     }
 
     // --- title banner ------------------------------------------------------
@@ -241,7 +315,7 @@ public final class TerminalRenderer {
      * (or when Unicode/color is switched off).
      */
     public void banner(String text) {
-        String upper = text.toUpperCase(java.util.Locale.ROOT);
+        String upper = prep(text).toUpperCase(java.util.Locale.ROOT);
         int artWidth = artWidth(upper);
         if (!unicode || artWidth + 4 > width) {
             int pad = Math.max(0, (width - visible(upper)) / 2);
@@ -258,8 +332,7 @@ public final class TerminalRenderer {
                     sb.append("   ");
                     continue;
                 }
-                String glyph = glyph(c, row);
-                sb.append(glyph).append(' ');
+                sb.append(glyph(c, row)).append(' ');
             }
             String art = sb.toString().stripTrailing();
             System.out.println(ansi.color(art, GRADIENT[row]));
@@ -284,26 +357,41 @@ public final class TerminalRenderer {
 
     /** Centered amber title line (for screens without banner art). */
     public void titleLine(String text) {
-        String t = text.toUpperCase(java.util.Locale.ROOT);
-        int pad = Math.max(0, (width - visible(t)) / 2);
-        System.out.println(" ".repeat(pad) + ansi.bold(ansi.ember(t)));
+        centered(prep(text).toUpperCase(java.util.Locale.ROOT), t -> ansi.bold(ansi.ember(t)));
     }
 
-    /** Centered dim subtitle. */
+    /** Centered dim subtitle; wraps (centered per line) on narrow terminals. */
     public void subLine(String text) {
-        int pad = Math.max(0, (width - visible(text)) / 2);
-        System.out.println(" ".repeat(pad) + ansi.gray(text));
+        centered(prep(text), t -> ansi.gray(t));
+    }
+
+    /** Prints a centered line, wrapping to the terminal width when needed. */
+    private void centered(String text, java.util.function.Function<String, String> style) {
+        for (String l : wrap(text, width)) {
+            if (l.isEmpty()) {
+                System.out.println();
+                continue;
+            }
+            int pad = Math.max(0, (width - visible(l)) / 2);
+            System.out.println(" ".repeat(pad) + style.apply(l));
+        }
     }
 
     // --- word wrapping -----------------------------------------------------
 
-    /** Word-wraps to the terminal width without destroying indentation. */
+    /**
+     * Word-wraps to {@code maxWidth} without destroying indentation and
+     * without counting ANSI escape sequences towards the width. Escape
+     * sequences are never split across lines; a single word longer than the
+     * width is hard-split on visible characters.
+     */
     public List<String> wrap(String text, int maxWidth) {
         List<String> out = new ArrayList<>();
         if (text == null || text.isEmpty()) {
             out.add("");
             return out;
         }
+        int limit = Math.max(8, maxWidth);
         for (String paragraph : text.split("\n", -1)) {
             if (paragraph.isEmpty()) {
                 out.add("");
@@ -311,39 +399,90 @@ public final class TerminalRenderer {
             }
             int indent = paragraph.length() - paragraph.stripLeading().length();
             String prefix = " ".repeat(Math.min(indent, 8));
-            int limit = Math.max(20, maxWidth - prefix.length());
-            StringBuilder line = new StringBuilder();
+            int avail = Math.max(8, limit - prefix.length());
+            String line = "";
+            int lineVisible = 0;
+            boolean anyWord = false;
             for (String word : paragraph.strip().split("\\s+")) {
                 if (word.isEmpty()) {
                     continue;
                 }
-                if (line.length() == 0) {
-                    line.append(word);
-                } else if (line.length() + 1 + word.length() <= limit) {
-                    line.append(' ').append(word);
-                } else {
+                anyWord = true;
+                int wordVisible = visible(word);
+                if (lineVisible > 0 && lineVisible + 1 + wordVisible <= avail) {
+                    line = line + " " + word;
+                    lineVisible += 1 + wordVisible;
+                    continue;
+                }
+                if (lineVisible > 0) {
                     out.add(prefix + line);
-                    line = new StringBuilder(word);
+                    line = "";
+                    lineVisible = 0;
                 }
-                // very long single word: hard-split
-                while (line.length() > limit) {
-                    out.add(prefix + line.substring(0, limit));
-                    line = new StringBuilder(line.substring(limit));
+                List<String> chunks = wordVisible <= avail
+                        ? List.of(word) : hardSplit(word, avail);
+                for (int i = 0; i < chunks.size() - 1; i++) {
+                    out.add(prefix + chunks.get(i));
                 }
+                line = chunks.get(chunks.size() - 1);
+                lineVisible = visible(line);
             }
-            if (line.length() > 0) {
+            if (lineVisible > 0) {
                 out.add(prefix + line);
+            } else if (!anyWord) {
+                out.add(""); // whitespace-only paragraph stays a blank line
             }
         }
         return out;
     }
 
+    /** Splits an over-long word, never cutting an ANSI escape sequence in half. */
+    private static List<String> hardSplit(String word, int avail) {
+        List<String> chunks = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        int vis = 0;
+        int i = 0;
+        while (i < word.length()) {
+            char c = word.charAt(i);
+            if (c == ESC) {
+                int j = i + 1;
+                while (j < word.length() && !Character.isLetter(word.charAt(j))) {
+                    j++;
+                }
+                if (j < word.length()) {
+                    j++; // keep the terminating byte with the sequence
+                }
+                current.append(word, i, j);
+                i = j;
+                continue;
+            }
+            if (vis == avail) {
+                chunks.add(current.toString());
+                current = new StringBuilder();
+                vis = 0;
+            }
+            current.append(c);
+            vis++;
+            i++;
+        }
+        if (current.length() > 0) {
+            chunks.add(current.toString());
+        }
+        return chunks.isEmpty() ? List.of(word) : chunks;
+    }
+
     // --- panels ------------------------------------------------------------
 
-    /** Rounded (Unicode) or plain (ASCII) box with a centered, letter-spaced
-     *  title embedded in the top edge. */
+    /**
+     * Rounded (Unicode) or plain (ASCII) box with a centered, letter-spaced
+     * title embedded in the top edge. Titles that do not fit the edge move
+     * inside the card as a heading, so a card is never wider than the window
+     * and never loses its title.
+     */
     public void panel(String title, List<String> body) {
-        String h = rule(unicode ? "─" : "-", Math.max(0, width - 2));
+        String unit = unicode ? "─" : "-";
+        int inner = Math.max(12, width - 2); // columns between the corners
+        String h = rule(unit, inner);
         String tl = unicode ? "╭" : "+";
         String tr = unicode ? "╮" : "+";
         String bl = unicode ? "╰" : "+";
@@ -351,32 +490,60 @@ public final class TerminalRenderer {
         String v = unicode ? "│" : "|";
 
         boolean hasTitle = title != null && !title.isEmpty();
-        System.out.println(ansi.dim(tl) + topEdge(h, title, hasTitle) + ansi.dim(tr));
+        String edgeTitle = null;
+        String insideTitle = null;
+        if (hasTitle) {
+            // engraved labels read as caps, like the section rules
+            String plain = prep(title).toUpperCase(java.util.Locale.ROOT);
+            String spaced = spaced(plain);
+            // the edge needs the label plus room for rules on both sides
+            if (visible(spaced) + 6 <= inner) {
+                edgeTitle = spaced;
+            } else if (visible(plain) + 6 <= inner) {
+                edgeTitle = plain;
+            } else {
+                insideTitle = plain; // narrow window: heading inside the card
+            }
+        }
+        System.out.println(ansi.dim(tl) + topEdge(h, edgeTitle) + ansi.dim(tr));
+        if (insideTitle != null) {
+            for (String l : wrap(insideTitle, inner - 2)) {
+                panelLine(v, ansi.bold(ansi.ember(l)), l, inner);
+            }
+        }
         for (String raw : body) {
-            for (String l : wrap(raw, width - 4)) {
-                String visible = stripEscapes(l);
-                int pad = Math.max(0, (width - 2) - visible.length());
-                System.out.println(ansi.dim(v) + " " + l + " ".repeat(pad) + " " + ansi.dim(v));
+            for (String l : wrap(prep(raw), inner - 2)) {
+                panelLine(v, l, l, inner);
             }
         }
         System.out.println(ansi.dim(bl + h + br));
     }
 
-    /** Builds the top border including the centered title (colorized). */
-    private String topEdge(String h, String title, boolean hasTitle) {
-        if (!hasTitle) {
+    /** Titled card — the tool-result look for screens (inventory, journal...). */
+    public void card(String title, List<String> body) {
+        panel(title, body);
+    }
+
+    /** One padded row inside a card: {@code | content ......... |}. */
+    private void panelLine(String v, String text, String raw, int inner) {
+        String visible = stripEscapes(raw);
+        int pad = Math.max(0, (inner - 2) - visible.length());
+        System.out.println(ansi.dim(v) + " " + text + " ".repeat(pad) + " " + ansi.dim(v));
+    }
+
+    /** Builds the top border including the centered title (colorized), or the
+     *  plain rule when {@code label} is null. */
+    private String topEdge(String h, String label) {
+        if (label == null) {
             return ansi.dim(h);
         }
-        String label = " " + spaced(title) + " ";
+        String framed = " " + label + " ";
         int inner = h.length();
-        int visibleLabel = visible(label);
-        if (visibleLabel >= inner - 2) {
-            return ansi.bold(ansi.ember(label.substring(0, inner)));
-        }
+        int visibleLabel = visible(framed);
         int left = (inner - visibleLabel) / 2;
         int right = inner - visibleLabel - left;
         return ansi.dim(rule(unicode ? "─" : "-", left))
-                + ansi.bold(ansi.ember(label))
+                + ansi.bold(ansi.ember(framed))
                 + ansi.dim(rule(unicode ? "─" : "-", right));
     }
 
@@ -398,7 +565,7 @@ public final class TerminalRenderer {
     }
 
     private static String stripEscapes(String s) {
-        if (s == null || s.indexOf((char) 27) < 0) {
+        if (s == null || s.indexOf(ESC) < 0) {
             return s;
         }
         StringBuilder sb = new StringBuilder(s.length());
@@ -411,7 +578,7 @@ public final class TerminalRenderer {
                 }
                 continue;
             }
-            if (c == (char) 27) {
+            if (c == ESC) {
                 inEsc = true;
                 continue;
             }
@@ -422,6 +589,44 @@ public final class TerminalRenderer {
 
     private static int visible(String s) {
         return stripEscapes(s == null ? "" : s).length();
+    }
+
+    // --- plain-ASCII fallback ----------------------------------------------
+
+    /** Prepares text for the current ornament mode (folds to ASCII when off). */
+    private String prep(String text) {
+        if (text == null || unicode) {
+            return text;
+        }
+        return fold(text);
+    }
+
+    /**
+     * Legacy CMD fallback: the typographic characters used by the game and its
+     * content are replaced by ASCII equivalents, so nothing can render as a
+     * box or as mojibake in a console with a different code page. Unknown
+     * characters (player-typed names) are left alone.
+     */
+    private static String fold(String text) {
+        StringBuilder sb = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c < 128) {
+                sb.append(c);
+                continue;
+            }
+            switch (c) {
+                case '—', '–', '―', '−' -> sb.append('-');   // dashes
+                case '·', '•' -> sb.append('-');             // separators
+                case '…' -> sb.append("...");                // ellipsis
+                case '\u2018', '\u2019' -> sb.append('\'');   // curly single quotes
+                case '\u201C', '\u201D' -> sb.append('"');    // curly double quotes
+                case '×' -> sb.append('x');
+                case '❯' -> sb.append('>');
+                default -> sb.append(c);                     // never mangle names
+            }
+        }
+        return sb.toString();
     }
 
     // --- bars --------------------------------------------------------------
@@ -456,48 +661,77 @@ public final class TerminalRenderer {
 
     // --- menus -------------------------------------------------------------
 
-    /** Option cards — numbered choices, plain glyphs that render cleanly everywhere. */
+    /** Numbered option lines — plain glyphs that render cleanly everywhere. */
     public void menu(List<String> options) {
-        int pad = 0;
-        for (String option : options) {
-            pad = Math.max(pad, visible(option));
-        }
+        String pad = " ".repeat(INDENT + 2);
         for (int i = 0; i < options.size(); i++) {
-            String label = options.get(i);
-            String gap = " ".repeat(Math.max(0, pad - visible(label)));
-            System.out.println("    " + ansi.cyan("[" + (i + 1) + "]") + " "
-                    + ansi.bold(label) + gap);
+            String label = prep(options.get(i));
+            System.out.println(pad + ansi.cyan("[" + (i + 1) + "]") + " "
+                    + ansi.bold(label));
         }
     }
 
-    /** Compact status line above the prompt: e.g. ' ❰ The Hollow Nave · HP 34/40 · EXPLORATION ❱ '. */
+    /** Compact status line above the prompt, e.g. '❰ Slot · Tomb · HP 34/40 · EXPLORATION ❱'. */
     public void statusBar(List<String> chips) {
         if (chips == null || chips.isEmpty()) {
             return;
         }
-        String joined = String.join(" · ", chips);
+        String joined = String.join(unicode ? " · " : " | ", chips);
         String framed = unicode ? "❰ " + joined + " ❱" : "[ " + joined + " ]";
-        System.out.println("  " + ansi.gray(framed));
+        int max = width - INDENT;
+        if (visible(framed) > max) {
+            framed = truncate(framed, max); // drop the tail, keep it one line
+        }
+        body(framed, Ansi.GRAY);
     }
 
-    /** 'Suggested next:' footer with recommended commands for the current context. */
+    /** Cuts a single line to {@code max} visible columns, appending an ellipsis. */
+    private String truncate(String text, int max) {
+        if (max <= 4) {
+            return text.substring(0, Math.min(text.length(), max));
+        }
+        String suffix = unicode ? "…" : "...";
+        int budget = max - suffix.length();
+        StringBuilder sb = new StringBuilder();
+        int vis = 0;
+        int i = 0;
+        while (i < text.length() && vis < budget) {
+            char c = text.charAt(i);
+            if (c == ESC) {
+                int j = i + 1;
+                while (j < text.length() && !Character.isLetter(text.charAt(j))) {
+                    j++;
+                }
+                if (j < text.length()) {
+                    j++;
+                }
+                sb.append(text, i, j);
+                i = j;
+                continue;
+            }
+            sb.append(c);
+            vis++;
+            i++;
+        }
+        return sb.append(suffix).toString();
+    }
+
+    /** 'Suggested:' footer with recommended commands for the current context. */
     public void suggestFooter(List<String> suggestions) {
         if (suggestions == null || suggestions.isEmpty()) {
             return;
         }
-        StringBuilder sb = new StringBuilder();
+        String sep = unicode ? "  ·  " : "  |  ";
+        StringBuilder items = new StringBuilder();
         for (int i = 0; i < suggestions.size(); i++) {
             if (i > 0) {
-                sb.append(ansi.gray("  ·  "));
+                items.append(sep);
             }
-            sb.append(ansi.white(suggestions.get(i)));
+            items.append(prep(suggestions.get(i)));
         }
-        System.out.println("  " + ansi.gray(unicode ? "┄" : "~") + " "
-                + ansi.bold(ansi.gray("Suggested next:")) + " " + sb);
-    }
-
-    public void hint(String text) {
-        System.out.println(ansi.gray(text));
+        String marker = unicode ? "┄ " : "~ ";
+        body(ansi.dim(marker) + ansi.bold(ansi.gray("Suggested:")) + " "
+                + ansi.white(items.toString()), null);
     }
 
     public void prompt() {

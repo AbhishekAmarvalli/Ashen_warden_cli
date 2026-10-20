@@ -20,7 +20,7 @@ final class MainMenuHandler {
             case CONTINUE -> openSlots(engine, "Continue — choose a save slot:");
             case LOAD -> openSlots(engine, "Load slot:");
             case SETTINGS -> openSettings(engine);
-            case HELP -> CommandResult.ok().lines(mainHelp());
+            case HELP -> CommandResult.ok().cardLines(mainHelp());
             case QUIT -> CommandResult.ok().line("The flame dims until you return.").quit();
             case SELECT -> {
                 int n = cmd.number();
@@ -62,20 +62,21 @@ final class MainMenuHandler {
         GameEngine.MenuContext ctx = new GameEngine.MenuContext(GameEngine.MenuContext.Kind.LOAD_LIST);
         ctx.slots.addAll(slots);
         engine.setMenu(ctx);
-        CommandResult out = CommandResult.ok().line(title);
+        List<String> rows = new ArrayList<>();
+        rows.add(title);
         for (int i = 0; i < slots.size(); i++) {
             SaveSlotInfo slot = slots.get(i);
-            out.line("    [" + (i + 1) + "] " + slot.slotName() + "  —  " + slot.playerName()
+            rows.add("    [" + (i + 1) + "] " + slot.slotName() + "  —  " + slot.playerName()
                     + ", " + slot.chapter() + ", " + slot.locationCode()
                     + "  (updated " + slot.updatedAt() + ", v" + slot.gameVersion() + ")");
         }
-        return out;
+        return CommandResult.ok().card(title, rows.subList(1, rows.size()));
     }
 
     private static CommandResult openSettings(GameEngine engine) {
         GameEngine.MenuContext ctx = new GameEngine.MenuContext(GameEngine.MenuContext.Kind.SETTINGS);
         engine.setMenu(ctx);
-        return CommandResult.ok().lines(settingsLines(engine));
+        return CommandResult.ok().cardLines(settingsLines(engine));
     }
 
     static List<String> settingsLines(GameEngine engine) {

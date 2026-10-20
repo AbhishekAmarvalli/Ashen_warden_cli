@@ -91,20 +91,45 @@ public final class Main {
         }
     }
 
+    /** Ornament glyphs the renderer draws; the console must be able to encode them. */
+    private static final String ORNAMENT_GLYPHS = "─│╭╮╰╯█░▌❯◆❰❱┄·—…";
+
     /**
-     * Whether this console renders Unicode ornament glyphs (❯ ◆ ▌ ◇ ─) as
-     * single-width, presentable text. Windows Terminal does; the legacy CMD
-     * console (conhost) draws many of them double-width or as boxes, so the
-     * game falls back to guaranteed-clean ASCII ornaments there. Only the
-     * decorations change — every message keeps its meaning in words.
+     * Whether this console renders Unicode ornament glyphs (─ │ ╭ █ ▌ ❯ ◆ ❰ ┄)
+     * as single-width, presentable text. Windows Terminal and other modern
+     * terminals do; the legacy CMD console (conhost) draws many of them
+     * double-width or as boxes, so the game falls back to guaranteed-clean
+     * ASCII ornaments there. Only the decorations change — every message
+     * keeps its meaning in words.
      */
     private static boolean rendersUnicodeNatively() {
+        if (!stdoutEncodes(ORNAMENT_GLYPHS)) {
+            // console code page (Cp437/Cp850/…) cannot draw the glyphs at all
+            return false;
+        }
         if (!System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("win")) {
             return true;
         }
         return System.getenv("WT_SESSION") != null
                 || System.getenv("TERM_PROGRAM") != null
                 || System.getenv("WT_PROFILE_ID") != null;
+    }
+
+    /**
+     * True when the charset used to write stdout can represent the sample.
+     * On Windows the default is the console code page, where many glyphs are
+     * missing; play.bat pins stdout to UTF-8, and this check still refuses
+     * any console that could not draw them.
+     */
+    private static boolean stdoutEncodes(String sample) {
+        try {
+            String name = System.getProperty("stdout.encoding",
+                    System.getProperty("file.encoding", "UTF-8"));
+            java.nio.charset.Charset charset = java.nio.charset.Charset.forName(name);
+            return charset.newEncoder().canEncode(sample);
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private static int detectWidth() {
@@ -168,7 +193,8 @@ public final class Main {
     }
 
     private static void printUsage() {
-        System.out.println("ASHEN WARDEN: THE LAST EMBER — text-only turn-based RPG");
+        // plain ASCII on purpose: this line must survive any console code page
+        System.out.println("ASHEN WARDEN: THE LAST EMBER - text-only turn-based RPG");
         System.out.println("Usage: java -jar ashen-warden.jar [--plain] [--no-color] [--width <40-120>]");
         System.out.println("Environment: DB_URL, DB_USER, DB_PASSWORD (local MySQL, no credentials committed)");
     }

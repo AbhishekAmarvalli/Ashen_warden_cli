@@ -128,7 +128,11 @@ TerminalRenderer <- command lines (pure presentation; no SQL, no state writes)
 - `world/` world graph, ability gates, encounters, NPC dialogue
 - `quest/`, `story/` event-driven quests, memories, flags
 - `item/`, `player/` catalogue, inventory, equipment, derived stats
-- `cli/` renderer, ANSI with plain fallback, inspection text
+- `cli/` renderer — width-safe wrapping (no line ever exceeds the terminal,
+  panel borders included), tagged `ASHEN WARDEN` reply blocks alternating with
+  the player's prompt line, bordered cards for screens (inventory, journal,
+  loot, dialogue, combat), ANSI with a plain-ASCII fallback for legacy CMD
+  code pages, inspection text
 - `persistence/` Database, MigrationRunner, SaveService + repositories
 - `content/` UTF-8 JSON content loaded with Jackson and validated at startup
   (duplicate IDs, unknown references and bad triggers abort startup, never saves)
