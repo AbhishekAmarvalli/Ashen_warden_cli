@@ -30,17 +30,39 @@ public final class Main {
     public static void main(String[] args) {
         boolean plain = false;
         boolean color = true;
+        boolean forceUnicode = false;
+        boolean web = false;
+        int webPort = 8777;
         int width = detectWidth();
+        List<String> childArgs = new ArrayList<>();
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
+                case "--web" -> {
+                    // browser interface: the game runs behind a local server
+                    web = true;
+                    if (i + 1 < args.length && args[i + 1].matches("\\d{2,5}")) {
+                        webPort = Integer.parseInt(args[++i]);
+                    }
+                }
+                case "--unicode" -> {
+                    // force Unicode ornaments (used by the browser front-end)
+                    forceUnicode = true;
+                    childArgs.add(args[i]);
+                }
                 case "--plain" -> {
                     plain = true;
                     color = false;
+                    childArgs.add(args[i]);
                 }
-                case "--no-color" -> color = false;
+                case "--no-color" -> {
+                    color = false;
+                    childArgs.add(args[i]);
+                }
                 case "--width" -> {
+                    childArgs.add(args[i]);
                     if (i + 1 < args.length) {
+                        childArgs.add(args[i + 1]);
                         try {
                             width = Integer.parseInt(args[++i]);
                         } catch (NumberFormatException e) {
@@ -52,8 +74,15 @@ public final class Main {
                     printUsage();
                     return;
                 }
-                default -> System.err.println("Unknown flag ignored: " + args[i]);
+                default -> {
+                    System.err.println("Unknown flag ignored: " + args[i]);
+                    childArgs.add(args[i]);
+                }
             }
+        }
+        if (web) {
+            runWeb(webPort, plain, childArgs);
+            return;
         }
         if (System.getenv("NO_COLOR") != null) {
             color = false;
@@ -63,7 +92,7 @@ public final class Main {
         }
 
         Ansi ansi = new Ansi(color);
-        boolean unicodeArt = !plain && rendersUnicodeNatively();
+        boolean unicodeArt = forceUnicode || (!plain && rendersUnicodeNatively());
         TerminalRenderer renderer = new TerminalRenderer(ansi, unicodeArt, width);
 
         try {
@@ -192,10 +221,55 @@ public final class Main {
         return -1;
     }
 
+    /**
+     * Browser front-end: the same game as a child process behind a local HTTP
+     * server, with a Freebuff-style page (streamed output, clickable option
+     * chips, command input). Opens the page when running from a console.
+     */
+    private static void runWeb(int port, boolean plain, List<String> childArgs) {
+        if (!plain) {
+            childArgs.add("--unicode"); // the browser renders the box glyphs
+        }
+        String url = "http://127.0.0.1:" + port + "/";
+        System.out.println("ASHEN WARDEN: THE LAST EMBER - browser session");
+        System.out.println("Open " + url + " and press Enter here to stop the session.");
+        try {
+            com.ashenwarden.web.WebInterface web =
+                    com.ashenwarden.web.WebInterface.launch(port, childArgs);
+            openBrowser(url);
+            int code = web.await();
+            if (code != 0) {
+                System.err.println("Game session ended with code " + code + ".");
+            }
+        } catch (IOException e) {
+            System.err.println("Could not start the web interface: " + e.getMessage());
+            System.exit(4);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /** Best-effort: opens the page in the default browser (URL is printed anyway). */
+    private static void openBrowser(String url) {
+        if (System.console() == null) {
+            return;
+        }
+        String os = System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT);
+        List<String> command = os.contains("win")
+                ? List.of("rundll32", "url.dll,FileProtocolHandler", url)
+                : os.contains("mac") ? List.of("open", url) : List.of("xdg-open", url);
+        try {
+            new ProcessBuilder(command).start();
+        } catch (IOException ignored) {
+            // the URL is on screen; opening the browser is a convenience only
+        }
+    }
+
     private static void printUsage() {
         // plain ASCII on purpose: this line must survive any console code page
         System.out.println("ASHEN WARDEN: THE LAST EMBER - text-only turn-based RPG");
-        System.out.println("Usage: java -jar ashen-warden.jar [--plain] [--no-color] [--width <40-120>]");
+        System.out.println("Usage: java -jar ashen-warden.jar [--plain] [--no-color] [--width <40-120>] [--web [port]]");
+        System.out.println("  --web [port]  play in the browser (default http://127.0.0.1:8777/)");
         System.out.println("Environment: DB_URL, DB_USER, DB_PASSWORD (local MySQL, no credentials committed)");
     }
 

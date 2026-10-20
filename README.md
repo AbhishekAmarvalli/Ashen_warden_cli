@@ -63,7 +63,25 @@ java -jar target/ashen-warden.jar
 ```
 
 Flags: `--plain` (ASCII + no colors, screen-reader friendly), `--no-color`,
-`--width <40-120>`, `--help`. `NO_COLOR` is honored.
+`--width <40-120>`, `--web [port]`, `--help`. `NO_COLOR` is honored.
+
+### Browser interface (`--web`)
+
+```bash
+java -jar target/ashen-warden.jar --web          # opens http://127.0.0.1:8777/
+play.bat --web                                    # same on Windows
+java -jar target/ashen-warden.jar --web 9000     # custom port
+```
+
+The same game behind a local web page, styled like a chat client: the
+**ASHEN WARDEN logo bar pinned at the top**, each reply rendered as its own
+message card, your commands as chat bubbles, and the live status
+(`name · place · HP · phase`) pinned above the input.
+
+Options are **clickable chips** under the conversation (menu numbers,
+combat actions, dialogue choices, suggested next commands) — and keyboard
+cursor works too: **arrow keys** move between chips, **Enter** presses the
+selected one. Typing commands in the input still works as before.
 
 ## Tests
 
