@@ -23,6 +23,9 @@ class CommandParserTest {
         assertEquals(Type.DEFEND, parser.parse("Guard", GamePhase.COMBAT).type());
         assertEquals(Type.PARRY, parser.parse(" parry ", GamePhase.COMBAT).type());
         assertEquals(Type.HEAVY, parser.parse("heavy", GamePhase.COMBAT).type());
+        assertEquals(Type.DODGE, parser.parse("dodge", GamePhase.COMBAT).type());
+        assertEquals(Type.DODGE, parser.parse("Evade", GamePhase.COMBAT).type());
+        assertEquals(Type.DODGE, parser.parse("sidestep", GamePhase.COMBAT).type());
     }
 
     @Test

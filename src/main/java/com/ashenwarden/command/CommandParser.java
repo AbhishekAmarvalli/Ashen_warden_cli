@@ -125,6 +125,10 @@ public final class CommandParser {
                 return new ParsedCommand(Type.DEFEND, "");
             case "parry":
                 return new ParsedCommand(Type.PARRY, "");
+            case "dodge":
+            case "evade":
+            case "sidestep":
+                return new ParsedCommand(Type.DODGE, "");
             case "skill":
                 return new ParsedCommand(Type.SKILL, rest);
             case "flee":

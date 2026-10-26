@@ -129,7 +129,14 @@
    "extendedText":"'Bell count: 1. Bell count: 3. Bell count: s—' The stylus scored a trench through the plaster and stopped.",
    "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false}
  ],
- "encounters":[]},
+ "encounters":[
+  {"code":"enc_wanderer_outskirts","trigger":"ON_ENTER","enemyCode":"ashen_wanderer",
+   "introText":"A figure lurches out of the ashfall, still walking its long-dead round: an Ashen Wanderer, censer-chain dragging, veil streaming powder. It turns toward the ember in your chest.",
+   "exitLabel":null,"once":true},
+  {"code":"enc_pilgrim_road","trigger":"ON_EXIT","enemyCode":"rotting_pilgrim",
+   "introText":"A Rotting Pilgrim unfolds itself from the ash where the road forks, prayer beads rattling, reliquary breathing cold black light. 'Blessed are the unfinished,' it croaks, and moves to block the way north.",
+   "exitLabel":"the ash road north","once":true}
+ ]},
 
 {"code":"cathedral_road","name":"Ashfall Road","region":"Forgotten Outskirts","chapter":"Act I — The Land of Forgotten Dead",
  "description":"A road of fused ash climbing toward the silhouette of the Cathedral of Broken Bells. A leaning signpost points east to the Blackwood, which does not appear to exist anymore.",

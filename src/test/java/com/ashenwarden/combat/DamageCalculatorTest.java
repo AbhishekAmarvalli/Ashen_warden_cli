@@ -36,6 +36,22 @@ class DamageCalculatorTest {
         return EffectiveStats.compute(player, new EquipmentManager(), new ItemCatalogFixture().catalog());
     }
 
+    @Test
+    void dodgeChanceScalesWithDefenseAndIsCapped() {
+        EffectiveStats noDefense = new EffectiveStats(100, 50, 30, 10, 0);
+        EffectiveStats trained = new EffectiveStats(100, 50, 30, 10, 8);
+        EffectiveStats absurd = new EffectiveStats(100, 50, 30, 10, 200);
+
+        assertEquals(DamageCalculator.DODGE_BASE_CHANCE,
+                DamageCalculator.dodgeChance(noDefense), 1e-9,
+                "base chance with no defensive training");
+        assertEquals(0.45 + 8 * 0.015, DamageCalculator.dodgeChance(trained), 1e-9,
+                "documented +1.5% per defense point");
+        assertEquals(DamageCalculator.DODGE_MAX_CHANCE,
+                DamageCalculator.dodgeChance(absurd), 1e-9,
+                "no build may dodge everything");
+    }
+
     /** Minimal catalogue wrapper so EffectiveStats can resolve an empty equipment set. */
     private static final class ItemCatalogFixture {
         private final com.ashenwarden.item.ItemCatalog catalog =

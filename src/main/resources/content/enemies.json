@@ -54,5 +54,59 @@
  "drops":[
   {"itemCode":"ash_fragments","chance":60,"quantity":6},
   {"itemCode":"ancient_coin","chance":20,"quantity":1}
+ ]},
+
+{"code":"ashen_wanderer","name":"Ashen Wanderer","region":"Forgotten Outskirts",
+ "hp":46,"attack":9,"defense":4,"xp":25,
+ "lore":"A citizen of Veyrath who walked into the ashfall and never stopped walking: robes burnt to lace, a censer-chain wound round one fist, gray powder streaming from the seams of its veil.",
+ "counterplayHint":"It telegraphs its heavy work: when it stoops to gather ash (GATHER) the censer sweep is coming next round — parry the sweep for a riposte. Its cinder veil is a SPELL, so parry cannot touch it: defend or dodge instead. Below half health it grows reckless and swings without the tell.",
+ "resistances":{"flame":0.5},
+ "weaknesses":["physical"],
+ "boss":false,
+ "behaviorCode":"ashen_wanderer",
+ "moves":[
+  {"name":"Lurching Strike","intent":"Lurching strike — slow and open (Parryable)","kind":"LIGHT","multiplier":1.0,
+   "tags":["PARRYABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":null},
+  {"name":"Gather Ash","intent":"Stoops to gather ash — a heavy swing is coming!","kind":"GATHER","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"Powder streams into its cupped fist. The chain goes taut."},
+  {"name":"Censer Sweep","intent":"Censer sweep — winding up (Parryable)","kind":"HEAVY","multiplier":1.5,
+   "tags":["PARRYABLE"],"status":"WEAKNESS","statusChance":40,"statusPower":1,"statusTurns":2,
+   "healAmount":0,"effectText":"The censer-scourge opens a line of fire across your shoulders; ash catches in your lungs."},
+  {"name":"Cinder Veil","intent":"Cinder veil — a breath of embers (Spell — parry fails)","kind":"SPELL","multiplier":1.15,
+   "tags":["SPELL"],"status":"BURN","statusChance":35,"statusPower":3,"statusTurns":3,
+   "healAmount":0,"effectText":"Its veil parts and a breath of embers washes over you."}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":70,"quantity":8},
+  {"itemCode":"crimson_vial","chance":12,"quantity":1}
+ ]},
+
+{"code":"rotting_pilgrim","name":"Rotting Pilgrim","region":"Forgotten Outskirts / Cathedral of Broken Bells",
+ "hp":40,"attack":7,"defense":3,"xp":28,
+ "lore":"A pilgrim of the Cathedral who kept walking after the rot set in: prayer beads wound round a swollen hand, a cracked reliquary breathing at the hip, and a hymn that has gone badly wrong.",
+ "counterplayHint":"When it kneels to pray (GATHER) it is mending its own rot — that round is free: strike hard or heal up, because it will not pray again for two more rounds. Its rot-touched grasp can POISON you; sacred bandages or a rest clear it. The reliquary breath is a SPELL: parry fails, but defend and dodge handle it.",
+ "resistances":{"physical":0.25},
+ "weaknesses":["flame"],
+ "boss":false,
+ "behaviorCode":"rotting_pilgrim",
+ "moves":[
+  {"name":"Rot-Touched Grasp","intent":"Rot-touched grasp — crawling fingers (Parryable)","kind":"LIGHT","multiplier":1.05,
+   "tags":["PARRYABLE"],"status":"POISON","statusChance":30,"statusPower":3,"statusTurns":3,
+   "healAmount":0,"effectText":null},
+  {"name":"Pilgrim's Staff","intent":"Pilgrim's staff — a heavy overhand strike (Parryable)","kind":"LIGHT","multiplier":0.9,
+   "tags":["PARRYABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"Knotted wood cracks toward your collarbone."},
+  {"name":"Rot-Mending Prayer","intent":"Kneels in prayer — mending its rot (punish it now!)","kind":"GATHER","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":12,"effectText":"Black light crawls into the pilgrim's wounds and the rot knits."},
+  {"name":"Reliquary Breath","intent":"Reliquary breath — cold black light (Spell — parry fails)","kind":"SPELL","multiplier":1.2,
+   "tags":["SPELL"],"status":"POISON","statusChance":25,"statusPower":3,"statusTurns":3,
+   "healAmount":0,"effectText":"The cracked reliquary sighs and black light spills toward you."}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":55,"quantity":7},
+  {"itemCode":"ancient_coin","chance":15,"quantity":1}
  ]}
 ]

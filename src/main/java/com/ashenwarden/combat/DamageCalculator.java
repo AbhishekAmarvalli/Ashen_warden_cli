@@ -13,7 +13,12 @@ import java.util.Random;
  * mitigated= max(1, raw - floor(defense * 0.5))
  * damage   = round(mitigated * multiplier * (1 - resistance) * weakness * status)
  * Damage is never negative; a successful non-immune hit deals at least 1.
- * Crits, loot and flee decisions use the injected seeded Random only.
+ * Crits, loot, dodge and flee decisions use the injected seeded Random only.
+ *
+ * Dodge (probabilistic evasion, {@link #dodgeChance}) lives here too: a dodge
+ * attempt evades an incoming normal attack with chance
+ * {@code DODGE_BASE_CHANCE + defense * DODGE_DEFENSE_FACTOR}, capped at
+ * {@link #DODGE_MAX_CHANCE}. Attacks tagged UNBLOCKABLE cannot be evaded.
  */
 public final class DamageCalculator {
     public static final double CRIT_CHANCE = 0.05;
@@ -22,6 +27,13 @@ public final class DamageCalculator {
     public static final double RESISTED_MULTIPLIER = 0.75; // "resistant but not immune"
     public static final double DEFEND_MULTIPLIER = 0.5;
     public static final double WEAKNESS_STATUS_MULTIPLIER = 0.75;
+
+    /** Dodge: a stance taken instead of attacking, rolled per incoming hit. */
+    public static final double DODGE_BASE_CHANCE = 0.45;
+    /** Each point of effective defense adds this much evasion (defensive training). */
+    public static final double DODGE_DEFENSE_FACTOR = 0.015;
+    /** No build dodges everything — the ceiling keeps offense king. */
+    public static final double DODGE_MAX_CHANCE = 0.80;
 
     /** Outcome of one damage application, ready for the combat log. */
     public record Hit(int raw, int mitigated, int finalDamage, boolean critical) {
@@ -107,5 +119,21 @@ public final class DamageCalculator {
     /** Direct status/DoT tick damage: flat power, never reduced by defense. */
     public int dotTick(int power) {
         return Math.max(1, power);
+    }
+
+    /**
+     * Probability that a dodge attempt evades the next normal attack.
+     * Documented formula: base 45% + 1.5% per effective defense point,
+     * capped at 80% (unblockable attacks are never evaded — that is decided
+     * by the caller, not by this number).
+     */
+    public static double dodgeChance(EffectiveStats stats) {
+        double chance = DODGE_BASE_CHANCE + Math.max(0, stats.defense()) * DODGE_DEFENSE_FACTOR;
+        return Math.min(DODGE_MAX_CHANCE, chance);
+    }
+
+    /** One seeded roll for the current dodge attempt. */
+    public boolean rollsDodge(EffectiveStats stats) {
+        return rng.nextDouble() < dodgeChance(stats);
     }
 }

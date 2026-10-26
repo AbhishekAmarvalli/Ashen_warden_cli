@@ -15,6 +15,8 @@ public final class BehaviorRegistry {
     public BehaviorRegistry() {
         register("hollow_soldier", new HollowSoldierBehavior());
         register("grave_crawler", new GraveCrawlerBehavior());
+        register("ashen_wanderer", new AshenWandererBehavior());
+        register("rotting_pilgrim", new RottingPilgrimBehavior());
         register("basic_melee", new BasicMeleeBehavior());
     }
 

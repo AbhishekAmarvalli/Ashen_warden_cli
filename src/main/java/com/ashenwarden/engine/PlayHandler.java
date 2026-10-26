@@ -51,6 +51,7 @@ final class PlayHandler {
             case HELP -> CommandResult.ok().cardLines(explorationHelp());
             case QUIT -> openQuit(e);
             case LOG -> CommandResult.ok().line("The combat log only exists during battle; your story is in 'journal'.");
+            case DODGE -> CommandResult.rejected("You can only dodge while an enemy is upon you. Nothing changed.");
             case INSPECT_ITEM -> inspectCarriedItem(e, cmd);
             case CHOOSE, LEAVE -> CommandResult.rejected("You are not in a conversation right now.");
             default -> CommandResult.rejected("That command does not apply here. Type 'help'.");

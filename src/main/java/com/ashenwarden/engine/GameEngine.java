@@ -362,7 +362,7 @@ public final class GameEngine {
             renderCombatHeader();
             r.keyHints(List.of("[1] Attack", "[2] Heavy", "[3] Defend", "[4] Parry",
                     "[5] Skill", "[6] Item", "[7] Inspect enemy", "[8] Inspect item",
-                    "[9] Flee", "[0] Help"));
+                    "[9] Flee", "[10] Dodge", "[0] Help"));
         }
         if (menu != null && menu.kind != MenuContext.Kind.SETTINGS) {
             r.blank(); // air between the screen and its command hints
@@ -718,7 +718,9 @@ public final class GameEngine {
         if (type == null) {
             return CommandResult.rejected("That command is not available in combat. Type 'help'.");
         }
-        CombatEngine.Turn turn = combat.act(state, type, cmd.arg());
+        // a number key selects the action; only typed words carry a name argument
+        String arg = cmd.type() == ParsedCommand.Type.SELECT ? "" : cmd.arg();
+        CombatEngine.Turn turn = combat.act(state, type, arg);
         CommandResult out = CommandResult.ok().lines(turn.lines());
         if (!turn.turnConsumed()) {
             return out; // invalid/look actions never spend the turn
@@ -776,6 +778,7 @@ public final class GameEngine {
             case ATTACK -> CombatEngine.ActionType.ATTACK;
             case HEAVY -> CombatEngine.ActionType.HEAVY;
             case DEFEND -> CombatEngine.ActionType.DEFEND;
+            case DODGE -> CombatEngine.ActionType.DODGE;
             case PARRY -> CombatEngine.ActionType.PARRY;
             case SKILL -> CombatEngine.ActionType.SKILL;
             case ITEM -> CombatEngine.ActionType.ITEM;
@@ -785,6 +788,28 @@ public final class GameEngine {
             case STATUS -> CombatEngine.ActionType.STATUS;
             case HELP -> CombatEngine.ActionType.HELP;
             case LOG -> CombatEngine.ActionType.LOG;
+            case SELECT -> numberedCombatAction(cmd.number());
+            default -> null;
+        };
+    }
+
+    /**
+     * The combat number keys printed in the action bar, so a player never has
+     * to memorize a word to act: 1..9 and 0 as advertised, 10 = dodge.
+     */
+    private static CombatEngine.ActionType numberedCombatAction(int number) {
+        return switch (number) {
+            case 1 -> CombatEngine.ActionType.ATTACK;
+            case 2 -> CombatEngine.ActionType.HEAVY;
+            case 3 -> CombatEngine.ActionType.DEFEND;
+            case 4 -> CombatEngine.ActionType.PARRY;
+            case 5 -> CombatEngine.ActionType.SKILL;
+            case 6 -> CombatEngine.ActionType.ITEM;
+            case 7 -> CombatEngine.ActionType.INSPECT_ENEMY;
+            case 8 -> CombatEngine.ActionType.INSPECT_ITEM;
+            case 9 -> CombatEngine.ActionType.FLEE;
+            case 10 -> CombatEngine.ActionType.DODGE;
+            case 0 -> CombatEngine.ActionType.HELP;
             default -> null;
         };
     }

@@ -11,10 +11,10 @@ mvn test
 
 **Honesty rule:** when MySQL is unreachable, `SaveServiceTest` calls
 `assumeTrue` and reports those tests as **SKIPPED** — they are never
-counted as passing. Current state: **52/52 pass** with MySQL configured
-(45 unit + 7 integration).
+counted as passing. Current state: **57/57 pass** with MySQL configured
+(50 unit + 7 integration).
 
-## 2. Automated suite (52 tests, 8 classes)
+## 2. Automated suite (57 tests, 10 classes)
 
 | Class | # | Covers |
 |---|---|---|
@@ -22,6 +22,8 @@ counted as passing. Current state: **52/52 pass** with MySQL configured
 | `combat/CombatEngineTest` | 7 | invalid input never consumes a turn · `inspect`/`status` are free actions · parry negates a parryable telegraph and counters · parry fails against unblockable without zeroing the hit · full fight reaches victory with rewards granted once · seeded encounters are reproducible · flee refused when escape is sealed |
 | `command/CommandParserTest` | 9 | numbers become menu selections · combat verbs parse only as combat types · phase-aware `use` · inspect variants · bare direction acts as `go` · `take all`/`back`/`compare` · unknown input flagged but safe · `item` outside combat opens inventory · oversized input bounded (no crash) |
 | `player/InventoryAndEquipmentTest` | 6 | inventory never negative/corrupt · equip/unequip without duplication · weapon swap returns old one to inventory · wrong/locked slot rejected · equipping requires ownership · **all shipped items have honest inspection fields** (no hidden stats) |
+| `combat/DodgeTest` | 5 | dodge costs 12 stamina and its stance is consumed by the round · an unaffordable dodge spends no turn and the enemy does not act · (UNBLOCKABLE) lands against a dodge with a truthful reason · one seeded stream shows both evasion and failure, with no damage/status on an evaded hit |
+| `enemy/TierOneBehaviorTest` | 6 | new Tier-1 rule tables: wanderer telegraphs then pays off, punishes turtling, grows reckless below half health · pilgrim heals on a strict 2-round cooldown (never a loop), punishes turtling, both behaviors registered for content validation |
 | `ui/KeyDecoderTest` | 8 | escape-sequence decoding: arrows from both prefixes, PageUp/PageDown, a lone Escape never mistaken for a sequence, digits/chars with values, Ctrl+C/Ctrl+D, unknown sequences absorbed without leaking bytes |
 | `ui/InteractiveMenuTest` | 7 | Enter confirms the highlight · arrows wrap both ends · digits jump to an option · out-of-range digits ignored (no double draw) · Escape cancels · `?`/Ctrl+C reported to the caller · navigation redraws in place (cursor-up + erase) instead of scrolling |
 | `ui/KeyboardMainMenuTest` *(integration, no DB)* | 2 | scripted terminal plays the real boot screen end-to-end (arrows → HOW TO PLAY → Ctrl+D exits cleanly) · non-key input still drives the typed menu |
@@ -72,6 +74,8 @@ content (marked TODO, not presented as finished).
 | 30 | Ending + credits show outcome and preserve completion record | **[W]** | endings roadmap; completion record planned with `story_flags` |
 | 31 | Boot menu driven by arrows/Enter/digits/`?`, redrawn without scrolling | **[AUTO]+[MAN]** | `InteractiveMenuTest`, `KeyboardMainMenuTest`; live on Windows Terminal |
 | 32 | No console (pipes, IDE, `--plain`, `--no-keys`): typed menu, game fully playable | **[AUTO]+[MAN]** | `withoutKeySupportTheTypedMenuStillWorks`; piped smoke run |
+| 33 | Dodge: cost, chance vs. defense, no evasion of (UNBLOCKABLE), one-round stance | **[AUTO]+[MAN]** | `DodgeTest`; live playthrough log |
+| 34 | Tier-1 roster complete (Wanderer, Soldier, Pilgrim, Crawler) and reachable in-world | **[AUTO]+[MAN]** | `TierOneBehaviorTest` + content validation; scripted Act I walk-through fought all four |
 
 **Score for the shipped slice:** every scenario that can exist without
 roadmap content is implemented and verified (21 of 30 fully covered; 15

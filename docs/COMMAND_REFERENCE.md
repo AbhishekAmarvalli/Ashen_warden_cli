@@ -85,6 +85,7 @@ of every round the enemy's **intent** is shown — and it is always truthful.
 | `attack` | `strike` | Standard weapon strike, no stamina cost |
 | `heavy` | | **15 stamina** — ~160% damage, staggers the enemy |
 | `defend` | `block`, `guard` | Halves incoming damage this round **and** restores +15 stamina |
+| `dodge` | `evade`, `sidestep` | **12 stamina** — probabilistic evasion of each incoming normal attack this round: **45% + 1.5% per defense point, capped at 80%**. Works against spells too, never counters, and **cannot evade `UNBLOCKABLE`** |
 | `parry` | | Negates a **(Parryable)** telegraph and counters for free damage. Fails meaningfully against spells/grabs marked `UNBLOCKABLE` |
 | `skill <name>` | | Weapon/art skill (stamina or resource cost shown before use) |
 | `item <name>` | `items` | Use a consumable (e.g. `item crimson vial`) — costs your turn |
@@ -94,11 +95,16 @@ of every round the enemy's **intent** is shown — and it is always truthful.
 | `log` | | Recent combat log lines |
 | `flee` | | Attempt to escape — refused in sealed/boss fights |
 
+Every action also has a **number key** shown in the combat action bar:
+`1` Attack · `2` Heavy · `3` Defend · `4` Parry · `5` Skill · `6` Item ·
+`7` Inspect enemy · `8` Inspect item · `9` Flee · `10` Dodge · `0` Help.
+
 **Guarantees:**
 - Invalid input or an unaffordable action **never consumes a turn** and
   changes nothing.
-- Telegraph tags: `(Parryable)` = parry works · `UNBLOCKABLE` = parry fails,
-  defend only · `(guarding)` = the enemy is reducing incoming damage.
+- Telegraph tags: `(Parryable)` = parry works · `UNBLOCKABLE` = parry fails
+  **and dodge fails** — that attack lands · `(guarding)` = the enemy is
+  reducing incoming damage.
 - If you kill the enemy with your action, it does not get to act.
 - Status effects tick exactly once per round and expire at their
   documented duration.

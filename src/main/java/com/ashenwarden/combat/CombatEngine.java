@@ -32,9 +32,12 @@ public final class CombatEngine {
     public static final String ASH_FRAGMENTS = "ash_fragments";
 
     public enum ActionType {
-        ATTACK, HEAVY, DEFEND, PARRY, SKILL, ITEM, FLEE,
+        ATTACK, HEAVY, DEFEND, DODGE, PARRY, SKILL, ITEM, FLEE,
         INSPECT_ENEMY, INSPECT_ITEM, STATUS, HELP, LOG
     }
+
+    /** Stamina a dodge costs — cheaper than a heavy strike, unlike a parry. */
+    public static final int DODGE_STAMINA_COST = 12;
 
     /** Result of one command inside combat: lines to show + whether a turn was spent. */
     public record Turn(List<String> lines, boolean turnConsumed) {
@@ -66,7 +69,7 @@ public final class CombatEngine {
 
         List<String> out = new ArrayList<>();
         for (Enemy e : cs.enemies()) {
-            out.add("A " + e.name() + " bars your way. (" + e.def().region() + ")");
+            out.add(article(e.name()) + " " + e.name() + " bars your way. (" + e.def().region() + ")");
         }
         for (Enemy e : cs.enemies()) {
             chooseIntent(state, cs, e);
@@ -139,6 +142,11 @@ public final class CombatEngine {
                 break;
             case DEFEND:
                 applyDefend(state, cs, out);
+                break;
+            case DODGE:
+                if (!applyDodge(state, cs, out)) {
+                    return new Turn(out, false);
+                }
                 break;
             case PARRY:
                 applyParry(state, cs, out);
@@ -277,6 +285,31 @@ public final class CombatEngine {
                 + " (stamina +" + gained + ").";
         out.add(line);
         cs.log("You defend (stamina +" + gained + ").");
+    }
+
+    /**
+     * Dodge: spend stamina to take a light stance for the round. Unlike parry
+     * (which answers a telegraphed PARRYABLE blow with a guaranteed riposte),
+     * dodge is probabilistic, works against any normal attack including spells,
+     * and never counters. The roll itself happens per incoming hit in
+     * {@link #enemyPhase}, and UNBLOCKABLE attacks cannot be evaded at all.
+     */
+    private boolean applyDodge(GameState state, CombatState cs, List<String> out) {
+        Player player = state.getPlayer();
+        if (player.getStamina() < DODGE_STAMINA_COST) {
+            out.add("Not enough stamina to dodge (needs " + DODGE_STAMINA_COST + ", has "
+                    + player.getStamina() + "). Your turn is not spent.");
+            return false;
+        }
+        player.spendStamina(DODGE_STAMINA_COST);
+        cs.setPlayerDodgedThisRound(true);
+        double chance = DamageCalculator.dodgeChance(stats(state, cs));
+        String line = "You lighten your stance, ready to slip aside (-" + DODGE_STAMINA_COST
+                + " stamina). About " + Math.round(chance * 100)
+                + "% chance to evade each normal hit; (UNBLOCKABLE) attacks cannot be evaded.";
+        out.add(line);
+        cs.log("You dodge (" + DODGE_STAMINA_COST + " stamina).");
+        return true;
     }
 
     private void applyParry(GameState state, CombatState cs, List<String> out) {
@@ -526,6 +559,42 @@ public final class CombatEngine {
 
     // --- enemy resolution ---------------------------------------------------
 
+    /** Correct English article for an introduction: "A Hollow Soldier", "An Ashen Wanderer". */
+    private static String article(String name) {
+        if (name == null || name.isEmpty()) {
+            return "A";
+        }
+        return "AEIOU".indexOf(Character.toUpperCase(name.charAt(0))) >= 0 ? "An" : "A";
+    }
+
+    /**
+     * Applies a taken dodge attempt to one incoming attack.
+     *
+     * @return true when the attack was evaded entirely (caller skips it)
+     */
+    private boolean dodgeOutcome(GameState state, CombatState cs, EffectiveStats stats,
+                                 DamageCalculator calc, Enemy enemy, EnemyAction intent,
+                                 boolean unblockable, List<String> out) {
+        String move = intent.name().toLowerCase(Locale.ROOT);
+        if (unblockable) {
+            String line = "There is no slipping aside — the " + move + " is too committed to evade.";
+            out.add(line);
+            cs.log(line);
+            return false;
+        }
+        if (calc.rollsDodge(stats)) {
+            String line = "You slip past the " + enemy.name() + "'s " + move
+                    + " — the strike finds only ash.";
+            out.add(line);
+            cs.log(line);
+            return true;
+        }
+        String line = "Your feet betray you — the " + move + " clips you as you move.";
+        out.add(line);
+        cs.log(line);
+        return false;
+    }
+
     private void enemyPhase(GameState state, CombatState cs, List<String> out) {
         Player player = state.getPlayer();
         EffectiveStats stats = stats(state, cs);
@@ -570,6 +639,10 @@ public final class CombatEngine {
             }
             if (intent.isDamaging()) {
                 boolean unblockable = intent.is(EnemyAction.TAG_UNBLOCKABLE);
+                if (cs.playerDodgedThisRound() && dodgeOutcome(state, cs, stats, calc, enemy, intent,
+                        unblockable, out)) {
+                    continue; // evaded: no damage, no status, nothing else to apply
+                }
                 DamageCalculator.Hit hit = calc.enemyToPlayer(enemy, intent.multiplier(), defended,
                         unblockable, stats);
                 int dmg = player.takeDamage(hit.finalDamage());
@@ -653,6 +726,7 @@ public final class CombatEngine {
             player.restoreAsh(2);
         }
         cs.commitDefendReaction();
+        cs.clearDodgeReaction();
         cs.advanceRound();
         for (Enemy enemy : cs.enemies()) {
             chooseIntent(state, cs, enemy);
@@ -846,6 +920,7 @@ public final class CombatEngine {
                 "  attack            0 stamina, 100% weapon damage",
                 "  heavy             15 stamina + weapon modifier, 160% damage, staggers the enemy",
                 "  defend            halves incoming damage this round, restores 15 stamina",
+                "  dodge             " + DODGE_STAMINA_COST + " stamina, chance to evade each normal hit; never vs (UNBLOCKABLE)",
                 "  parry             negates a (Parryable) attack and counters; fails vs spells/grabs",
                 "  skill <name>      special technique — costs shown by 'status'",
                 "  item <name>       use a consumable (costs the turn)",

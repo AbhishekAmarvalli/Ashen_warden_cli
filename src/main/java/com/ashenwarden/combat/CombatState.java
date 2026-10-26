@@ -27,6 +27,7 @@ public final class CombatState {
     private int round = 1;
     private boolean playerDefendedThisRound;
     private boolean playerDefendedLastRound;
+    private boolean playerDodgedThisRound;
     private int tempDefenseBuff;
     private int tempDefenseTurns;
     private int xpGained;
@@ -60,6 +61,12 @@ public final class CombatState {
         playerDefendedLastRound = playerDefendedThisRound;
         playerDefendedThisRound = false;
     }
+
+    /** True when the player chose to dodge this round (checked per incoming hit). */
+    public boolean playerDodgedThisRound() { return playerDodgedThisRound; }
+    public void setPlayerDodgedThisRound(boolean v) { this.playerDodgedThisRound = v; }
+    /** Cleared at end-of-round so a dodge never lingers into the next round. */
+    public void clearDodgeReaction() { this.playerDodgedThisRound = false; }
 
     public int tempDefenseBuff() { return tempDefenseBuff; }
     public int tempDefenseTurns() { return tempDefenseTurns; }
