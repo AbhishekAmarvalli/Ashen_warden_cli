@@ -82,11 +82,27 @@
  "attackBonus":0,"defenseBonus":0,"maxHpBonus":0,"maxStaminaBonus":0,"maxAshBonus":0,
  "weapon":null,"consumable":null},
 
+{"code":"oathband","name":"Warden's Oathband","type":"ACCESSORY","rarity":"UNCOMMON",
+ "description":"A blackened silver band worn at the forearm, dented at the wrist where a shield used to sit.",
+ "lore":"The cairn's owner never came back for it. The oath outlived the warden.",
+ "value":45,"stackable":false,"tradeable":true,"requirements":null,
+ "drawback":null,"effectText":"+2 defense, +10 max HP while worn.",
+ "attackBonus":0,"defenseBonus":2,"maxHpBonus":10,"maxStaminaBonus":0,"maxAshBonus":0,
+ "weapon":null,"consumable":null},
+
+{"code":"grave_bead","name":"Cantor's Grave Bead","type":"ACCESSORY","rarity":"UNCOMMON",
+ "description":"A single stone prayer bead, cold as a bell, strung on a cord of gray hair.",
+ "lore":"The Pale Hollow congregation still counts its hours on beads like this. It stopped counting you.",
+ "value":50,"stackable":false,"tradeable":true,"requirements":null,
+ "drawback":null,"effectText":"+3 attack, +4 max Ash while worn.",
+ "attackBonus":3,"defenseBonus":0,"maxHpBonus":0,"maxStaminaBonus":0,"maxAshBonus":4,
+ "weapon":null,"consumable":null},
+
 {"code":"forged_steel","name":"Forged Steel","type":"MATERIAL","rarity":"UNCOMMON",
  "description":"A bar of clean, folded steel wrapped in oilcloth.",
  "lore":"The Ashen Smith's craft begins where the kingdom's ended.",
  "value":20,"stackable":true,"tradeable":true,"requirements":null,
- "drawback":null,"effectText":"Weapon upgrade material (upgrade flow arrives with the Ashen Smith's forge).",
+ "drawback":null,"effectText":"Tempering material: spent with 'upgrade <n>' at a sanctuary to raise a weapon's tier.",
  "attackBonus":0,"defenseBonus":0,"maxHpBonus":0,"maxStaminaBonus":0,"maxAshBonus":0,
  "weapon":null,"consumable":null}
 ]

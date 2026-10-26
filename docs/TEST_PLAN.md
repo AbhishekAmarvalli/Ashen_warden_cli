@@ -14,21 +14,22 @@ mvn test
 counted as passing. Current state: **64/64 pass** with MySQL configured
 (57 unit + 7 integration).
 
-## 2. Automated suite (64 tests, 11 classes)
+## 2. Automated suite (79 tests, 12 classes)
 
 | Class | # | Covers |
 |---|---|---|
-| `combat/DamageCalculatorTest` | 6 | mitigation formula & floor of 1 · never 0/negative damage · immunity · weakness multiplier · defend halves *eligible* damage but not unblockable · player weakness status reduces outgoing damage |
+| `combat/DamageCalculatorTest` | 7 | mitigation formula & floor of 1 · never 0/negative damage · immunity · weakness multiplier · defend halves *eligible* damage but not unblockable · player weakness status reduces outgoing damage |
 | `combat/CombatEngineTest` | 7 | invalid input never consumes a turn · `inspect`/`status` are free actions · parry negates a parryable telegraph and counters · parry fails against unblockable without zeroing the hit · full fight reaches victory with rewards granted once · seeded encounters are reproducible · flee refused when escape is sealed |
 | `command/CommandParserTest` | 9 | numbers become menu selections · combat verbs parse only as combat types · phase-aware `use` · inspect variants · bare direction acts as `go` · `take all`/`back`/`compare` · unknown input flagged but safe · `item` outside combat opens inventory · oversized input bounded (no crash) |
 | `player/InventoryAndEquipmentTest` | 6 | inventory never negative/corrupt · equip/unequip without duplication · weapon swap returns old one to inventory · wrong/locked slot rejected · equipping requires ownership · **all shipped items have honest inspection fields** (no hidden stats) |
 | `combat/DodgeTest` | 5 | dodge costs 12 stamina and its stance is consumed by the round · an unaffordable dodge spends no turn and the enemy does not act · (UNBLOCKABLE) lands against a dodge with a truthful reason · one seeded stream shows both evasion and failure, with no damage/status on an evaded hit |
 | `enemy/TierTwoEliteBehaviorTest` | 7 | elite patterns: executioner measure→guillotine payoff, one-time phase shift at half health, anti-turtle backhand · priest litany→soul-rake payoff, one-time Ashen Rite at 40%, ward rhythm · spectral weapons fully resisted · **engine regression: a GATHER self-heal actually heals** |
+| `item/WeaponTemperingTest` | 7 | tempering cost curve rises and ends at MAX_TIER (a maxed weapon can never be charged again) · flat per-tier bonus, never negative · GameState tier semantics (0 removes, blank codes ignored) · **a tempered weapon really hits harder through the real combat engine with an identical seed** · both new accessories exist, are equippable, and their bonuses flow through EffectiveStats without mutating base stats · both accessories and Forged Steel are reachable from placed world loot |
 | `enemy/TierOneBehaviorTest` | 6 | new Tier-1 rule tables: wanderer telegraphs then pays off, punishes turtling, grows reckless below half health · pilgrim heals on a strict 2-round cooldown (never a loop), punishes turtling, both behaviors registered for content validation |
 | `ui/KeyDecoderTest` | 8 | escape-sequence decoding: arrows from both prefixes, PageUp/PageDown, a lone Escape never mistaken for a sequence, digits/chars with values, Ctrl+C/Ctrl+D, unknown sequences absorbed without leaking bytes |
 | `ui/InteractiveMenuTest` | 7 | Enter confirms the highlight · arrows wrap both ends · digits jump to an option · out-of-range digits ignored (no double draw) · Escape cancels · `?`/Ctrl+C reported to the caller · navigation redraws in place (cursor-up + erase) instead of scrolling |
 | `ui/KeyboardMainMenuTest` *(integration, no DB)* | 2 | scripted terminal plays the real boot screen end-to-end (arrows → HOW TO PLAY → Ctrl+D exits cleanly) · non-key input still drives the typed menu |
-| `persistence/SaveServiceTest` *(integration)* | 7 | full round trip preserves location/HP/currency/inventory/equipment/quests/flags · **slot independence** · duplicate slot name rolls back and reports · invalid save rejected before touching the DB · bosses & memories survive reload · corrupt save reported, not silently reset · slot listing |
+| `persistence/SaveServiceTest` *(integration)* | 8 | full round trip preserves location/HP/currency/inventory/equipment/quests/flags · **tempering tiers survive reload, and tier 0 drops the row without touching other weapons** (migration V2) · **slot independence** · duplicate slot name rolls back and reports · invalid save rejected before touching the DB · bosses & memories survive reload · corrupt save reported, not silently reset · slot listing |
 
 Run-time content validation (not a JUnit test, but a guard): on boot
 `ContentRepository` aborts with a friendly error on duplicate IDs,
@@ -80,9 +81,12 @@ content (marked TODO, not presented as finished).
 | 35 | Tier-2 elites fight in announced patterns (telegraph→payoff, one-time phase shift) | **[AUTO]+[MAN]** | `TierTwoEliteBehaviorTest`; live Executioner fight showed measure→GUILLOTINE→The Red Opens |
 | 36 | Elite self-heals report and land (rite/ward/prayer) | **[AUTO]+[MAN]** | heal branch regression test; live priest "recovers 10 HP" and pilgrim "recovers 12 HP" |
 | 37 | The Blackwood side area is reachable, has a rest point, and pays off (chest) | **[MAN]** | scripted walk-through: Verge brazier rest, both elite kills, Wraith Dagger + Crimson Vial taken |
+| 38 | Temper a weapon at a sanctuary: pay fragments + steel, damage rises, cap at tier 3 | **[AUTO]+[MAN]** | `WeaponTemperingTest`; live run tempered the Silverblade +1 (paid 20 + 1 steel) and the tier-2 attempt refused honestly ("costs 40; you carry 35") |
+| 39 | Tempering refused outside a sanctuary, on non-weapons, or when unaffordable — nothing changes | **[AUTO]+[MAN]** | ordered guard clauses in `MenuHandler.upgrade`; live: steel check and cost check both refused without spending |
+| 40 | Temper tier survives save → quit → load, and accessories apply their bonuses | **[AUTO]+[MAN]** | `temperingTiersSurviveReload` (migration V2) + live reload showed `Weapon: Warden's Silverblade (tempered +1)`, Oathband raised max HP 110→120 and defense 9→11 |
 
 **Score for the shipped slice:** every scenario that can exist without
-roadmap content is implemented and verified (21 of 30 fully covered; 15
+roadmap content is implemented and verified (24 of 33 fully covered; 18
 by automation alone). The 9 marked **[W]** map 1:1 to the README roadmap.
 
 ## 4. Demo walkthrough mapping (spec §14)

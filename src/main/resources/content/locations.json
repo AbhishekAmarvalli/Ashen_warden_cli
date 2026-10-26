@@ -206,7 +206,17 @@
    "kind":"NOTE",
    "description":"A cairn of black stones with a warden's gauntlet laid on top, fingers pointing north.",
    "extendedText":"'Two of us went to see what the Blackwood keeps. I came back. The other came back wearing the wrong face. — do not follow the singing.'",
-   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false}
+   "requiresAbility":null,"blockedMessage":null,"loot":[],"once":true,"consumed":false},
+  {"code":"wardens_pack","name":"warden's pack","aliases":["pack","bundle","satchel","gear"],
+   "kind":"CHEST",
+   "description":"A warden's canvas pack, still strapped to the fallen tree it was dropped against.",
+   "extendedText":"Inside: an oathband of blackened silver, two clean bars of folded steel, and a name-tag rubbed illegible. Someone meant to come back for this.",
+   "requiresAbility":null,"blockedMessage":null,
+   "loot":[
+    {"itemCode":"oathband","quantity":1},
+    {"itemCode":"forged_steel","quantity":2},
+    {"itemCode":"crimson_vial","quantity":1}
+   ],"once":true,"consumed":false}
  ],
  "encounters":[
   {"code":"enc_executioner_verge","trigger":"ON_ENTER","enemyCode":"cursed_executioner",
@@ -230,7 +240,8 @@
    "extendedText":"The stole smells of candle-smoke and river water. The lock gives with a sound like a swallowed word.",
    "requiresAbility":null,"blockedMessage":null,"loot":[
     {"itemCode":"wraith_dagger","quantity":1},
-    {"itemCode":"crimson_vial","quantity":1}
+    {"itemCode":"crimson_vial","quantity":1},
+    {"itemCode":"grave_bead","quantity":1}
    ],"once":true,"consumed":false}
  ],
  "encounters":[

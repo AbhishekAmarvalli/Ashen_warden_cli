@@ -135,6 +135,29 @@ class SaveServiceTest {
     }
 
     @Test
+    void temperingTiersSurviveReload() {
+        GameState state = sampleState("t");
+        state.setUpgradeLevel("wraith_dagger", 2);
+        state.setUpgradeLevel("warden_silverblade", 1);
+        SaveService.SaveResult result = saves.save(state, "tmp-" + UUID.randomUUID().toString().substring(0, 8));
+
+        GameState loaded = saves.load(result.saveId()).state();
+        assertEquals(2, loaded.upgradeLevel("wraith_dagger"));
+        assertEquals(1, loaded.upgradeLevel("warden_silverblade"));
+        assertEquals(0, loaded.upgradeLevel("crimson_vial"),
+                "an untempered item never gains a tier");
+
+        // re-saving with one weapon back to tier 0 drops its row entirely
+        loaded.setUpgradeLevel("wraith_dagger", 0);
+        saves.save(loaded, null);
+        GameState again = saves.load(result.saveId()).state();
+        assertEquals(0, again.upgradeLevel("wraith_dagger"));
+        assertEquals(1, again.upgradeLevel("warden_silverblade"),
+                "the other weapon's tier is untouched");
+        saves.deleteSlot(result.saveId());
+    }
+
+    @Test
     void bossesAndMemoriesSurviveReload() {
         GameState state = sampleState("m");
         state.defeatBoss("hollow_soldier");

@@ -126,6 +126,50 @@ public final class StoryRepository {
         return flags;
     }
 
+    // --- weapon tempering ---------------------------------------------------
+    /** Replaces every tempered weapon tier for this save (tier >= 1 only). */
+    public void replaceUpgrades(Connection c, int saveId, Map<String, Integer> tiers) throws SQLException {
+        try (PreparedStatement delete = c.prepareStatement("DELETE FROM weapon_upgrades WHERE save_id = ?")) {
+            delete.setInt(1, saveId);
+            delete.executeUpdate();
+        }
+        if (tiers == null || tiers.isEmpty()) {
+            return;
+        }
+        try (PreparedStatement ps = c.prepareStatement(
+                "INSERT INTO weapon_upgrades (save_id, item_code, upgrade_tier) VALUES (?, ?, ?)")) {
+            for (Map.Entry<String, Integer> entry : tiers.entrySet()) {
+                if (entry.getKey() == null || entry.getKey().isBlank() || entry.getValue() == null
+                        || entry.getValue() < 1) {
+                    continue;
+                }
+                ps.setInt(1, saveId);
+                ps.setString(2, entry.getKey());
+                ps.setInt(3, Math.min(entry.getValue(), 99));
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    /** item_code -> tempering tier (tier >= 1). Invalid rows are clamped, never rejected. */
+    public Map<String, Integer> loadUpgrades(Connection c, int saveId) throws SQLException {
+        Map<String, Integer> tiers = new java.util.LinkedHashMap<>();
+        try (PreparedStatement ps = c.prepareStatement(
+                "SELECT item_code, upgrade_tier FROM weapon_upgrades WHERE save_id = ?")) {
+            ps.setInt(1, saveId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int tier = rs.getInt(2);
+                    if (tier >= 1) {
+                        tiers.put(rs.getString(1), Math.min(tier, 99));
+                    }
+                }
+            }
+        }
+        return tiers;
+    }
+
     // --- quests -------------------------------------------------------------
     public void replaceQuests(Connection c, int saveId, Map<String, QuestProgress> quests) throws SQLException {
         try (PreparedStatement delete = c.prepareStatement("DELETE FROM quest_progress WHERE save_id = ?")) {
@@ -218,7 +262,7 @@ public final class StoryRepository {
         List<String> errors = new ArrayList<>();
         for (String table : new String[]{"inventory_entries", "equipped_items", "story_flags",
                 "quest_progress", "acquired_memories", "defeated_bosses",
-                "discovered_locations", "unlocked_paths", "player_state"}) {
+                "discovered_locations", "unlocked_paths", "weapon_upgrades", "player_state"}) {
             try (PreparedStatement ps = c.prepareStatement(
                     "SELECT COUNT(*) FROM " + table + " WHERE save_id = ? AND save_id NOT IN (SELECT save_id FROM save_slots)")) {
                 ps.setInt(1, saveId);

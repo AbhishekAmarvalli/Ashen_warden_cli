@@ -120,6 +120,7 @@ Menus accept the same safe-input rule; `back`/`cancel` always costs nothing.
 | `compare <n>` | Precise deltas vs. the currently equipped item in that slot |
 | `equip <n>` | Equip the inspected item (asks for confirmation when it has a cost or drawback) |
 | `unequip <slot>` | Remove a piece of equipment |
+| `upgrade <n>` | Temper weapon `n` (or `upgrade weapon` for the equipped one): **+2 weapon damage per tier**, up to tier 3. Costs Ash Fragments **and** Forged Steel per tier, and only works at a **SANCTUARY** (shrine/brazier/haven). Rejections state the missing cost and change nothing |
 | `take <n>` | Take one loot item |
 | `take all` | Take everything (you may still inspect first) |
 | `back` / `cancel` | Leave the menu — no resources lost |
@@ -127,6 +128,11 @@ Menus accept the same safe-input rule; `back`/`cancel` always costs nothing.
 **Inspection-first rule:** every choice screen (loot, equip, shop,
 upgrade) shows full details before you can commit, and stepping back is
 always free.
+
+**Tempering:** each weapon keeps its own tier per save (`warden_silverblade`
+tempered +1 does not affect a second copy). The equipment screen shows
+`(tempered +n)`, `inspect` shows the exact bonus, and tiers survive
+save/reload.
 
 ---
 

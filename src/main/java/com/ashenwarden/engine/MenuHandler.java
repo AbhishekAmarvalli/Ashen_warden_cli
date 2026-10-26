@@ -3,6 +3,7 @@ package com.ashenwarden.engine;
 import com.ashenwarden.command.ParsedCommand;
 import com.ashenwarden.item.ItemDef;
 import com.ashenwarden.item.ItemType;
+import com.ashenwarden.item.WeaponUpgrader;
 import com.ashenwarden.player.EquipmentSlot;
 
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ final class MenuHandler {
                     "  compare <n>   precise deltas vs. what is equipped",
                     "  equip <n>     equip item n (asks for confirmation)",
                     "  unequip <slot> weapon | armor | accessory1 | accessory2",
+                    "  upgrade <n>   temper weapon n at a SANCTUARY (+2 weapon damage per tier)",
                     "  back          close the inventory");
             case LOOT -> List.of(
                     "Loot screen:",
@@ -102,8 +104,19 @@ final class MenuHandler {
                     return CommandResult.rejected("No item by that name/number here. Use 'inspect <n>' or 'back'.");
                 }
                 ItemDef def = e.content().item(menu.codes.get(index));
-                return CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.describe(
+                CommandResult out = CommandResult.ok().cardLines(com.ashenwarden.cli.ItemText.describe(
                         def, s.getInventory(), s.getEquipment(), e.content().items()));
+                int tier = s.upgradeLevel(def.code());
+                if (def.type() == ItemType.WEAPON) {
+                    if (tier > 0) {
+                        out.line("Tempered: +" + tier + "/" + WeaponUpgrader.MAX_TIER + "  (+"
+                                + WeaponUpgrader.bonusDamage(tier) + " weapon damage)");
+                    } else {
+                        out.line("Untempered — 'upgrade <n>' at a sanctuary for +"
+                                + WeaponUpgrader.DAMAGE_PER_TIER + " weapon damage per tier.");
+                    }
+                }
+                return out;
             }
             case COMPARE -> {
                 int index = resolveIndex(e, cmd, menu);
@@ -139,6 +152,9 @@ final class MenuHandler {
                 out.line("    [2] Back (nothing changes)");
                 return out;
             }
+            case UPGRADE -> {
+                return upgrade(e, cmd, menu);
+            }
             case UNEQUIP -> {
                 EquipmentSlot slot = slotFrom(cmd.arg());
                 if (slot == null) {
@@ -164,6 +180,83 @@ final class MenuHandler {
                 return PlayHandler.handle(e, cmd);
             }
         }
+    }
+
+    // =================== weapon tempering ===================================
+    private static final String FORGED_STEEL = "forged_steel";
+
+    /**
+     * 'upgrade <n>' — temper a weapon at a sanctuary: pay Ash Fragments and
+     * Forged Steel once per tier for permanent weapon damage. Every rejection
+     * path states its cost and changes nothing.
+     */
+    private static CommandResult upgrade(GameEngine e, ParsedCommand cmd, GameEngine.MenuContext menu) {
+        GameState s = e.state();
+        ItemDef def = upgradeTarget(e, cmd, menu);
+        if (def == null) {
+            return CommandResult.rejected("Usage: upgrade <n> — temper a weapon from the list"
+                    + " (or 'upgrade weapon' for the equipped one). Nothing changed.");
+        }
+        if (def.type() != ItemType.WEAPON) {
+            return CommandResult.rejected(def.name() + " is not a weapon — only blades take an edge."
+                    + " Nothing changed.");
+        }
+        if (!e.exploration().current(s).sanctuary()) {
+            return CommandResult.rejected("Tempering needs a sanctuary's ember: the steel must be worked hot."
+                    + " Rest at a shrine, brazier or haven (look for 'SANCTUARY'), then open your inventory."
+                    + " Nothing changed.");
+        }
+        int tier = s.upgradeLevel(def.code());
+        if (WeaponUpgrader.isMaxed(tier)) {
+            return CommandResult.rejected(def.name() + " is fully tempered (+"
+                    + WeaponUpgrader.bonusDamage(tier) + " weapon damage). Nothing changed.");
+        }
+        WeaponUpgrader.Cost cost = WeaponUpgrader.costForNextTier(tier);
+        int fragments = s.getPlayer().getFragments();
+        if (fragments < cost.fragments()) {
+            return CommandResult.rejected("Tempering to tier " + (tier + 1) + " costs " + cost.fragments()
+                    + " Ash Fragments; you carry " + fragments + ". Nothing changed.");
+        }
+        int steel = s.getInventory().quantityOf(FORGED_STEEL);
+        if (steel < cost.steel()) {
+            return CommandResult.rejected("Tempering to tier " + (tier + 1) + " needs " + cost.steel()
+                    + " Forged Steel; you carry " + steel + ". Nothing changed.");
+        }
+
+        s.getPlayer().setFragments(fragments - cost.fragments());
+        s.getInventory().remove(FORGED_STEEL, cost.steel());
+        s.setUpgradeLevel(def.code(), tier + 1);
+
+        int newTier = tier + 1;
+        CommandResult out = CommandResult.ok().line("The ember works the edge — " + def.name()
+                + " is tempered +" + newTier + "/" + WeaponUpgrader.MAX_TIER + " (now +"
+                + WeaponUpgrader.bonusDamage(newTier) + " weapon damage).");
+        out.line("Paid " + cost.fragments() + " Ash Fragments and " + cost.steel()
+                + " Forged Steel  |  left: " + s.getPlayer().getFragments() + " fragments, "
+                + s.getInventory().quantityOf(FORGED_STEEL) + " steel.");
+        if (!WeaponUpgrader.isMaxed(newTier)) {
+            WeaponUpgrader.Cost next = WeaponUpgrader.costForNextTier(newTier);
+            out.line("Next tier: " + next.fragments() + " fragments + " + next.steel()
+                    + " forged steel, at any sanctuary.");
+        }
+        out.cardLines(e.buildInventoryLines());
+        return out;
+    }
+
+    /** Number, item name or 'weapon' (the equipped one) -> the item to temper. */
+    private static ItemDef upgradeTarget(GameEngine e, ParsedCommand cmd, GameEngine.MenuContext menu) {
+        int index = resolveIndex(e, cmd, menu);
+        if (index >= 0) {
+            return e.content().item(menu.codes.get(index));
+        }
+        String arg = cmd.arg() == null ? "" : cmd.arg().trim().toLowerCase(java.util.Locale.ROOT);
+        if (arg.equals("weapon") || arg.equals("equipped") || arg.equals("equipped weapon")) {
+            String code = e.state().getEquipment().equippedCode(EquipmentSlot.WEAPON);
+            if (code != null) {
+                return e.content().item(code);
+            }
+        }
+        return null;
     }
 
     private static String equippedCounterpart(GameEngine e, ItemDef candidate) {

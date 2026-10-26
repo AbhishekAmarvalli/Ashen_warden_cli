@@ -21,7 +21,8 @@ import java.util.List;
  */
 public final class MigrationRunner {
     private static final String[] MIGRATIONS = {
-            "db/migration/V1__initial_schema.sql"
+            "db/migration/V1__initial_schema.sql",
+            "db/migration/V2__weapon_upgrades.sql"
     };
 
     private MigrationRunner() {

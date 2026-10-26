@@ -144,6 +144,7 @@ public final class SaveService {
                 stories.replaceQuests(c, saveId, state.getQuests());
                 stories.replaceMemories(c, saveId, state.getMemories());
                 stories.replaceBosses(c, saveId, state.getDefeatedBosses());
+                stories.replaceUpgrades(c, saveId, state.getUpgradeLevels());
 
                 c.commit(); // success message may only be shown after this line
             } catch (SQLException e) {
@@ -273,6 +274,13 @@ public final class SaveService {
                 state.getMemories().add(code);
             }
             state.getDefeatedBosses().addAll(stories.loadBosses(c, saveId));
+
+            // weapon tempering (tier only makes sense on an item the save can own)
+            for (Map.Entry<String, Integer> entry : stories.loadUpgrades(c, saveId).entrySet()) {
+                if (content.items().contains(entry.getKey())) {
+                    state.getUpgradeLevels().put(entry.getKey(), entry.getValue());
+                }
+            }
 
             state.setPhase(com.ashenwarden.engine.GamePhase.EXPLORATION);
             state.clearDirty();

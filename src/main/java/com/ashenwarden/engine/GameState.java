@@ -40,6 +40,8 @@ public final class GameState {
     private final Set<String> memories = new LinkedHashSet<>();
     private final Map<String, String> storyFlags = new LinkedHashMap<>();
     private final Map<String, QuestProgress> quests = new LinkedHashMap<>();
+    /** Weapon tempering: item code -> upgrade tier (absent = untempered). */
+    private final Map<String, Integer> upgradeLevels = new LinkedHashMap<>();
 
     private GamePhase phase = GamePhase.MAIN_MENU;
     private CombatState combat;
@@ -126,6 +128,27 @@ public final class GameState {
 
     // --- flags / quests ----------------------------------------------------
     public Map<String, String> getStoryFlags() { return storyFlags; }
+
+    // --- weapon tempering ----------------------------------------------------
+    public Map<String, Integer> getUpgradeLevels() { return upgradeLevels; }
+
+    /** Current tempering tier of an item code (0 = untempered). */
+    public int upgradeLevel(String itemCode) {
+        return upgradeLevels.getOrDefault(itemCode, 0);
+    }
+
+    /** Sets a tempering tier; 0 removes the entry so saves stay minimal. */
+    public void setUpgradeLevel(String itemCode, int level) {
+        if (itemCode == null || itemCode.isBlank()) {
+            return;
+        }
+        if (level <= 0) {
+            upgradeLevels.remove(itemCode);
+        } else {
+            upgradeLevels.put(itemCode, Math.min(level, 99));
+        }
+        markDirty();
+    }
 
     public void setFlag(String code, String value) {
         storyFlags.put(code, value);

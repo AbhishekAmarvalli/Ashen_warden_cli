@@ -53,6 +53,8 @@ final class PlayHandler {
             case LOG -> CommandResult.ok().line("The combat log only exists during battle; your story is in 'journal'.");
             case DODGE -> CommandResult.rejected("You can only dodge while an enemy is upon you. Nothing changed.");
             case INSPECT_ITEM -> inspectCarriedItem(e, cmd);
+            case UPGRADE -> CommandResult.rejected("Tempering happens from your inventory at a sanctuary:"
+                    + " type 'inventory', then 'upgrade <n>'. Nothing changed.");
             case CHOOSE, LEAVE -> CommandResult.rejected("You are not in a conversation right now.");
             default -> CommandResult.rejected("That command does not apply here. Type 'help'.");
         };

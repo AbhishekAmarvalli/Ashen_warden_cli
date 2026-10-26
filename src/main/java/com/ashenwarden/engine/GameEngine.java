@@ -377,7 +377,7 @@ public final class GameEngine {
 
     private void renderMenuOptions() {
         switch (menu.kind) {
-            case INVENTORY -> r.hint("Commands: inspect <n> | compare <n> | equip <n> | unequip <slot> | back");
+            case INVENTORY -> r.hint("Commands: inspect <n> | compare <n> | equip <n> | unequip <slot> | upgrade <n> | back");
             case LOOT -> r.hint("Commands: inspect <n> | take <n> | take all | leave");
             case DIALOGUE -> r.hint("Choose with a number, 'ask <topic>', or 'leave'");
             case EQUIP_CONFIRM -> r.hint("Type 1 to confirm, or 'back' to cancel — nothing is lost either way.");
@@ -942,14 +942,14 @@ public final class GameEngine {
     }
 
     /** Rebuilt from live inventory each time, so lists are never stale after equip/take. */
-    List<String> buildInventoryLines() {
-        List<String> out = new ArrayList<>();
+    List<String> buildInventoryLines() {        List<String> out = new ArrayList<>();
         MenuContext ctx = menu;
         boolean showEquipment = ctx != null && ctx.showEquipment;
         out.add(showEquipment ? "EQUIPMENT & INVENTORY" : "INVENTORY — inspect an item before choosing");
         if (showEquipment) {
             var eq = state.getEquipment();
-            out.add("  Weapon:    " + nameFor(eq.equippedCode(EquipmentSlot.WEAPON)));
+            out.add("  Weapon:    " + nameFor(eq.equippedCode(EquipmentSlot.WEAPON))
+                    + temperedSuffix(eq.equippedCode(EquipmentSlot.WEAPON)));
             out.add("  Armor:     " + nameFor(eq.equippedCode(EquipmentSlot.ARMOR)));
             out.add("  Accessory1: " + nameFor(eq.equippedCode(EquipmentSlot.ACCESSORY_1)));
             out.add("  Accessory2: " + (eq.isAccessory2Unlocked()
@@ -997,6 +997,15 @@ public final class GameEngine {
 
     private String nameFor(String code) {
         return code == null ? "-" : content.items().find(code).name();
+    }
+
+    /** "  (tempered +2)" for a tempered weapon, empty otherwise. */
+    private String temperedSuffix(String code) {
+        if (code == null) {
+            return "";
+        }
+        int tier = state.upgradeLevel(code);
+        return tier > 0 ? "  (tempered +" + tier + ")" : "";
     }
 
     /** Combat drops enter the loot screen (inspect each item before taking). */

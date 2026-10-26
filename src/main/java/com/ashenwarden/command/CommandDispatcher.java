@@ -27,7 +27,8 @@ public final class CommandDispatcher {
                 Type.LOOK, Type.GO, Type.MAP, Type.PATHS, Type.INSPECT, Type.INTERACT, Type.SEARCH,
                 Type.TALK, Type.ASK, Type.CHOOSE, Type.LEAVE, Type.JOURNAL, Type.QUESTS, Type.MEMORIES,
                 Type.ABILITIES, Type.INVENTORY, Type.EQUIPMENT, Type.STATS, Type.STATUS, Type.REST,
-                Type.SAVE, Type.LOAD, Type.HELP, Type.QUIT, Type.INSPECT_ITEM, Type.LOG));
+                Type.SAVE, Type.LOAD, Type.HELP, Type.QUIT, Type.INSPECT_ITEM, Type.LOG,
+                Type.UPGRADE));
         ALLOWED.put(GamePhase.COMBAT, EnumSet.of(
                 Type.ATTACK, Type.HEAVY, Type.DEFEND, Type.DODGE, Type.PARRY, Type.SKILL, Type.ITEM,
                 Type.FLEE, Type.INSPECT_ENEMY, Type.INSPECT_ITEM, Type.STATUS, Type.HELP, Type.LOG,

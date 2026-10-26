@@ -212,11 +212,20 @@ public final class CombatEngine {
         return def == null ? null : def.weapon();
     }
 
+    /** Equipped weapon damage including its tempering bonus (one home for it). */
+    private int temperedPower(GameState state, WeaponSpec weapon) {
+        if (weapon == null) {
+            return 0;
+        }
+        String code = state.getEquipment().equippedCode(EquipmentSlot.WEAPON);
+        return weapon.damage() + com.ashenwarden.item.WeaponUpgrader.bonusDamage(state.upgradeLevel(code));
+    }
+
     private void applyAttack(GameState state, CombatState cs, List<String> out) {
         Player player = state.getPlayer();
         Enemy enemy = cs.firstEnemy();
         WeaponSpec weapon = equippedWeapon(state);
-        int weaponPower = weapon == null ? 0 : weapon.damage();
+        int weaponPower = temperedPower(state, weapon);
         String element = weapon == null ? WeaponSpec.ELEMENT_PHYSICAL : weapon.element();
 
         DamageCalculator.Hit hit = new DamageCalculator(state.getRng())
@@ -253,7 +262,7 @@ public final class CombatEngine {
         Enemy enemy = cs.firstEnemy();
         String element = weapon == null ? WeaponSpec.ELEMENT_PHYSICAL : weapon.element();
         DamageCalculator.Hit hit = new DamageCalculator(state.getRng())
-                .playerToEnemy(player, stats(state, cs), weapon == null ? 0 : weapon.damage(),
+                .playerToEnemy(player, stats(state, cs), temperedPower(state, weapon),
                         1.6, element, enemy);
         int dmg = enemy.takeDamage(hit.finalDamage());
 
@@ -326,7 +335,7 @@ public final class CombatEngine {
             enemy.setStunned(true);
             DamageCalculator.Hit counter = new DamageCalculator(state.getRng()).playerToEnemy(
                     state.getPlayer(), stats(state, cs),
-                    equippedWeapon(state) == null ? 0 : equippedWeapon(state).damage(),
+                    temperedPower(state, equippedWeapon(state)),
                     0.5,
                     equippedWeapon(state) == null ? WeaponSpec.ELEMENT_PHYSICAL : equippedWeapon(state).element(),
                     enemy);
@@ -390,7 +399,7 @@ public final class CombatEngine {
         Enemy enemy = cs.firstEnemy();
         String element = weapon == null ? WeaponSpec.ELEMENT_PHYSICAL : weapon.element();
         DamageCalculator.Hit hit = new DamageCalculator(state.getRng()).playerToEnemy(
-                player, stats(state, cs), weapon == null ? 0 : weapon.damage(),
+                player, stats(state, cs), temperedPower(state, weapon),
                 skill.multiplier(), element, enemy);
         int dmg = enemy.takeDamage(hit.finalDamage());
         String line = skill.name() + " hits the " + enemy.name() + " for " + dmg + " damage (-"
