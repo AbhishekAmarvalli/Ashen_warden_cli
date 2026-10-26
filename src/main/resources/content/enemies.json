@@ -108,5 +108,69 @@
  "drops":[
   {"itemCode":"ash_fragments","chance":55,"quantity":7},
   {"itemCode":"ancient_coin","chance":15,"quantity":1}
+ ]},
+
+{"code":"cursed_executioner","name":"Cursed Executioner","region":"The Blackwood",
+ "hp":90,"attack":13,"defense":8,"xp":75,
+ "lore":"The Crown's last headsman, still on the King's road: plate furred with black moss, a cleaver worn thin as a court writ, and a helm-light that keeps the patience of ledgers. It measures before it cuts. It always measured.",
+ "counterplayHint":"Every dangerous blow is announced. In its first phase it measures (GATHER) every third round — that is the tell for the Guillotine: PARRY the coming strike for a staggered riposte, or dodge after the measure. The Iron Backhand is fast and cannot be parried; defend or dodge it. Below half health it stops measuring and opens you with the Flensing Cleave (bleeds). While it guards, the damage it takes is halved, so a GUARD BREAK pays. Spectral steel is poor here — plain physical bites deepest.",
+ "resistances":{"spectral":0.6},
+ "weaknesses":["physical"],
+ "boss":false,
+ "behaviorCode":"cursed_executioner",
+ "moves":[
+  {"name":"Rusted Cleaver","intent":"Rusted cleaver — a working stroke (Parryable)","kind":"LIGHT","multiplier":1.1,
+   "tags":["PARRYABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":null},
+  {"name":"Iron Backhand","intent":"Iron backhand — fast, not parryable","kind":"LIGHT","multiplier":1.0,
+   "tags":[],"status":"GUARD_BREAK","statusChance":25,"statusPower":1,"statusTurns":1,
+   "healAmount":0,"effectText":"The flat of the cleaver cracks across your stance."},
+  {"name":"Measured Steps","intent":"Measured steps — the guillotine is being measured (Parry the next strike!)","kind":"GATHER","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"The executioner sets its feet and raises the cleaver high. It is measuring you."},
+  {"name":"Guillotine","intent":"GUILLOTINE — the cleaver falls (PARRYABLE — huge, parry it!)","kind":"HEAVY","multiplier":2.2,
+   "tags":["PARRYABLE"],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"Falling steel, with the whole road's weight behind it."},
+  {"name":"The Red Opens","intent":"The Red Opens","kind":"BUFF","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"The executioner's helm-light floods red. It stops measuring. The second phase begins."},
+  {"name":"Flensing Cleave","intent":"Flensing cleave — a long opening cut (Parryable)","kind":"HEAVY","multiplier":1.6,
+   "tags":["PARRYABLE"],"status":"BLEED","statusChance":40,"statusPower":4,"statusTurns":3,
+   "healAmount":0,"effectText":"The cleaver opens a long red seam; you feel the blood think about leaving."}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":85,"quantity":30},
+  {"itemCode":"crimson_vial","chance":35,"quantity":1},
+  {"itemCode":"iron_tonic","chance":25,"quantity":1}
+ ]},
+
+{"code":"wraith_priest","name":"Wraith Priest","region":"The Blackwood",
+ "hp":75,"attack":11,"defense":5,"xp":70,
+ "lore":"A clergy of the old faith, kept by the Blackwood after the Crown burned the record of what it served. Its stole moves without wind; where it walks, the ash falls upward.",
+ "counterplayHint":"Spectral weapons pass straight through it (fully resisted) — bring plain steel. It telegraphs its Soul Rake with the Grave Litany; the payoff round is the one to DEFEND or DODGE. Every fourth round (every third once it is wounded past 40%) it raises the Veil Ward: damage it takes is halved while the ward holds, and it knits as it stands — break its guard or wait it out. Below 40% it opens the Ashen Rite once, mending itself; strike hard into that round.",
+ "resistances":{"spectral":1.0},
+ "weaknesses":["physical"],
+ "boss":false,
+ "behaviorCode":"wraith_priest",
+ "moves":[
+  {"name":"Grave Chant","intent":"Grave chant — cold words, colder touch (Spell — parry fails)","kind":"SPELL","multiplier":1.1,
+   "tags":["SPELL"],"status":"POISON","statusChance":25,"statusPower":3,"statusTurns":3,
+   "healAmount":0,"effectText":null},
+  {"name":"Grave Litany","intent":"Grave litany — the payoff is coming (DEFEND or DODGE)","kind":"GATHER","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":0,"effectText":"The priest intones the grave litany; the air thins around your throat. The next words will drink your strength."},
+  {"name":"Soul Rake","intent":"SOUL RAKE — the litany's payoff (Spell — parry fails)","kind":"SPELL","multiplier":1.6,
+   "tags":["SPELL"],"status":"WEAKNESS","statusChance":50,"statusPower":1,"statusTurns":2,
+   "healAmount":0,"effectText":"Cold fingers rake through where your name is kept."},
+  {"name":"Veil Ward","intent":"Veil ward — guarded, and mending (damage it takes is halved)","kind":"DEFEND","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":6,"effectText":"The veil tightens into a ward; it knits as it stands."},
+  {"name":"Ashen Rite","intent":"Ashen rite — the wounds close (strike now!)","kind":"BUFF","multiplier":0,
+   "tags":[],"status":null,"statusChance":0,"statusPower":0,"statusTurns":0,
+   "healAmount":10,"effectText":"'Name me not, and be nameless,' the priest sighs. Its wounds close and the veil burns colder. The second phase."}
+ ],
+ "drops":[
+  {"itemCode":"ash_fragments","chance":80,"quantity":24},
+  {"itemCode":"ancient_coin","chance":40,"quantity":1}
  ]}
 ]

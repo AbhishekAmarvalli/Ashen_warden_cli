@@ -11,10 +11,10 @@ mvn test
 
 **Honesty rule:** when MySQL is unreachable, `SaveServiceTest` calls
 `assumeTrue` and reports those tests as **SKIPPED** — they are never
-counted as passing. Current state: **57/57 pass** with MySQL configured
-(50 unit + 7 integration).
+counted as passing. Current state: **64/64 pass** with MySQL configured
+(57 unit + 7 integration).
 
-## 2. Automated suite (57 tests, 10 classes)
+## 2. Automated suite (64 tests, 11 classes)
 
 | Class | # | Covers |
 |---|---|---|
@@ -23,6 +23,7 @@ counted as passing. Current state: **57/57 pass** with MySQL configured
 | `command/CommandParserTest` | 9 | numbers become menu selections · combat verbs parse only as combat types · phase-aware `use` · inspect variants · bare direction acts as `go` · `take all`/`back`/`compare` · unknown input flagged but safe · `item` outside combat opens inventory · oversized input bounded (no crash) |
 | `player/InventoryAndEquipmentTest` | 6 | inventory never negative/corrupt · equip/unequip without duplication · weapon swap returns old one to inventory · wrong/locked slot rejected · equipping requires ownership · **all shipped items have honest inspection fields** (no hidden stats) |
 | `combat/DodgeTest` | 5 | dodge costs 12 stamina and its stance is consumed by the round · an unaffordable dodge spends no turn and the enemy does not act · (UNBLOCKABLE) lands against a dodge with a truthful reason · one seeded stream shows both evasion and failure, with no damage/status on an evaded hit |
+| `enemy/TierTwoEliteBehaviorTest` | 7 | elite patterns: executioner measure→guillotine payoff, one-time phase shift at half health, anti-turtle backhand · priest litany→soul-rake payoff, one-time Ashen Rite at 40%, ward rhythm · spectral weapons fully resisted · **engine regression: a GATHER self-heal actually heals** |
 | `enemy/TierOneBehaviorTest` | 6 | new Tier-1 rule tables: wanderer telegraphs then pays off, punishes turtling, grows reckless below half health · pilgrim heals on a strict 2-round cooldown (never a loop), punishes turtling, both behaviors registered for content validation |
 | `ui/KeyDecoderTest` | 8 | escape-sequence decoding: arrows from both prefixes, PageUp/PageDown, a lone Escape never mistaken for a sequence, digits/chars with values, Ctrl+C/Ctrl+D, unknown sequences absorbed without leaking bytes |
 | `ui/InteractiveMenuTest` | 7 | Enter confirms the highlight · arrows wrap both ends · digits jump to an option · out-of-range digits ignored (no double draw) · Escape cancels · `?`/Ctrl+C reported to the caller · navigation redraws in place (cursor-up + erase) instead of scrolling |
@@ -76,6 +77,9 @@ content (marked TODO, not presented as finished).
 | 32 | No console (pipes, IDE, `--plain`, `--no-keys`): typed menu, game fully playable | **[AUTO]+[MAN]** | `withoutKeySupportTheTypedMenuStillWorks`; piped smoke run |
 | 33 | Dodge: cost, chance vs. defense, no evasion of (UNBLOCKABLE), one-round stance | **[AUTO]+[MAN]** | `DodgeTest`; live playthrough log |
 | 34 | Tier-1 roster complete (Wanderer, Soldier, Pilgrim, Crawler) and reachable in-world | **[AUTO]+[MAN]** | `TierOneBehaviorTest` + content validation; scripted Act I walk-through fought all four |
+| 35 | Tier-2 elites fight in announced patterns (telegraph→payoff, one-time phase shift) | **[AUTO]+[MAN]** | `TierTwoEliteBehaviorTest`; live Executioner fight showed measure→GUILLOTINE→The Red Opens |
+| 36 | Elite self-heals report and land (rite/ward/prayer) | **[AUTO]+[MAN]** | heal branch regression test; live priest "recovers 10 HP" and pilgrim "recovers 12 HP" |
+| 37 | The Blackwood side area is reachable, has a rest point, and pays off (chest) | **[MAN]** | scripted walk-through: Verge brazier rest, both elite kills, Wraith Dagger + Crimson Vial taken |
 
 **Score for the shipped slice:** every scenario that can exist without
 roadmap content is implemented and verified (21 of 30 fully covered; 15

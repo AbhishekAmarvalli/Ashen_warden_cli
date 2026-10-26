@@ -616,6 +616,15 @@ public final class CombatEngine {
             if (intent == null) {
                 continue;
             }
+            // healing happens for every kind of action (a prayer, a ward, a
+            // brace), before the kind-specific branches below — never skipped
+            if (intent.healAmount() > 0) {
+                int before = enemy.getHp();
+                enemy.heal(intent.healAmount());
+                String line = enemy.name() + " recovers " + (enemy.getHp() - before) + " HP.";
+                out.add(line);
+                cs.log(line);
+            }
             if ("DEFEND".equals(intent.kind())) {
                 String line = enemy.name() + " keeps its guard up (damage it takes is halved while guarding).";
                 out.add(line);
@@ -629,13 +638,6 @@ public final class CombatEngine {
                 out.add(line);
                 cs.log(line);
                 continue;
-            }
-            if (intent.healAmount() > 0) {
-                int before = enemy.getHp();
-                enemy.heal(intent.healAmount());
-                String line = enemy.name() + " recovers " + (enemy.getHp() - before) + " HP.";
-                out.add(line);
-                cs.log(line);
             }
             if (intent.isDamaging()) {
                 boolean unblockable = intent.is(EnemyAction.TAG_UNBLOCKABLE);

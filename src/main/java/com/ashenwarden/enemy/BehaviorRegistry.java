@@ -17,6 +17,8 @@ public final class BehaviorRegistry {
         register("grave_crawler", new GraveCrawlerBehavior());
         register("ashen_wanderer", new AshenWandererBehavior());
         register("rotting_pilgrim", new RottingPilgrimBehavior());
+        register("cursed_executioner", new CursedExecutionerBehavior());
+        register("wraith_priest", new WraithPriestBehavior());
         register("basic_melee", new BasicMeleeBehavior());
     }
 
