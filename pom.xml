@@ -9,17 +9,26 @@
   <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>ASHEN WARDEN: THE LAST EMBER</name>
-  <description>Text-only gothic dark-fantasy turn-based RPG (CLI, Java 17, MySQL + JDBC)</description>
+  <description>Interactive terminal gothic dark-fantasy turn-based RPG (CLI, Java 21, JLine 3 keyboard UI, MySQL + JDBC)</description>
 
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jackson.version>2.18.2</jackson.version>
     <junit.version>5.11.4</junit.version>
     <mysql.version>8.4.0</mysql.version>
+    <jline.version>3.30.17</jline.version>
   </properties>
 
   <dependencies>
+    <!-- JLine 3 uber jar: raw-mode key input (arrow keys / Enter / Escape) and
+         terminal capability detection for the interactive menu layer. -->
+    <dependency>
+      <groupId>org.jline</groupId>
+      <artifactId>jline</artifactId>
+      <version>${jline.version}</version>
+    </dependency>
+
     <!-- JDBC driver for the local MySQL 8+ service -->
     <dependency>
       <groupId>com.mysql</groupId>
@@ -60,6 +69,12 @@
             <manifest>
               <mainClass>com.ashenwarden.Main</mainClass>
             </manifest>
+            <manifestEntries>
+              <!-- JLine opens the console with the JDK foreign-function API;
+                   this manifest flag (JEP 472) keeps Java 24+ quiet about it.
+                   Older JDKs simply ignore the entry. -->
+              <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
@@ -73,12 +88,14 @@
             <phase>package</phase>
             <goals><goal>shade</goal></goals>
             <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.ashenwarden.Main</mainClass>
-                </transformer>
-              </transformers>
+              <createDependencyReducedPom>false</createDependencyReducedPom>                <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>com.ashenwarden.Main</mainClass>
+                    <manifestEntries>
+                      <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                    </manifestEntries>
+                  </transformer>
+                </transformers>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>

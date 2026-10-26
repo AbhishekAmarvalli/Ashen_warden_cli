@@ -1,200 +1,114 @@
 # ASHEN WARDEN: THE LAST EMBER
 
-A kingdom that could not die. An oath that could not end.
+An interactive, turn-based gothic dark-fantasy RPG for the terminal.
+Java 21 · Maven · JLine 3 keyboard UI · MySQL 8 (JDBC) · no AI, no network.
 
-A **text-only, turn-based gothic dark-fantasy RPG** for the terminal. Java 17+,
-Maven, MySQL 8+ via JDBC. No GUI, no AI, no network at runtime — enemy behavior is
-strictly rule-based with seeded, reproducible variation.
+> *"A kingdom that could not die. An oath that could not end."*
 
-> Status: **Phase 1 vertical slice (playable end to end).**
-> The prologue (Warden's Tomb), the Forgotten Outskirts hub and the road to the
-> Cathedral are implemented: exploration, inspect-first itemization, two enemies,
-> full turn combat with telegraphs/parry/defend/status effects, a quest, an NPC
-> dialogue tree, sanctuaries, death with recoverable fragments, MySQL save slots
-> (atomic, isolated) and autosave. Act I-V content (Bell Keeper boss, six regions,
-> seven memories, three endings) is planned — see Roadmap.
+You are the Ashen Warden, a forgotten warrior bound to an ancient oath.
+Explore ruined settlements and cursed cathedrals, fight turn-based battles,
+uncover forgotten history, and confront the source of the curse.
 
----
+## Requirements
 
-## Prerequisites
+- **JDK 21 or newer** (`java -version`)
+- **MySQL 8+** — optional: the game starts without it and plays normally,
+  saving/loading is paused with recovery instructions until it is reachable
+- A modern terminal (Windows Terminal, PowerShell, CMD, bash) — keyboard
+  menus need a real console; everywhere else the typed-command menu is used
 
-| Requirement | Version | Notes |
-|-------------|---------|-------|
-| JDK         | 17+ (tested on 25) | `java -version` |
-| Maven       | 3.9+     | `mvn -version` |
-| MySQL       | 8.0+     | local service, e.g. `net start MySQL80` on Windows |
-
-## Database setup (once)
-
-```sql
-CREATE DATABASE ashen_warden CHARACTER SET utf8mb4;
--- optional dedicated user (recommended):
-CREATE USER 'ashen'@'localhost' IDENTIFIED BY 'your-password';
-GRANT ALL PRIVILEGES ON ashen_warden.* TO 'ashen'@'localhost';
-```
-
-Schema migrations under `src/main/resources/db/migration/` apply automatically
-on first launch (tracked in `schema_version`).
-
-## Configuration (environment variables)
-
-| Variable | Default | Meaning |
-|----------|---------|---------|
-| `DB_URL` | `jdbc:mysql://localhost:3306/ashen_warden?...` | JDBC URL |
-| `DB_USER` | `root` | database user |
-| `DB_PASSWORD` | *(none)* | **never committed — set it yourself** |
-
-No credentials are stored in the repo or logged. Without a reachable MySQL the
-game still starts and tells you exactly how to fix it; saving is disabled until
-it is back.
-
-## Run
+## Run it
 
 ```bash
-# Windows (PowerShell)
-$env:DB_USER="ashen"; $env:DB_PASSWORD="your-password"
+# build once (Maven wrapper-free: any Maven 3.8+, or tools/maven if present)
 mvn package
-java -jar target/ashen-warden.jar
 
-# Linux / macOS
-export DB_USER=ashen DB_PASSWORD=your-password
-mvn package
+# play
 java -jar target/ashen-warden.jar
 ```
 
-Flags: `--plain` (ASCII + no colors, screen-reader friendly), `--no-color`,
-`--width <40-120>`, `--web [port]`, `--help`. `NO_COLOR` is honored.
+Windows CMD shortcut (sets UTF-8, checks Java and the jar first):
 
-### Browser interface (`--web`)
-
-```bash
-java -jar target/ashen-warden.jar --web          # opens http://127.0.0.1:8777/
-play.bat --web                                    # same on Windows
-java -jar target/ashen-warden.jar --web 9000     # custom port
+```bat
+play.bat
 ```
 
-The same game behind a local web page, styled like a chat client: the
-**ASHEN WARDEN logo bar pinned at the top**, each reply rendered as its own
-message card, your commands as chat bubbles, and the live status
-(`name · place · HP · phase`) pinned above the input.
+### Launch flags
 
-Options are **clickable chips** under the conversation (menu numbers,
-combat actions, dialogue choices, suggested next commands) — and keyboard
-cursor works too: **arrow keys** move between chips, **Enter** presses the
-selected one. Typing commands in the input still works as before.
+| Flag | Effect |
+|---|---|
+| `--plain` | ASCII output, no ANSI escapes, typed-command menu (screen-reader friendly) |
+| `--no-color` | Colors off, layout unchanged |
+| `--no-keys` | Force typed-command menus even in a real console |
+| `--width <40–120>` | Wrap width (default: detected terminal width) |
+| `--web [port]` | Play in the browser (local server, default `http://127.0.0.1:8777/`) |
+| `--help` | Usage text |
+
+`NO_COLOR` is honored automatically.
+
+## Controls
+
+The boot screen is a keyboard-navigated menu:
+
+| Key | Action |
+|---|---|
+| `↑` / `↓` (Tab, PageUp/PageDown) | Move the highlight |
+| `Enter` | Choose the highlighted option |
+| `1`–`5` | Jump straight to an option |
+| `?` | Show the help screen |
+| `Escape` | Leave the current screen (nothing is lost) |
+| `Ctrl+C` / `Ctrl+D` | Quit cleanly |
+
+In play you can always type commands (`look`, `go north`, `inventory`,
+`attack`, `save`...) — every screen also accepts its printed numbers, and
+`help` explains wherever you are. Invalid input never costs a turn.
+
+## Database configuration
+
+Credentials come from the environment only (nothing is committed):
+
+```bash
+export DB_URL='jdbc:mysql://localhost:3306/ashen_warden?useSSL=false&characterEncoding=utf-8'
+export DB_USER=root
+export DB_PASSWORD=...
+```
+
+Schema is created and migrated automatically on first launch
+(`src/main/resources/db/migration/V*__*.sql`, Flyway-style `schema_version`).
 
 ## Tests
 
 ```bash
-mvn test          # unit tests always; MySQL integration tests run when DB_* is set
+mvn test
 ```
 
-If MySQL is down, DB integration tests are **skipped and reported as skipped** —
-never counted as passing.
+Combat math, command parsing, inventory/equipment, the keyboard UI and the
+save round trip are covered. The save/load integration tests skip (never
+silently pass) when MySQL is not reachable.
 
----
-
-## Command reference
-
-**Main menu:** `1` New Game · `2` Continue · `3` Load Slot · `4` Settings · `5` Exit
-
-**Exploration:** `look` · `go <way>` (or an exit number) · `map` · `paths` ·
-`inspect <thing>` · `interact <thing>` · `search` · `talk <who>` · `ask <topic>` ·
-`choose <n>` · `leave` · `rest` · `journal` · `quests` · `memories` · `abilities` ·
-`inventory` · `equipment` · `stats` · `save` · `load` · `help` · `quit`
-
-**Combat:** `attack` · `heavy` (15 stamina, 160%, staggers) · `defend` (halves
-damage, +15 stamina) · `parry` (negates a *(Parryable)* telegraph and counters;
-fails against spells/grabs) · `skill <name>` · `item <name>` · `inspect enemy`
-· `inspect item <name>` · `status` · `log` · `flee` (never in sealed fights)
-
-**Menus:** numbers, `inspect <n>`, `compare <n>`, `equip <n>`, `unequip <slot>`,
-`take <n>`, `take all`, `back`/`cancel`.
-
-Rules you can rely on:
-
-- **Inspection-first:** every item choice (loot, equip, shop, upgrades) shows
-  full details, stats, drawbacks, requirements and a live comparison *before*
-  you commit. `back` always costs nothing.
-- **Invalid input is always safe:** unknown commands or unaffordable actions
-  never spend a combat turn and never change state.
-- **Telegraphs are truthful:** the intent shown at the start of a round is the
-  action the enemy performs. Parryable attacks say so; unblockable attacks say so.
-- **Save policy:** manual `save` outside combat (named slots, atomic commit),
-  autosave after victories, rests, deaths and quest completions.
-- **Death:** you wake at your last sanctuary; a fraction of your Ash Fragments
-  drops where you died and can be recovered once with `search`. Boss wins,
-  opened routes, memories and completed quests are never lost.
-
----
-
-## Architecture
+## Project layout
 
 ```
-CLI input -> CommandParser -> CommandDispatcher (phase policy)
-        -> GameEngine (phase machine, menus, rendering glue)
-            -> ExplorationService / CombatEngine / QuestManager / DialogueManager
-            -> Domain: GameState, Player, Enemy, Location, ItemDef
-            -> SaveService -> repositories -> JDBC -> MySQL
-TerminalRenderer <- command lines (pure presentation; no SQL, no state writes)
+src/main/java/com/ashenwarden/
+  Main.java          entry point, flags, terminal/input selection
+  engine/            game loop, phases, menus, state
+  command/           parser + phase-policy dispatcher
+  ui/                keyboard input (JLine) and interactive menus
+  cli/               pure rendering (panels, banners, bars, ANSI/ASCII)
+  combat/            turn resolution, damage formula, statuses
+  enemy/ item/ player/ quest/ world/ story/   domain rules
+  content/           JSON content loading + startup validation
+  persistence/       JDBC, migrations, save transactions
+  web/               optional browser front-end
+docs/                architecture, command reference, story bible, test plan
 ```
 
-- `engine/` game loop, phases, menus, death, save/load sequencing
-- `command/` typed parsing + phase-aware dispatch
-- `combat/` turn resolution, the single DamageCalculator, status effects, skills
-- `enemy/` rule tables (`EnemyBehavior`) — deterministic, seeded, no AI/ML
-- `world/` world graph, ability gates, encounters, NPC dialogue
-- `quest/`, `story/` event-driven quests, memories, flags
-- `item/`, `player/` catalogue, inventory, equipment, derived stats
-- `cli/` renderer — width-safe wrapping (no line ever exceeds the terminal,
-  panel borders included), tagged `ASHEN WARDEN` reply blocks alternating with
-  the player's prompt line, bordered cards for screens (inventory, journal,
-  loot, dialogue, combat), ANSI with a plain-ASCII fallback for legacy CMD
-  code pages, inspection text
-- `persistence/` Database, MigrationRunner, SaveService + repositories
-- `content/` UTF-8 JSON content loaded with Jackson and validated at startup
-  (duplicate IDs, unknown references and bad triggers abort startup, never saves)
+See `docs/ARCHITECTURE.md` for the module map and `docs/COMMAND_REFERENCE.md`
+for the full gameplay command list.
 
-### Database ER summary
+## Roadmap
 
-`save_slots (1) —< player_state (1:1)`, `—< inventory_entries`, `—< equipped_items`,
-`—< discovered_locations`, `—< unlocked_paths`, `—< quest_progress`,
-`—< story_flags`, `—< acquired_memories`, `—< defeated_bosses`.
-All mutable state is keyed by `save_id`, so slots are fully independent.
-
----
-
-## Roadmap (MUST / SHOULD / COULD)
-
-- **MUST (done):** game loop, turn-based combat, inspect-first itemization,
-  JDBC atomic save/load with named slots, prologue slice, one quest, one NPC.
-- **MUST (next):** Bell Keeper boss + Bellbreaker gate, Act I-V regions,
-  seven memories with triggers, three endings via a centralized EndingResolver,
-  shops/upgrades, all 15 enemies, 7 weapons complete with armor/accessories.
-- **SHOULD:** optional bosses (Mourning Knight, Pale Widow, Ash Serpent),
-  Sister Elara trust branch, Archivist decoding, Lost Child trail.
-- **COULD:** achievements, expanded crafting, richer terminal motifs.
-
-Known slice limitations (marked TODO, not presented as finished):
-memories track 0/7 with no acquisition triggers yet; the Cathedral gate is a
-visible story gate; shop/upgrade flows are not implemented.
-
-## University demo script
-
-See the master specification, section 14. The slice covers steps 1-9, 11 and
-part of 12 (save/reload via MySQL is live and covered by integration tests).
-
-## Documentation
-
-| Document | Contents |
-|----------|----------|
-| [`docs/COMMAND_REFERENCE.md`](docs/COMMAND_REFERENCE.md) | every CLI command, menus, a complete first session, troubleshooting |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | module/data-flow diagrams, OOP patterns, DB ER model, package boundaries |
-| [`docs/STORY_BIBLE.md`](docs/STORY_BIBLE.md) | canonical history, characters, bestiary, weapons, seven memories, three endings |
-| [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) | automated suite inventory + the 30-scenario manual acceptance checklist |
-| [`docs/TEAM_ROLES.md`](docs/TEAM_ROLES.md) | four members mapped to classes, tasks, SQL and demo steps |
-
-## License / credits
-
-Original concept and story bible by the project owner. Built as a four-member
-team project; roles are mapped in [`docs/TEAM_ROLES.md`](docs/TEAM_ROLES.md).
+- Node.js `npx ashen-warden` launcher (thin wrapper that checks for Java and
+  runs the jar — the engine stays 100% Java)
+- `index.js` at the repository root is the **legacy Node prototype** of the
+  game, kept for reference; it is not the Java game.

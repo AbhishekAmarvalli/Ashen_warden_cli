@@ -1,14 +1,7 @@
-target/
-*.class
-*.jar
-!mvnw.jar
-.idea/
-*.iml
-.vscode/
-logs/
-*.log
-.env
-.env.local
-dependency-reduced-pom.xml
-# 31MB build dump from an earlier jar-inspection session (fatstage of the jar)
+node_modules/
+dist/
+*.local
+tools/maven/
 tools/tmp/
+.idea/
+target/

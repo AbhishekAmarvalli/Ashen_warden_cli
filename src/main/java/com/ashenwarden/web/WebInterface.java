@@ -51,6 +51,9 @@ public final class WebInterface {
         command.add("-cp");
         command.add(System.getProperty("java.class.path"));
         command.add("com.ashenwarden.Main");
+        // the child talks to the browser, not to this console: it must never
+        // switch the shared console into raw key mode
+        command.add("--no-keys");
         command.addAll(gameArgs);
 
         ProcessBuilder builder = new ProcessBuilder(command).redirectErrorStream(true);

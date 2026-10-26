@@ -1,20 +1,37 @@
 # ASHEN WARDEN — CLI Command Reference & Gameplay Guide
 
-Everything is typed at the `>` prompt (or the numbered main menu).
-Commands are **case-insensitive**; unknown input is always safe — you get a
-one-line correction and nothing changes.
+The boot screen is keyboard-navigated (arrows, Enter, digits); everything
+during play is typed at the `>` prompt, where every screen also accepts its
+printed numbers. Commands are **case-insensitive**; unknown input is always
+safe — you get a one-line correction and nothing changes.
 
 ---
 
 ## 1. Main menu
 
+On a real console the boot screen is a keyboard menu — no typing required:
+
 | Key | Action |
 |---|---|
-| `1` | **New Game** — asks for a save-slot name (stored in MySQL), then your character's name |
-| `2` | **Continue** — resumes the most recently updated slot |
-| `3` | **Load Slot** — lists slots (name, location, level, last played) to pick from |
-| `4` | **Settings** — color / width / plain-text mode |
-| `5` | **Exit** |
+| `↑` `↓` | Move the highlight (Tab / PageUp / PageDown work too) |
+| `Enter` | Choose the highlighted option |
+| `1`–`5` | Jump straight to an option |
+| `?` | Open the help screen |
+| `Escape` | No-op at the root (nothing is ever lost) |
+| `Ctrl+C` / `Ctrl+D` | Quit cleanly |
+
+Options (also reachable by typing the command in parentheses):
+
+| # | Option | Action |
+|---|---|---|
+| 1 | **BEGIN JOURNEY** (`new`) | **New Game** — asks for a save-slot name, then your character's name |
+| 2 | **CONTINUE** (`continue`) | Resumes a save slot (pick from the list) |
+| 3 | **HOW TO PLAY** (`help`) | The command/controls help screen |
+| 4 | **SETTINGS** (`settings`) | color / Unicode / width |
+| 5 | **EXIT** (`quit`) | Leave the game |
+
+Without a console (piped input, IDE runner, `--plain`, `--no-keys`) the same
+menu is drawn as a numbered card and driven by typing.
 
 ## 2. Launch flags
 
@@ -22,6 +39,7 @@ one-line correction and nothing changes.
 |---|---|
 | `--plain` | ASCII output, no ANSI colors (screen-reader friendly) |
 | `--no-color` | Colors off, layout unchanged |
+| `--no-keys` | Force the typed-command menu in a real console (used by the browser front-end) |
 | `--width <40–120>` | Wrap width for descriptions (default: terminal width, 80 fallback) |
 | `--help` | Usage text |
 

@@ -1,6 +1,6 @@
 # ASHEN WARDEN — Architecture Document
 
-Text-only turn-based CLI RPG · Java 17 · Maven · MySQL 8 (JDBC)
+Text-only turn-based CLI RPG · Java 21 · Maven · JLine 3 (keyboard UI) · MySQL 8 (JDBC)
 Companion to `README.md` (setup) and `docs/COMMAND_REFERENCE.md` (player-facing commands).
 
 ---
@@ -11,6 +11,7 @@ Companion to `README.md` (setup) and `docs/COMMAND_REFERENCE.md` (player-facing 
                         ┌──────────────────────────────────────────────┐
                         │                  Main.java                   │
                         │  flags (--plain/--no-color/--width), startup │
+                        │  KeyInputs.open(): JLine keys or plain lines │
                         └───────────────────┬──────────────────────────┘
                                             │
                  ┌──────────────────────────▼───────────────────────────┐
@@ -47,6 +48,10 @@ Companion to `README.md` (setup) and `docs/COMMAND_REFERENCE.md` (player-facing 
         │  cli/ — TerminalRenderer · Ansi · ItemText                     │
         │  PURE PRESENTATION: renders CommandResult lines; never writes  │
         │  game state, never touches SQL, never reads stdin.             │
+        ├───────────────────────────────────────────────────────────────┤
+        │  ui/ — KeyInputs · JLineKeyInput · PlainKeyInput · KeyDecoder │
+        │  · InteractiveMenu: raw key reads (JLine) + in-place menu     │
+        │  redraw. Degrades to typed commands when no console exists.   │
         └───────────────────────────────────────────────────────────────┘
 ```
 
@@ -79,6 +84,7 @@ spends a turn".
 | Package | Responsibility | May depend on | Must NOT depend on |
 |---|---|---|---|
 | `cli` | rendering, ANSI, plain fallback | `engine` value types only | `persistence`, services |
+| `ui` | keyboard input (JLine raw keys), interactive menus | `cli` renderer, `java.io` | `persistence`, services |
 | `command` | parsing + phase policy dispatch | `engine`, services | JDBC |
 | `engine` | loop, phases, menus, glue | everything below | — |
 | `combat` | turn resolution, damage, statuses | `enemy`, `player`, `item` | `persistence`, `cli` |

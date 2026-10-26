@@ -9,12 +9,13 @@ import com.ashenwarden.persistence.SaveService;
 import com.ashenwarden.persistence.SaveSlotInfo;
 import com.ashenwarden.player.EquipmentSlot;
 import com.ashenwarden.quest.QuestManager;
+import com.ashenwarden.ui.InteractiveMenu;
+import com.ashenwarden.ui.KeyInput;
 import com.ashenwarden.world.DialogueManager;
 import com.ashenwarden.world.ExplorationService;
 import com.ashenwarden.world.Location;
 import com.ashenwarden.cli.TerminalRenderer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public final class GameEngine {
     private final QuestManager quests;
     private final DialogueManager dialogues;
 
-    private final BufferedReader in;
+    private final KeyInput in;
 
     private GameState state;
     private MenuContext menu;
@@ -68,7 +69,7 @@ public final class GameEngine {
 
     public GameEngine(ContentRepository content, TerminalRenderer renderer, SaveService saves,
                       CombatEngine combat, ExplorationService exploration, QuestManager quests,
-                      DialogueManager dialogues, BufferedReader in) {
+                      DialogueManager dialogues, KeyInput in) {
         this.content = content;
         this.r = renderer;
         this.saves = saves;
@@ -99,8 +100,16 @@ public final class GameEngine {
     // --- main loop ----------------------------------------------------------
     public void run() {
         refreshDatabaseStatus();
-        renderMainMenu();
+        if (!useKeyboard()) {
+            renderMainMenu();
+        }
         while (running) {
+            if (useKeyboard()) {
+                // arrow-key boot screen; falls back to the loop below whenever
+                // the context needs typing (slot names, sub-screens, combat)
+                runInteractiveMainMenu();
+                continue;
+            }
             renderStatusLine();
             r.prompt();
             String line = readLine();
@@ -136,6 +145,90 @@ public final class GameEngine {
         }
         r.blank();
         r.dim("Farewell, Warden.");
+    }
+
+    /** True while a keyboard-driven main-menu turn is possible (degrades off). */
+    private boolean keyboard = true;
+
+    /** True when this turn belongs to the interactive boot screen. */
+    private boolean useKeyboard() {
+        return keyboard && in.supportsKeys() && state == null && menu == null && rawPrompt == null;
+    }
+
+    /** Labels of the boot menu; each one maps to a main-menu command. */
+    private static final List<String> MAIN_MENU_LABELS =
+            List.of("BEGIN JOURNEY", "CONTINUE", "HOW TO PLAY", "SETTINGS", "EXIT");
+
+    /**
+     * One interactive main-menu turn: draw the boot screen, then act on the
+     * player's key choice. The command goes through the exact same dispatcher
+     * as a typed line, so keyboard and typing can never diverge in behaviour.
+     */
+    private void runInteractiveMainMenu() {
+        renderBootScreen();
+        try {
+            InteractiveMenu menuScreen = new InteractiveMenu(r, in, "MAIN MENU", MAIN_MENU_LABELS);
+            InteractiveMenu.Outcome outcome = menuScreen.select(0);
+            switch (outcome.kind()) {
+                case SELECTED -> runMainMenuCommand(mainMenuCommand(outcome.index()));
+                case HELP -> runMainMenuCommand(new ParsedCommand(ParsedCommand.Type.HELP, ""));
+                case ESCAPE -> {
+                    r.blank();
+                    r.dim("Escape does nothing at the root — choose an option, or press ? for help.");
+                    r.blank();
+                }
+                case CLOSED -> running = false;
+            }
+        } catch (IOException e) {
+            // a keyboard failure must never strand the player: switch to typed commands
+            keyboard = false;
+            r.warn("Keyboard input stopped working (" + (e.getMessage() == null ? "I/O error" : e.getMessage())
+                    + ") — falling back to typed commands.");
+            renderMainMenu();
+        }
+    }
+
+    /** The five boot-menu choices, in on-screen order. */
+    private static ParsedCommand mainMenuCommand(int index) {
+        return switch (index) {
+            case 0 -> new ParsedCommand(ParsedCommand.Type.NEW, "");
+            case 1 -> new ParsedCommand(ParsedCommand.Type.CONTINUE, "");
+            case 2 -> new ParsedCommand(ParsedCommand.Type.HELP, "");
+            case 3 -> new ParsedCommand(ParsedCommand.Type.SETTINGS, "");
+            default -> new ParsedCommand(ParsedCommand.Type.QUIT, "");
+        };
+    }
+
+    /** Runs one main-menu command through the normal dispatcher path. */
+    private void runMainMenuCommand(ParsedCommand cmd) {
+        CommandResult result = dispatcher.dispatch(state, cmd);
+        renderResult(result);
+        if (result.isQuitRequested()) {
+            running = false;
+            return;
+        }
+        r.blank();
+    }
+
+    /**
+     * Frame above the interactive menu — logo bar, banner, tagline and the
+     * database state. The menu panel itself draws last, so it can redraw
+     * itself in place when the player presses an arrow key.
+     */
+    private void renderBootScreen() {
+        r.blank();
+        r.header();
+        r.blank();
+        r.banner("ASHEN WARDEN");
+        r.subLine("A kingdom that could not die. An oath that could not end.");
+        r.blank();
+        if (!dbAvailable) {
+            r.warn("! Database unavailable: " + dbProblem);
+            r.dim(saves.guidance());
+        } else {
+            r.dim("MySQL connected. Save slots are ready.");
+        }
+        r.blank();
     }
 
     // --- turn framing -------------------------------------------------------
@@ -336,6 +429,9 @@ public final class GameEngine {
      * state stays outside the card so its warning keeps its color.
      */
     public void renderMainMenu() {
+        if (useKeyboard()) {
+            return; // the interactive loop draws its own boot screen each turn
+        }
         r.blank();
         r.header(); // logo bar, like the header of a web interface
         r.blank();

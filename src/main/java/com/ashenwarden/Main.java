@@ -31,6 +31,7 @@ public final class Main {
         boolean plain = false;
         boolean color = true;
         boolean forceUnicode = false;
+        boolean noKeys = false;
         boolean web = false;
         int webPort = 8777;
         int width = detectWidth();
@@ -55,6 +56,9 @@ public final class Main {
                     color = false;
                     childArgs.add(args[i]);
                 }
+                case "--no-keys" ->
+                    // internal: piped front-ends (web) must never grab the console keys
+                    noKeys = true;
                 case "--no-color" -> {
                     color = false;
                     childArgs.add(args[i]);
@@ -106,10 +110,16 @@ public final class Main {
             Database database = Database.fromEnv();
             SaveService saves = new SaveService(database, content);
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
+            // keyboard menus when the console can deliver key presses,
+            // typed commands otherwise (pipes, --plain, --no-keys)
+            com.ashenwarden.ui.KeyInput input = com.ashenwarden.ui.KeyInputs.open(plain || noKeys);
             GameEngine engine = new GameEngine(content, renderer, saves, combat,
-                    exploration, quests, dialogues, in);
-            engine.run();
+                    exploration, quests, dialogues, input);
+            try {
+                engine.run();
+            } finally {
+                input.close(); // never leave the console in raw mode
+            }
         } catch (com.ashenwarden.common.ContentException e) {
             renderer.error("Content error: " + e.getMessage());
             renderer.dim("Reinstall/verify the game files; this is a packaging problem, not your save.");
@@ -268,7 +278,8 @@ public final class Main {
     private static void printUsage() {
         // plain ASCII on purpose: this line must survive any console code page
         System.out.println("ASHEN WARDEN: THE LAST EMBER - text-only turn-based RPG");
-        System.out.println("Usage: java -jar ashen-warden.jar [--plain] [--no-color] [--width <40-120>] [--web [port]]");
+        System.out.println("Usage: java -jar ashen-warden.jar [--plain] [--no-color] [--no-keys] [--width <40-120>] [--web [port]]");
+        System.out.println("  --no-keys   force typed-command menus (no arrow-key navigation)");
         System.out.println("  --web [port]  play in the browser (default http://127.0.0.1:8777/)");
         System.out.println("Environment: DB_URL, DB_USER, DB_PASSWORD (local MySQL, no credentials committed)");
     }

@@ -11,10 +11,10 @@ mvn test
 
 **Honesty rule:** when MySQL is unreachable, `SaveServiceTest` calls
 `assumeTrue` and reports those tests as **SKIPPED** — they are never
-counted as passing. Current state: **35/35 pass** with MySQL configured
-(28 unit + 7 integration).
+counted as passing. Current state: **52/52 pass** with MySQL configured
+(45 unit + 7 integration).
 
-## 2. Automated suite (35 tests, 5 classes)
+## 2. Automated suite (52 tests, 8 classes)
 
 | Class | # | Covers |
 |---|---|---|
@@ -22,6 +22,9 @@ counted as passing. Current state: **35/35 pass** with MySQL configured
 | `combat/CombatEngineTest` | 7 | invalid input never consumes a turn · `inspect`/`status` are free actions · parry negates a parryable telegraph and counters · parry fails against unblockable without zeroing the hit · full fight reaches victory with rewards granted once · seeded encounters are reproducible · flee refused when escape is sealed |
 | `command/CommandParserTest` | 9 | numbers become menu selections · combat verbs parse only as combat types · phase-aware `use` · inspect variants · bare direction acts as `go` · `take all`/`back`/`compare` · unknown input flagged but safe · `item` outside combat opens inventory · oversized input bounded (no crash) |
 | `player/InventoryAndEquipmentTest` | 6 | inventory never negative/corrupt · equip/unequip without duplication · weapon swap returns old one to inventory · wrong/locked slot rejected · equipping requires ownership · **all shipped items have honest inspection fields** (no hidden stats) |
+| `ui/KeyDecoderTest` | 8 | escape-sequence decoding: arrows from both prefixes, PageUp/PageDown, a lone Escape never mistaken for a sequence, digits/chars with values, Ctrl+C/Ctrl+D, unknown sequences absorbed without leaking bytes |
+| `ui/InteractiveMenuTest` | 7 | Enter confirms the highlight · arrows wrap both ends · digits jump to an option · out-of-range digits ignored (no double draw) · Escape cancels · `?`/Ctrl+C reported to the caller · navigation redraws in place (cursor-up + erase) instead of scrolling |
+| `ui/KeyboardMainMenuTest` *(integration, no DB)* | 2 | scripted terminal plays the real boot screen end-to-end (arrows → HOW TO PLAY → Ctrl+D exits cleanly) · non-key input still drives the typed menu |
 | `persistence/SaveServiceTest` *(integration)* | 7 | full round trip preserves location/HP/currency/inventory/equipment/quests/flags · **slot independence** · duplicate slot name rolls back and reports · invalid save rejected before touching the DB · bosses & memories survive reload · corrupt save reported, not silently reset · slot listing |
 
 Run-time content validation (not a JUnit test, but a guard): on boot
@@ -62,11 +65,13 @@ content (marked TODO, not presented as finished).
 | 23 | Hollow King phase 1→2→3 transitions once at thresholds | **[W]** | boss roadmap (Phase 2/3) |
 | 24 | `--plain` / `NO_COLOR`: readable, no ANSI artifacts | **[MAN]** | verified on Windows terminal |
 | 25 | Narrow width wraps without destroying prompts | **[MAN]** | `--width 40–120` |
-| 26 | Fully playable offline with local MySQL | **[MAN]** | no network dependency; pom has only Jackson + MySQL driver + JUnit |
-| 27 | No LLM/AI imports, endpoints, config or runtime features | **[AUTO by dependency set]** | verified: dependencies are jackson-databind, mysql-connector-j, junit-jupiter only; no HTTP client code |
+| 26 | Fully playable offline with local MySQL | **[MAN]** | no network dependency; pom has only Jackson + MySQL driver + JLine 3 + JUnit |
+| 27 | No LLM/AI imports, endpoints, config or runtime features | **[AUTO by dependency set]** | verified: dependencies are jackson-databind, mysql-connector-j, jline, junit-jupiter only; no HTTP client code |
 | 28 | Invalid item IDs / negative quantities / bad slot IDs can't corrupt DB | **[AUTO]** | inventory negativity + `invalidSaveIsRejectedBeforeHittingTheDatabase` |
 | 29 | Back out of equip/confirm without losing resources | **[MAN]** | `back`/`cancel` cost nothing |
 | 30 | Ending + credits show outcome and preserve completion record | **[W]** | endings roadmap; completion record planned with `story_flags` |
+| 31 | Boot menu driven by arrows/Enter/digits/`?`, redrawn without scrolling | **[AUTO]+[MAN]** | `InteractiveMenuTest`, `KeyboardMainMenuTest`; live on Windows Terminal |
+| 32 | No console (pipes, IDE, `--plain`, `--no-keys`): typed menu, game fully playable | **[AUTO]+[MAN]** | `withoutKeySupportTheTypedMenuStillWorks`; piped smoke run |
 
 **Score for the shipped slice:** every scenario that can exist without
 roadmap content is implemented and verified (21 of 30 fully covered; 15
@@ -76,7 +81,7 @@ by automation alone). The 9 marked **[W]** map 1:1 to the README roadmap.
 
 | Demo step | Covered by |
 |---|---|
-| 1 professional CLI menu | launch |
+| 1 professional CLI menu | launch — arrow-key boot screen (typed menu without a console) |
 | 2 new slot + MySQL persistence | save on first rest/`save` |
 | 3 explore tomb, read journal, meet Keeper | `look`/`interact`/`talk` |
 | 4 inspect Silverblade **before** equipping | `inspect 1` then `equip 1` |

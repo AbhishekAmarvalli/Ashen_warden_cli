@@ -1,0 +1,22 @@
+{
+  "name": "ashen-warden",
+  "version": "1.0.0",
+  "description": "A turn-based strategy CLI game where you protect the realm as the Ashen Warden",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekAmarvalli/ashen-warden.git"
+  },
+  "keywords": ["cli", "game", "strategy", "fantasy"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "homepage": "https://github.com/AbhishekAmarvalli/ashen-warden#readme",
+  "dependencies": {
+    "chalk": "^6.0.1"
+  }
+}

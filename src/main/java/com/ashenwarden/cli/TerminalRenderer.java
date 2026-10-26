@@ -480,6 +480,18 @@ public final class TerminalRenderer {
      * and never loses its title.
      */
     public void panel(String title, List<String> body) {
+        for (String line : panelLines(title, body)) {
+            System.out.println(line);
+        }
+    }
+
+    /**
+     * The same box as {@link #panel(String, List)}, but as ready-to-print
+     * lines. Interactive screens need the exact line count to redraw
+     * themselves in place with the cursor, without scrolling the window.
+     */
+    public List<String> panelLines(String title, List<String> body) {
+        List<String> out = new ArrayList<>();
         String unit = unicode ? "─" : "-";
         int inner = Math.max(12, width - 2); // columns between the corners
         String h = rule(unit, inner);
@@ -505,18 +517,19 @@ public final class TerminalRenderer {
                 insideTitle = plain; // narrow window: heading inside the card
             }
         }
-        System.out.println(ansi.dim(tl) + topEdge(h, edgeTitle) + ansi.dim(tr));
+        out.add(ansi.dim(tl) + topEdge(h, edgeTitle) + ansi.dim(tr));
         if (insideTitle != null) {
             for (String l : wrap(insideTitle, inner - 2)) {
-                panelLine(v, ansi.bold(ansi.ember(l)), l, inner);
+                out.add(panelLine(v, ansi.bold(ansi.ember(l)), l, inner));
             }
         }
         for (String raw : body) {
             for (String l : wrap(prep(raw), inner - 2)) {
-                panelLine(v, l, l, inner);
+                out.add(panelLine(v, l, l, inner));
             }
         }
-        System.out.println(ansi.dim(bl + h + br));
+        out.add(ansi.dim(bl + h + br));
+        return out;
     }
 
     /** Titled card — the tool-result look for screens (inventory, journal...). */
@@ -525,10 +538,10 @@ public final class TerminalRenderer {
     }
 
     /** One padded row inside a card: {@code | content ......... |}. */
-    private void panelLine(String v, String text, String raw, int inner) {
+    private String panelLine(String v, String text, String raw, int inner) {
         String visible = stripEscapes(raw);
         int pad = Math.max(0, (inner - 2) - visible.length());
-        System.out.println(ansi.dim(v) + " " + text + " ".repeat(pad) + " " + ansi.dim(v));
+        return ansi.dim(v) + " " + text + " ".repeat(pad) + " " + ansi.dim(v);
     }
 
     /** Builds the top border including the centered title (colorized), or the
